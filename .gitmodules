@@ -1,0 +1,6 @@
+[submodule "ZamShaderBuilder"]
+	path = ZamShaderBuilder
+	url = https://github.com/ZamarTerrier/ZamShaderBuilder.git
+[submodule "libs/ZamShaderBuilder"]
+	path = libs/ZamShaderBuilder
+	url = https://github.com/ZamarTerrier/ZamShaderBuilder.git
