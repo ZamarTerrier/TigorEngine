@@ -1,5 +1,5 @@
 <div align="center">  
-  <h1> Zamar's Game Engine</h1>
+  <h1> Tigor Game Engine</h1>
   <img src="https://github.com/devicons/devicon/blob/master/icons/c/c-original.svg" title="C" alt="C" width="40" height="40"/>&nbsp;
   <img src="https://github.com/devicons/devicon/blob/master/icons/cplusplus/cplusplus-original.svg" title="C++" alt="C++" width="40" height="40"/>&nbsp;
 
@@ -10,7 +10,7 @@
   </div>
 </div>
 
-Это облегчённая версия моего игрового движка ZamEngine. 
+Это основная версия моего игрового движка. 
 
 Движок является самостоятельным и не требует ничего, кроме библиотеки Vulkan API.
 
