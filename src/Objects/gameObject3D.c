@@ -101,6 +101,12 @@ void GameObject3DDefaultDraw(GameObject3D* go){
 
             PipelineSetting *settings = &blue_pack->setting;
 
+            uint32_t num_instances = 1;
+            uint32_t num_verts = go->graphObj.shapes[settings->vert_indx].vParam.num_verts;
+
+            if(num_verts == 0)
+                continue;
+
             vkCmdBindPipeline(command, VK_PIPELINE_BIND_POINT_GRAPHICS, pack->pipeline.pipeline);
 
             if(settings->flags & ENGINE_PIPELINE_FLAG_DYNAMIC_VIEW){
@@ -110,8 +116,6 @@ void GameObject3DDefaultDraw(GameObject3D* go){
 
             vkCmdBindDescriptorSets(command, VK_PIPELINE_BIND_POINT_GRAPHICS, pack->pipeline.layout, 0, 1, (const VkDescriptorSet *)&pack->descriptor.descr_sets[engine.imageIndex], 0, NULL);
 
-            uint32_t num_instances = 1;
-            uint32_t num_verts = go->graphObj.shapes[settings->vert_indx].vParam.verticesSize;
             if(num_verts > 0)
             {
                 VkBuffer vertexBuffers[] = {go->graphObj.shapes[settings->vert_indx].vParam.buffer.buffer};
@@ -134,7 +138,7 @@ void GameObject3DDefaultDraw(GameObject3D* go){
                 vkCmdBindIndexBuffer(command, go->graphObj.shapes[settings->vert_indx].iParam.buffer.buffer, 0, VK_INDEX_TYPE_UINT32);
                 vkCmdDrawIndexed(command, go->graphObj.shapes[settings->vert_indx].iParam.indexesSize, num_instances, 0, 0, 0);
             }else
-                vkCmdDraw(command, go->graphObj.shapes[settings->vert_indx].vParam.verticesSize, num_instances, 0, 0);
+                vkCmdDraw(command, go->graphObj.shapes[settings->vert_indx].vParam.num_verts, num_instances, 0, 0);
         }
     }
 }
@@ -284,7 +288,9 @@ void GameObject3DInitDraw(GameObject3D *go){
 }
 
 void GameObject3DInitDefault(GameObject3D *go){
-    GameObject3DInitDefaultShader(go);
+
+    GameObjectShaderInit(go);
+
     GameObject3DInitDraw(go);
 }
 
@@ -388,7 +394,7 @@ void GameObject3DDestroy(GameObject3D* go){
 
     for(int i=0; i < go->graphObj.num_shapes; i++)
     {
-        if(go->graphObj.shapes[i].vParam.verticesSize)
+        if(go->graphObj.shapes[i].vParam.num_verts)
             FreeMemory(go->graphObj.shapes[i].vParam.vertices);
 
         if(go->graphObj.shapes[i].iParam.indexesSize)
@@ -492,7 +498,7 @@ int GameObject3DInitTextures(GameObject3D *go, DrawParam *dParam)
     return 1;
 }
 
-void GameObject3DInit(GameObject3D *go){
+void GameObject3DInit(GameObject3D *go, GameObjectType type){
 
     GameObjectSetInitFunc((GameObject *)go, (void *)GameObject3DInitDefault);
     GameObjectSetUpdateFunc((GameObject *)go, (void *)GameObject3DDefaultUpdate);
@@ -500,13 +506,26 @@ void GameObject3DInit(GameObject3D *go){
     GameObjectSetCleanFunc((GameObject *)go, (void *)GameObject3DClean);
     GameObjectSetRecreateFunc((GameObject *)go, (void *)GameObject3DRecreate);
     GameObjectSetDestroyFunc((GameObject *)go, (void *)GameObject3DDestroy);
+    
+    GameObjectSetShaderInitFunc((GameObject *)go, (void *)GameObject3DInitDefaultShader);
 
-    go->self.obj_type = ENGINE_GAME_OBJECT_TYPE_3D;
+
+    go->self.obj_type = type;
 
     Transform3DInit(&go->transform);
     go->num_instances = 0;
 
-    GraphicsObjectInit(&go->graphObj, ENGINE_VERTEX_TYPE_3D_OBJECT);
+    switch(type){
+        case ENGINE_GAME_OBJECT_TYPE_3D:
+            GraphicsObjectInit(&go->graphObj, ENGINE_VERTEX_TYPE_3D_OBJECT);
+            break;
+        case ENGINE_GAME_OBJECT_TYPE_PARTICLE_3D:
+            GraphicsObjectInit(&go->graphObj, ENGINE_VERTEX_TYPE_3D_PARTICLE);
+            break;
+        case ENGINE_GAME_OBJECT_TYPE_MODEL_GLTF:
+            GraphicsObjectInit(&go->graphObj, ENGINE_VERTEX_TYPE_MODEL_OBJECT);
+            break;
+    }
 
     go->graphObj.gItems.perspective = true;
 
@@ -558,10 +577,10 @@ void GameObject3DInitInstances(GameObject3D *go){
 
     VkDeviceSize bufferSize;
 
-    uint16_t num_verts = go->graphObj.shapes[0].vParam.verticesSize;
+    uint16_t num_verts = go->graphObj.shapes[0].vParam.num_verts;
     GraphicsObjectInit(&go->graphObj, ENGINE_VERTEX_TYPE_3D_INSTANCE);
 
-    num_verts = go->graphObj.shapes[0].vParam.verticesSize;
+    num_verts = go->graphObj.shapes[0].vParam.num_verts;
     memset(go->instances, 0, sizeof(VertexInstance3D) * MAX_INSTANCES);
 
     bufferSize = sizeof(VertexInstance3D) * MAX_INSTANCES;

@@ -46,8 +46,6 @@ vec3 perp(const vec3 v);
 
 float fade(float t);
 
-mat4 MakeLookRender(uint32_t curr_frame, uint32_t layer_indx);
-
 float PerlinNoise1D(float x);
 float PerlinNoise2D(float x, float y);
 float PerlinOctave1D(uint32_t octaves, float x, float frequency, float amplitude);

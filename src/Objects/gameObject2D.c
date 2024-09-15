@@ -89,13 +89,13 @@ void GameObject2DDefaultDraw(GameObject2D* go){
 
             PipelineSetting *settings = &go->graphObj.blueprints.blue_print_packs[i].setting;
             
-            vkCmdBindPipeline(command, VK_PIPELINE_BIND_POINT_GRAPHICS, pack->pipeline.pipeline);
-
             vertexParam *vParam = &go->graphObj.shapes[settings->vert_indx].vParam;
             indexParam *iParam = &go->graphObj.shapes[settings->vert_indx].iParam;
 
-            if(vParam->verticesSize == 0)
+            if(vParam->num_verts == 0)
                 continue;
+
+            vkCmdBindPipeline(command, VK_PIPELINE_BIND_POINT_GRAPHICS, pack->pipeline.pipeline);
 
             if(settings->flags & ENGINE_PIPELINE_FLAG_DYNAMIC_VIEW){
                 vkCmdSetViewport(command, 0, 1, (const VkViewport *)&settings->viewport);
@@ -113,7 +113,7 @@ void GameObject2DDefaultDraw(GameObject2D* go){
                 vkCmdBindIndexBuffer(command, iParam->buffer.buffer, 0, VK_INDEX_TYPE_UINT32);
                 vkCmdDrawIndexed(command, iParam->indexesSize, 1, 0, 0, 0);
             }else
-                vkCmdDraw(command, vParam->verticesSize, 1, 0, 0);
+                vkCmdDraw(command, vParam->num_verts, 1, 0, 0);
         }
     }
 }
@@ -276,7 +276,9 @@ void GameObject2DInitDraw(GameObject2D *go)
 }
 
 void GameObject2DInitDefault(GameObject2D *go){
-    GameObject2DInitDefaultShader(go);
+
+    GameObjectShaderInit(go);
+
     GameObject2DInitDraw(go);
 }
 
@@ -330,7 +332,7 @@ void GameObject2DDestroy(GameObject2D* go){
 
     for(int i=0; i < go->graphObj.num_shapes; i++)
     {
-        if(go->graphObj.shapes[i].vParam.verticesSize)
+        if(go->graphObj.shapes[i].vParam.num_verts)
             FreeMemory(go->graphObj.shapes[i].vParam.vertices);
 
         if(go->graphObj.shapes[i].iParam.indexesSize)
@@ -343,7 +345,7 @@ void GameObject2DDestroy(GameObject2D* go){
     go->self.flags &= ~(ENGINE_GAME_OBJECT_FLAG_INIT);
 }
 
-void GameObject2DInit(GameObject2D* go)
+void GameObject2DInit(GameObject2D* go, GameObjectType type)
 {
     GameObjectSetInitFunc((GameObject *)go, (void *)GameObject2DInitDefault);
     GameObjectSetUpdateFunc((GameObject *)go, (void *)GameObject2DDefaultUpdate);
@@ -351,11 +353,21 @@ void GameObject2DInit(GameObject2D* go)
     GameObjectSetCleanFunc((GameObject *)go, (void *)GameObject2DClean);
     GameObjectSetRecreateFunc((GameObject *)go, (void *)GameObject2DRecreate);
     GameObjectSetDestroyFunc((GameObject *)go, (void *)GameObject2DDestroy);
+    
+    GameObjectSetShaderInitFunc((GameObject *)go, (void *)GameObject2DInitDefaultShader);
 
-    go->self.obj_type = ENGINE_GAME_OBJECT_TYPE_2D;
+    go->self.obj_type = type;
 
     Transform2DInit(&go->transform);
-    GraphicsObjectInit(&go->graphObj, ENGINE_VERTEX_TYPE_2D_OBJECT);
+
+    switch(type){
+        case ENGINE_GAME_OBJECT_TYPE_2D:
+            GraphicsObjectInit(&go->graphObj, ENGINE_VERTEX_TYPE_2D_OBJECT);
+            break;
+        case ENGINE_GAME_OBJECT_TYPE_PARTICLE_2D:
+            GraphicsObjectInit(&go->graphObj, ENGINE_VERTEX_TYPE_2D_PARTICLE);
+            break;
+    }
 
     go->self.vert = AllocateMemory(1, sizeof(ShaderBuilder));
     go->self.frag = AllocateMemory(1, sizeof(ShaderBuilder));

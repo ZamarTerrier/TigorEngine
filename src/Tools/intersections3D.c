@@ -257,7 +257,7 @@ int IntersectionCapsuleShape(void *obj1, void *shape, float *dist, float *depth,
     vertexParam *vParam = &model->graphObj.shapes[0].vParam;
     indexParam *iParam = &model->graphObj.shapes[0].iParam;
 
-    if(vParam->verticesSize <= 0)
+    if(vParam->num_verts <= 0)
         return 0;
 
     vec3 origPos = model->transform.position;
@@ -274,7 +274,7 @@ int IntersectionCapsuleShape(void *obj1, void *shape, float *dist, float *depth,
     int curr = 0, res = 0, buff_a = 0, buff_b = 0, cou = 0;
 
     Vertex3D *verts = vParam->vertices;
-    for(int i=0;i < vParam->verticesSize;i++){
+    for(int i=0;i < vParam->num_verts;i++){
 
         curr = i * 3;
 
@@ -313,7 +313,7 @@ int IntersectionSphereShape(void *obj1, void *shape, float *dist, float *depth, 
     vertexParam *vParam = &model->graphObj.shapes[0].vParam;
     indexParam *iParam = &model->graphObj.shapes[0].iParam;
 
-    if(vParam->verticesSize <= 0)
+    if(vParam->num_verts <= 0)
         return 0;
 
     vec3 origPos = model->transform.position;
@@ -328,7 +328,7 @@ int IntersectionSphereShape(void *obj1, void *shape, float *dist, float *depth, 
     int curr = 0, res = 0, buff = 0, cou = 0;
 
     Vertex3D *verts = vParam->vertices;
-    for(int i=0;i < vParam->verticesSize;i++){
+    for(int i=0;i < vParam->num_verts;i++){
 
         curr = i * 3;
 

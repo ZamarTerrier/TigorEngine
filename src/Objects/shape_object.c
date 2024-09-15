@@ -230,7 +230,7 @@ int ShapeObjectInit(ShapeObject *so, DrawParam *dParam, ShapeType type, void *pa
 
     memcpy(so->go.name, name, strlen(name));
 
-    GameObject2DInit((GameObject2D *)so);
+    GameObject2DInit((GameObject2D *)so, ENGINE_GAME_OBJECT_TYPE_2D);
 
     switch(type)
     {

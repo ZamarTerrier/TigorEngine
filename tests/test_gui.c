@@ -39,7 +39,7 @@ int main(){
 
     ZEngineInitSystem(800, 600, "Test");
 
-    ZEngineSetFont("RobotoBlack.ttf");
+    ZEngineSetFont("res\\RobotoBlack.ttf");
 
     Camera2DInit(&cam2D);
     Camera3DInit(&cam3D);

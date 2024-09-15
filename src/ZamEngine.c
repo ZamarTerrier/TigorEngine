@@ -410,8 +410,7 @@ void ZEngineSetFont(char *font_path){
     engine.DataR.font_path = full_path;
 
     FreeMemory(currPath);
-    
-    
+        
     if(!GUIManagerIsInit())
         GUIManagerInit();
 }
@@ -471,6 +470,8 @@ void ZEngineCleanUp(){
     RenderTextureDestroy(engine.main_render);
     FreeMemory(engine.main_render);
 
+    if(engine.DataR.font_path != NULL)
+        FreeMemory(engine.DataR.font_path);
 
     if(GUIManagerIsInit())
         GUIManagerDestroy();

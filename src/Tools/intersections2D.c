@@ -35,7 +35,7 @@ size_t indexOfFurthestPoint (void *obj, vec2 direction) {
     vertexParam *vParam = &shape->graphObj.shapes[0].vParam;
     Vertex2D *vertex = vParam->vertices;
 
-    for (int i=0;i < vParam->verticesSize;i++) {
+    for (int i=0;i < vParam->num_verts;i++) {
       float dot = v2_dot(vertex[i].position, direction);
       if (dot > maxdot){
           maxdot = dot;
@@ -56,7 +56,7 @@ vec2 supportFunc(void *obj, vec2 direction)
     vertexParam *vParam = &shape->graphObj.shapes[0].vParam;
     Vertex2D *vertex = vParam->vertices;
 
-    for (int i=0;i < vParam->verticesSize;i++) {
+    for (int i=0;i < vParam->num_verts;i++) {
       float dot = v2_dot(vertex[i].position, direction);
       if (dot > maxdot){
           maxdot = dot;
@@ -75,12 +75,12 @@ vec2 averagePoint (void *obj) {
     Vertex2D *vertex = vParam->vertices;
 
     vec2 avg = { 0.f, 0.f };
-    for (size_t i = 0; i < vParam->verticesSize; i++) {
+    for (size_t i = 0; i < vParam->num_verts; i++) {
         avg.x += vertex[i].position.x + shape->transform.position.x;
         avg.y += vertex[i].position.y + shape->transform.position.y;
     }
-    avg.x /= vParam->verticesSize;
-    avg.y /= vParam->verticesSize;
+    avg.x /= vParam->num_verts;
+    avg.y /= vParam->num_verts;
     return avg;
 }
 

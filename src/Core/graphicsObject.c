@@ -114,7 +114,7 @@ void GraphicsObjectSetVertex(GraphicsObject* graphObj, void *vert, int vertCount
     {
         graphObj->shapes[num].vParam.vertices = AllocateMemoryP(vertCount, graphObj->shapes[num].vParam.typeSize, graphObj);
         memcpy(graphObj->shapes[num].vParam.vertices, vert, graphObj->shapes[num].vParam.typeSize * vertCount);
-        graphObj->shapes[num].vParam.verticesSize = vertCount;
+        graphObj->shapes[num].vParam.num_verts = vertCount;
     }
 
     if(inx != NULL)
@@ -137,7 +137,7 @@ void GraphicsObjectSetVertex(GraphicsObject* graphObj, void *vert, int vertCount
         graphObj->shapes[num].init = true;
     }
 
-    if(graphObj->shapes[num].vParam.verticesSize > 0)
+    if(graphObj->shapes[num].vParam.num_verts > 0)
         BuffersUpdateVertex((struct VertexParam_T *)&graphObj->shapes[num].vParam);
 
     if(graphObj->shapes[num].iParam.indexesSize > 0)

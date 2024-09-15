@@ -48,10 +48,10 @@ typedef struct{
 typedef struct{
     BufferObject buffer;
     uint32_t typeSize;
-    uint32_t verticesSize;
     uint32_t bufferSize;
     bool extend;
     void* vertices;
+    uint32_t num_verts;
 } vertexParam;
 
 typedef struct{

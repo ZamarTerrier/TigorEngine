@@ -273,6 +273,9 @@ void PathEllipticalArcTo(const vec2 center, const vec2 radius, float rot, float 
 
 GUIObj *GUIManagerAddObject(){
 
+    if(gui.draw_list == NULL)
+        gui.draw_list = AllocateMemory(1, sizeof(ChildStack));
+
     GUIObj *object = AllocateMemory(1, sizeof(GUIObj));
 
     if(gui.draw_list->node == NULL){
@@ -432,6 +435,7 @@ void GUIManagerInitFont(){
         stbtt_InitFont(gui.font.info, buff, stbtt_GetFontOffsetForIndex(buff,0));
         stbtt_BakeFontBitmap(buff, 0, 32.0, temp_bitmap, gui.font.fontWidth, gui.font.fontHeight, 0, 1106, gui.font.cdata); // no guarantee this fits!
 
+        FreeMemory(buff);
         fclose(font);
     }
 
@@ -509,7 +513,7 @@ void GUIManagerInit(){
 
     memset(&gui, 0, sizeof(GUIManager));
     
-    GameObject2DInit((GameObject2D *)&gui); 
+    GameObject2DInit((GameObject2D *)&gui, ENGINE_GAME_OBJECT_TYPE_2D); 
 
     memcpy(gui.go.name, "GUI", 3);
 
@@ -553,10 +557,8 @@ void GUIManagerInit(){
 
     gui._FringeScale = 1.0f;
 
-    gui.draw_list = AllocateMemory(1, sizeof(ChildStack));
-
-    BuffersCreate(sizeof(Vertex2D) * MAX_VERTEX_SIZE, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, &gui.vertBuffer, ENGINE_BUFFER_ALLOCATE_UNIFORM);
-    BuffersCreate(sizeof(uint32_t) * MAX_INDEX_SIZE, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, &gui.indxBuffer, ENGINE_BUFFER_ALLOCATE_UNIFORM);
+    BuffersCreate(sizeof(Vertex2D) * MAX_VERTEX_SIZE, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, &gui.vertBuffer, ENGINE_BUFFER_ALLOCATE_VERTEX);
+    BuffersCreate(sizeof(uint32_t) * MAX_INDEX_SIZE, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, &gui.indxBuffer, ENGINE_BUFFER_ALLOCATE_INDEX);
 
     GameObject2DInitDraw((GameObject2D *)&gui);
 }

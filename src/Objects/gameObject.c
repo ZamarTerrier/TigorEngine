@@ -29,6 +29,10 @@ void GameObjectSetDestroyFunc(GameObject *go, void *func){
     go->DestroyPoint = func;
 }
 
+void GameObjectSetShaderInitFunc(GameObject *go, void *func){
+    go->ShaderInitPoint = func;
+}
+
 void GameObjectInit(GameObject* go){
 
     if(go == NULL)
@@ -92,4 +96,13 @@ void GameObjectDestroy(GameObject* go){
     void (*destroy)(GameObject* go) = go->DestroyPoint;
 
     destroy(go);
+}
+
+void GameObjectShaderInit(GameObject* go){
+
+    if(go == NULL)
+        return;
+
+    if(go->ShaderInitPoint != NULL)
+        go->ShaderInitPoint(go);
 }

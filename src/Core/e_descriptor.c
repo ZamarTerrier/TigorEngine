@@ -72,7 +72,9 @@ void DescriptorClearAll()
 
 void DescriptorDestroy(ShaderDescriptor *descriptor)
 {
-    if(descriptor == NULL || descriptor->descr_pool == VK_NULL_HANDLE)
+    if(descriptor == NULL)
+        return;
+    else if(descriptor->descr_pool == VK_NULL_HANDLE)
         return;
 
     ZDevice *device = (ZDevice *)engine.device;

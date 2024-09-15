@@ -98,7 +98,7 @@ void ImageWidgetInit(EWidgetImage *img, char *image_path, EWidget *parent){
     img->widget.type = ENGINE_WIDGET_TYPE_IMAGE;
     ///--------------------------------------------------
 
-    GameObject2DInit(&img->image);
+    GameObject2DInit(&img->image, ENGINE_GAME_OBJECT_TYPE_2D);
 
     ImageWidgetCreateQuad(&img->image);
 

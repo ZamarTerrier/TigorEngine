@@ -18,10 +18,21 @@ int main(){
     memset(&vert, 0, sizeof(ShaderBuilder));
     memset(&frag, 0, sizeof(ShaderBuilder));
 
-    ShadersMakeDeafult3DShaderWithLight(&vert, &frag, false);
+    ShadersMakeDefault3DModelShader(&vert, &frag);
     
-    ShaderBuilderWriteToFile(&vert, "D:\\Projects\\Temp\\vert.spv");
-    ShaderBuilderWriteToFile(&frag, "D:\\Projects\\Temp\\frag.spv");
+    char *currPath = DirectGetCurrectFilePath();
+    int len = strlen(currPath);
+    
+    char *full_path_vert = ToolsMakeString(currPath, "\\vert.spv");
+    char *full_path_frag = ToolsMakeString(currPath, "\\frag.spv");
+    
+    
+    ShaderBuilderWriteToFile(&vert, full_path_vert);
+    ShaderBuilderWriteToFile(&frag, full_path_frag);
+
+    FreeMemory(currPath);
+    FreeMemory(full_path_vert);
+    FreeMemory(full_path_frag);
 
     return 0;
 }

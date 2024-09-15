@@ -53,13 +53,15 @@ void GameObject3DClean(GameObject3D* go);
 void GameObject3DRecreate(GameObject3D* go);
 void GameObject3DDestroy(GameObject3D* go);
 
+void GameObject3DInitDefaultShader(GameObject3D *go);
+
 void GameObject3DAddInstance(GameObject3D *go, VertexInstance3D vertex);
 void GameObject3DSetInstance(GameObject3D *go, uint32_t indx, VertexInstance3D vertex);
 void GameObject3DRemoveInstance(GameObject3D *go, uint32_t indx);
 
 int GameObject3DInitTextures(GameObject3D *go, DrawParam *dParam);
 
-void GameObject3DInit(GameObject3D *go);
+void GameObject3DInit(GameObject3D *go, GameObjectType type);
 void GameObject3DInitInstances(GameObject3D *go);
 void GameObject3DUpdateInstances(GameObject3D *go);
 

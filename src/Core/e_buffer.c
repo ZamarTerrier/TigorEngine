@@ -53,7 +53,7 @@ int BuffersCreateVertex(struct VertexParam_T* vert) {
     //Выделение памяти
     VkDeviceSize bufferSize;
 
-    bufferSize = vertex->typeSize * vertex->verticesSize;
+    bufferSize = vertex->typeSize * vertex->num_verts;
 
     if(bufferSize == 0)
         return 1;
@@ -69,7 +69,7 @@ int BuffersCreateVertex(struct VertexParam_T* vert) {
 int BuffersCreateVertexInst(struct VertexParam_T* vert) {
     vertexParam *vertex = (vertexParam *)vert;
 
-    if(vertex->verticesSize >= MAX_VERTEX_COUNT)
+    if(vertex->num_verts >= MAX_VERTEX_COUNT)
     {
         printf("Очень много вершин!\n");
         return 1;
@@ -96,14 +96,14 @@ int BuffersUpdateVertex(struct VertexParam_T* vert) {
     BufferObject stagingBuffer;
     VkDeviceSize bufferSize;
 
-    bufferSize = vertex->typeSize * vertex->verticesSize;
+    bufferSize = vertex->typeSize * vertex->num_verts;
 
     if(!vertex->extend){
         if(bufferSize != vertex->bufferSize)
             return 1;
     }
     else{
-        if(vertex->verticesSize >= MAX_VERTEX_COUNT)
+        if(vertex->num_verts >= MAX_VERTEX_COUNT)
         {
             printf("Очень много вершин!\n");
             return 1;

@@ -59,7 +59,7 @@ void SpriteObjectCreateQuad(SpriteObject *so)
 
 int SpriteObjectInit(SpriteObject *so, DrawParam *dParam){
 
-    GameObject2DInit((GameObject2D *)so);
+    GameObject2DInit((GameObject2D *)so, ENGINE_GAME_OBJECT_TYPE_2D);
 
     SpriteObjectCreateQuad(so);
 

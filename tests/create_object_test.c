@@ -1,9 +1,9 @@
 #include <ZamEngine.h>
+#include <ZamGUI.h>
 
 #include <Core/engine.h>
 #include <Core/e_camera.h>
 
-#include <Objects/light_object.h>
 #include <Objects/render_texture.h>
 #include <Objects/primitiveObject.h>
 #include <Objects/shape_object.h>
@@ -16,8 +16,6 @@ Camera3D cam3D;
 PrimitiveObject po;
 
 ShapeObject shape;
-
-LightObject light;
 
 bool firstMouse = true;
 
@@ -82,6 +80,8 @@ int main(){
 
     ZEngineInitSystem(800, 600, "Test");
 
+    ZEngineSetFont("RobotoBlack.ttf");
+
     Camera2DInit(&cam2D);
     Camera3DInit(&cam3D);
 
@@ -99,7 +99,6 @@ int main(){
 
     PrimitiveObjectInit(&po, &dParam, ENGINE_PRIMITIVE3D_CUBE, NULL);
     Transform3DSetPosition(&po, 0, 0, -10);
-    GameObject3DEnableLight(&po, true);
 
     QuadParams param;
     param.size = 100;
@@ -114,6 +113,7 @@ int main(){
 
         Update(0.1);
 
+        GUIAddText(30, 30, vec3_f(1, 0, 0), 9, "У попа была собака");
 
         ZEngineDraw(&po);
         ZEngineDraw(&shape);

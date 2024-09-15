@@ -209,8 +209,8 @@ void InitGrass3D(vertexParam *vParam, indexParam *iParam)
 {
     uint32_t planes = 2;
 
-    vParam->verticesSize = planes * 4;
-    vParam->vertices = AllocateMemory(vParam->verticesSize, sizeof(Vertex3D));
+    vParam->num_verts = planes * 4;
+    vParam->vertices = AllocateMemory(vParam->num_verts, sizeof(Vertex3D));
     iParam->indexesSize = planes * 6;
     iParam->indices = AllocateMemory(iParam->indexesSize , sizeof(uint32_t));
 
@@ -232,7 +232,7 @@ void InitGrass3D(vertexParam *vParam, indexParam *iParam)
         4, 5, 6, 6, 7, 4
     };
 
-    memcpy(vParam->vertices, some_pos, sizeof(Vertex3D) * vParam->verticesSize);
+    memcpy(vParam->vertices, some_pos, sizeof(Vertex3D) * vParam->num_verts);
     memcpy(iParam->indices, some_indxs, sizeof(uint32_t) * iParam->indexesSize);
 }
 
@@ -241,9 +241,9 @@ void InitPlane3D(vertexParam *vParam, indexParam *iParam, int stackCount, int se
     vec3 pos = {0 , 0, 0};
     vec3 col = {0.3 , 0.1, 0.11};
 
-    vParam->verticesSize = (stackCount + 1) * (sectorCount + 1);
+    vParam->num_verts = (stackCount + 1) * (sectorCount + 1);
 
-    vParam->vertices = (Vertex3D *) AllocateMemory(vParam->verticesSize, sizeof(Vertex3D));
+    vParam->vertices = (Vertex3D *) AllocateMemory(vParam->num_verts, sizeof(Vertex3D));
 
     int vIter = 0;
 
@@ -409,15 +409,15 @@ void subdivideVerticesFlat(vertexParam *vParam, indexParam *iParam, int subdivis
     // iteration
     for(i = 1; i <= subdivision; ++i)
     {
-        tmpVerts = (Vertex3D *)AllocateMemory(vParam->verticesSize, sizeof(Vertex3D));
+        tmpVerts = (Vertex3D *)AllocateMemory(vParam->num_verts, sizeof(Vertex3D));
         tmpIndxs = (uint32_t *)AllocateMemory(iParam->indexesSize, sizeof(uint32_t));
-        memcpy(tmpVerts, vParam->vertices, vParam->verticesSize * sizeof(Vertex3D));
+        memcpy(tmpVerts, vParam->vertices, vParam->num_verts * sizeof(Vertex3D));
         memcpy(tmpIndxs, iParam->indices, iParam->indexesSize * sizeof(uint32_t));
 
         FreeMemory(vParam->vertices);
         FreeMemory(iParam->indices);
 
-        vParam->vertices = (Vertex3D *)AllocateMemory(vParam->verticesSize * 4, sizeof(Vertex3D));
+        vParam->vertices = (Vertex3D *)AllocateMemory(vParam->num_verts * 4, sizeof(Vertex3D));
         iParam->indices = (uint32_t *)AllocateMemory(iParam->indexesSize * 4, sizeof(uint32_t));
 
         index = 0;
@@ -479,7 +479,7 @@ void subdivideVerticesFlat(vertexParam *vParam, indexParam *iParam, int subdivis
             index += 12;
         }
         iParam->indexesSize = iParam->indexesSize * 4;
-        vParam->verticesSize = vParam->verticesSize * 4;
+        vParam->num_verts = vParam->num_verts * 4;
         FreeMemory(tmpIndxs);
         FreeMemory(tmpVerts);
     }
@@ -491,7 +491,7 @@ void subdivideVerticesFlat(vertexParam *vParam, indexParam *iParam, int subdivis
 int IcoSphereGenerator(vertexParam *vParam, indexParam *iParam,float radius)
 {
 
-    vParam->verticesSize = 60;
+    vParam->num_verts = 60;
     vParam->vertices = (Vertex3D *) AllocateMemory(60, sizeof(Vertex3D));
     iParam->indexesSize = 60;
     iParam->indices = (uint32_t *) AllocateMemory(60, sizeof(uint32_t));
@@ -711,8 +711,8 @@ int Cubesphere(vertexParam *vParam, indexParam *iParam, float radius,int vertexC
     // generate unit-length verties in +X face
         float* unitVertices = getUnitPositiveX(vertexCountPerRow);
 
-        vParam->verticesSize = ((vertexCountPerRow - 1) * (vertexCountPerRow - 1)) * 4;
-        vParam->vertices = (Vertex3D *) calloc(vParam->verticesSize, sizeof(Vertex3D));
+        vParam->num_verts = ((vertexCountPerRow - 1) * (vertexCountPerRow - 1)) * 4;
+        vParam->vertices = (Vertex3D *) calloc(vParam->num_verts, sizeof(Vertex3D));
         iParam->indexesSize = ((vertexCountPerRow - 1) * (vertexCountPerRow - 1)) * 6;
         iParam->indices = (uint32_t *) calloc(iParam->indexesSize, sizeof(uint32_t));
 
@@ -790,14 +790,14 @@ int Cubesphere(vertexParam *vParam, indexParam *iParam, float radius,int vertexC
 
         // array size and index for building next face
         unsigned int startIndex;                    // starting index for next face
-        int vertexSize = (int)vParam->verticesSize;      // vertex array size of +X face
+        int vertexSize = (int)vParam->num_verts;      // vertex array size of +X face
         int indexSize = (int)iParam->indexesSize;        // index array size of +X face
         //int lineIndexSize = (int)lineIndices.size(); // line index size of +X face
 
         // build -X face by negating x and z values
-        startIndex = vParam->verticesSize;
-        vParam->verticesSize = vParam->verticesSize + vertexSize;
-        Vertex3D *verts = vParam->vertices = (Vertex3D *)realloc(vParam->vertices, vParam->verticesSize * sizeof(Vertex3D));
+        startIndex = vParam->num_verts;
+        vParam->num_verts = vParam->num_verts + vertexSize;
+        Vertex3D *verts = vParam->vertices = (Vertex3D *)realloc(vParam->vertices, vParam->num_verts * sizeof(Vertex3D));
         memset(vParam->vertices + startIndex, +  0, sizeof(Vertex3D) * vertexSize);
         for(int i = 0; i < vertexSize; i ++)
         {
@@ -824,9 +824,9 @@ int Cubesphere(vertexParam *vParam, indexParam *iParam, float radius,int vertexC
         }*/
 
         // build +Y face by swapping x=>y, y=>-z, z=>-x
-        startIndex = vParam->verticesSize;
-        vParam->verticesSize = vParam->verticesSize + vertexSize;
-        verts = vParam->vertices = (Vertex3D *)realloc(vParam->vertices, vParam->verticesSize * sizeof(Vertex3D));
+        startIndex = vParam->num_verts;
+        vParam->num_verts = vParam->num_verts + vertexSize;
+        verts = vParam->vertices = (Vertex3D *)realloc(vParam->vertices, vParam->num_verts * sizeof(Vertex3D));
         memset(vParam->vertices + startIndex, +  0, sizeof(Vertex3D) * vertexSize);
         for(int i = 0; i < vertexSize; i ++)
         {
@@ -850,9 +850,9 @@ int Cubesphere(vertexParam *vParam, indexParam *iParam, float radius,int vertexC
         }*/
 
         // build -Y face by swapping x=>-y, y=>z, z=>-x
-        startIndex = vParam->verticesSize;
-        vParam->verticesSize = vParam->verticesSize + vertexSize;
-        verts = vParam->vertices = (Vertex3D *)realloc(vParam->vertices, vParam->verticesSize * sizeof(Vertex3D));
+        startIndex = vParam->num_verts;
+        vParam->num_verts = vParam->num_verts + vertexSize;
+        verts = vParam->vertices = (Vertex3D *)realloc(vParam->vertices, vParam->num_verts * sizeof(Vertex3D));
         memset(vParam->vertices + startIndex, +  0, sizeof(Vertex3D) * vertexSize);
         for(int i = 0; i < vertexSize; i ++)
         {
@@ -879,9 +879,9 @@ int Cubesphere(vertexParam *vParam, indexParam *iParam, float radius,int vertexC
         }*/
 
         // build +Z face by swapping x=>z, z=>-x
-        startIndex = vParam->verticesSize;
-        vParam->verticesSize = vParam->verticesSize + vertexSize;
-        verts = vParam->vertices = (Vertex3D *)realloc(vParam->vertices, vParam->verticesSize * sizeof(Vertex3D));
+        startIndex = vParam->num_verts;
+        vParam->num_verts = vParam->num_verts + vertexSize;
+        verts = vParam->vertices = (Vertex3D *)realloc(vParam->vertices, vParam->num_verts * sizeof(Vertex3D));
         memset(vParam->vertices + startIndex, +  0, sizeof(Vertex3D) * vertexSize);
         for(int i = 0; i < vertexSize; i ++)
         {
@@ -905,9 +905,9 @@ int Cubesphere(vertexParam *vParam, indexParam *iParam, float radius,int vertexC
         }*/
 
         // build -Z face by swapping x=>-z, z=>x
-        startIndex = vParam->verticesSize;
-        vParam->verticesSize = vParam->verticesSize + vertexSize;
-        verts = vParam->vertices = (Vertex3D *)realloc(vParam->vertices, vParam->verticesSize * sizeof(Vertex3D));
+        startIndex = vParam->num_verts;
+        vParam->num_verts = vParam->num_verts + vertexSize;
+        verts = vParam->vertices = (Vertex3D *)realloc(vParam->vertices, vParam->num_verts * sizeof(Vertex3D));
         memset(vParam->vertices + startIndex, +  0, sizeof(Vertex3D) * vertexSize);
         for(int i = 0; i < vertexSize; i ++)
         {
@@ -946,9 +946,9 @@ int SphereGenerator3D(vertexParam *vParam, indexParam *iParam,float radius, int 
     float stackStep = ((float)M_PI / stackCount);
     float sectorAngle, stackAngle;
 
-    vParam->verticesSize = (stackCount + 1) * (sectorCount + 1);
+    vParam->num_verts = (stackCount + 1) * (sectorCount + 1);
 
-    vParam->vertices = (Vertex3D *) AllocateMemory(vParam->verticesSize, sizeof(Vertex3D));
+    vParam->vertices = (Vertex3D *) AllocateMemory(vParam->num_verts, sizeof(Vertex3D));
 
     int vIter = 0;
 
@@ -1034,9 +1034,9 @@ void ConeGenerator(vertexParam *vParam, indexParam *iParam, const float height, 
     float heigInc = height / stackCount;
     float sectorAngle, stackAngle;
 
-    vParam->verticesSize = ((stackCount + 1) * (sectorCount + 1)) * 2;
+    vParam->num_verts = ((stackCount + 1) * (sectorCount + 1)) * 2;
 
-    vParam->vertices = (Vertex3D *) AllocateMemory(vParam->verticesSize, sizeof(Vertex3D));
+    vParam->vertices = (Vertex3D *) AllocateMemory(vParam->num_verts, sizeof(Vertex3D));
 
     Vertex3D *verts = vParam->vertices;
 
@@ -1415,49 +1415,6 @@ float lerp_noise(float a, float b, float t) {
 float fade(float t){
     return t * t * t * (t * (t * 6.0f - 15.0f) + 10.0f);
 }
-
-mat4 MakeLookRender(uint32_t curr_frame, uint32_t layer_indx)
-{
-    mat4 viewMatrix = edenMat;
-
-    PointLightBuffer plb = {};
-    memset(&plb, 0, sizeof(PointLightBuffer));
-
-    LightObjectFillPointLights(&plb);
-
-    switch (curr_frame)
-    {
-    case 0: // POSITIVE_X
-        /*viewMatrix = m4_rotate(viewMatrix, 90.0f, vec3_f(0.0f, 1.0f, 0.0f));
-        viewMatrix = m4_rotate(viewMatrix, 180.0f, vec3_f(1.0f, 0.0f, 0.0f));*/
-        viewMatrix = m4_look_at(plb.points[layer_indx].position, v3_add(plb.points[layer_indx].position, vec3_f( -1.0, 0.0, 0.0)), vec3_f( 0.0, 1.0, 0.0));
-        break;
-    case 1:	// NEGATIVE_X
-        /*viewMatrix = m4_rotate(viewMatrix, -90.0f, vec3_f(0.0f, 1.0f, 0.0f));
-        viewMatrix = m4_rotate(viewMatrix, 180.0f, vec3_f(1.0f, 0.0f, 0.0f));*/
-        viewMatrix = m4_look_at(plb.points[layer_indx].position, v3_add(plb.points[layer_indx].position, vec3_f( 1.0, 0.0, 0.0)), vec3_f( 0.0, 1.0, 0.0));
-        break;
-    case 2:	// POSITIVE_Y
-        //viewMatrix = m4_rotate(viewMatrix, 90.0f, vec3_f(1.0f, 0.0f, 0.0f));
-        viewMatrix = m4_look_at(plb.points[layer_indx].position, v3_add(plb.points[layer_indx].position, vec3_f( 0.0, -1.0, 0.0)), vec3_f( 0.0, 0.0, -1.0));
-        break;
-    case 3:	// NEGATIVE_Y
-        //viewMatrix = m4_rotate(viewMatrix, -90.0f, vec3_f(1.0f, 0.0f, 0.0f));
-        viewMatrix = m4_look_at(plb.points[layer_indx].position, v3_add(plb.points[layer_indx].position, vec3_f( 0.0, 1.0, 0.0)), vec3_f( 0.0, 0.0, 1.0));
-        break;
-    case 4:	// POSITIVE_Z
-        //viewMatrix = m4_rotate(viewMatrix, 180.0f, vec3_f(0.0f, 0.0f, 1.0f));
-        viewMatrix = m4_look_at(plb.points[layer_indx].position, v3_add(plb.points[layer_indx].position, vec3_f( 0.0, 0.0, -1.0)), vec3_f( 0.0, 1.0, 0.0));
-        break;
-    case 5:	// NEGATIVE_Z
-        //viewMatrix = m4_rotate(viewMatrix, 180.0f, vec3_f(1.0f, 0.0f, 0.0f));
-        viewMatrix = m4_look_at(plb.points[layer_indx].position, v3_add(plb.points[layer_indx].position, vec3_f( 0.0, 0.0, 1.0)), vec3_f( 0.0, 1.0, 0.0));
-        break;
-    }
-
-    return viewMatrix;
-}
-
 
 float PerlinNoise1D( float x){
     // Left coordinate of the unit-line that contains the input

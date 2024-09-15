@@ -16,6 +16,8 @@
 #include "Objects/gameObject.h"
 #include "Objects/gameObject3D.h"
 
+#include "Tools/e_shaders.h"
+
 #define CGLTF_IMPLEMENTATION
 #include "cgltf.h"
 
@@ -613,21 +615,6 @@ void Load3DglTFNextFrame(void *ptr, float time, int num_animation)
 
 }
 
-void gltfModelMatrixUpdate(ModelObject3D *mo, ModelNode *node, BluePrintDescriptor *descriptor)
-{
-    glTFStruct *glTF = mo->obj;
-
-    InvMatrixsBuffer imb = {};
-    memset(&imb, 0, sizeof(InvMatrixsBuffer));
-
-    for(int k=0;k < glTF->num_join_mats;k++)
-      imb.mats[k] = glTF->joint_mats[k].join_mat;
-
-    imb.size = glTF->num_join_mats;
-
-    DescriptorUpdate(descriptor, (char)&imb, sizeof(imb));
-}
-
 void ModelglTFDestroy(ModelObject3D* mo){
 
     glTFStruct *glTF = mo->obj;
@@ -636,38 +623,9 @@ void ModelglTFDestroy(ModelObject3D* mo){
     {
         for(int j=0;j < mo->nodes[i].num_models;j++)
         {
-            ModelStruct *model = &mo->nodes[i].models[j];
-            GraphicsObjectDestroy(&model->graphObj);
-
-            if(model->diffuse != NULL)
-            {
-                FreeMemory(model->diffuse->path);
-
-                if(model->diffuse->size > 0)
-                    FreeMemory(model->diffuse->buffer);
-
-                FreeMemory(model->diffuse);
-            }
-
-            if(model->specular != NULL)
-            {
-                FreeMemory(model->specular->path);
-
-                if(model->specular->size > 0)
-                    FreeMemory(model->specular->buffer);
-
-                FreeMemory(model->specular);
-            }
-
-            if(model->normal != NULL)
-            {
-                FreeMemory(model->normal->path);
-
-                if(model->normal->size > 0)
-                    FreeMemory(model->normal->buffer);
-
-                FreeMemory(model->normal);
-            }
+            GameObject3D *model = &mo->nodes[i].models[j];
+            
+            GameObjectDestroy(model);
         }
 
         FreeMemory(mo->nodes[i].models);
@@ -699,9 +657,66 @@ void ModelglTFDestroy(ModelObject3D* mo){
     FreeMemory(mo->nodes);
 }
 
-void Load3DglTFModel(void *ptr, char *path, char *name, uint8_t type, DrawParam *dParam){
 
-    ModelObject3D *mo = (ModelObject3D *)ptr;
+void ModelglTFnvMatrixBuffer(ModelObject3D* mo, uint32_t indx_node, void *data)
+{
+    glTFStruct *glTF = mo->obj;
+
+    if(glTF == NULL)
+        return;
+
+    InvMatrixsBuffer imb = {};
+    memset(&imb, 0, sizeof(InvMatrixsBuffer));
+
+    for(int k=0;k < glTF->num_join_mats;k++)
+      imb.mats[k] = glTF->joint_mats[k].join_mat;
+
+    imb.size = glTF->num_join_mats;
+
+    memcpy(data, (char *)&imb, sizeof(imb));
+}
+
+
+void ModelglTFSetDefaultShader(GameObject3D *go)
+{    
+    if(go->self.flags & ENGINE_GAME_OBJECT_FLAG_SHADED)
+        return;
+
+    uint32_t num_pack = BluePrintInit(&go->graphObj.blueprints);
+    
+    ShaderBuilder *vert = go->self.vert;
+    ShaderBuilder *frag = go->self.frag;
+
+    ShadersMakeDefault3DModelShader(vert, frag);
+
+    ShaderObject vert_shader, frag_shader;
+    memset(&vert_shader, 0, sizeof(ShaderObject));
+    memset(&frag_shader, 0, sizeof(ShaderObject));
+
+    vert_shader.code = (char *)vert->code;
+    vert_shader.size = vert->size * sizeof(uint32_t);
+    
+    frag_shader.code = (char *)frag->code;
+    frag_shader.size = frag->size * sizeof(uint32_t);
+
+    GraphicsObjectSetShaderWithUniform(&go->graphObj, &vert_shader, num_pack);
+    GraphicsObjectSetShaderWithUniform(&go->graphObj, &frag_shader, num_pack);
+    
+    GameObject3DSetDescriptorUpdate(go, num_pack, 0, (UpdateDescriptor)ModelModelBufferUpdate);
+    GameObject3DSetDescriptorUpdate(go, num_pack, 1, (UpdateDescriptor)ModelglTFnvMatrixBuffer);
+    GameObject3DSetDescriptorTextureCreate(go, num_pack, 2, go->num_images > 0 ? &go->images[0] : NULL);
+    GameObject3DSetDescriptorTextureCreate(go, num_pack, 3, go->num_images > 0 ? &go->images[1] : NULL);
+    GameObject3DSetDescriptorTextureCreate(go, num_pack, 4, go->num_images > 0 ? &go->images[2] : NULL);
+    
+    /*uint32_t flags = BluePrintGetSettingsValue(&go->graphObj.blueprints, 0, 3);
+    BluePrintSetSettingsValue(&go->graphObj.blueprints, 0, 3, flags | ENGINE_PIPELINE_FLAG_FACE_CLOCKWISE);*/
+    
+    go->self.flags |= ENGINE_GAME_OBJECT_FLAG_SHADED;
+}
+
+void Load3DglTFModel(void *model, char *path, char *name, uint8_t type, DrawParam *dParam){
+
+    ModelObject3D *mo = (ModelObject3D *)model;
 
     char *currPath = DirectGetCurrectFilePath();
     int len = strlen(currPath);
@@ -711,12 +726,13 @@ void Load3DglTFModel(void *ptr, char *path, char *name, uint8_t type, DrawParam 
         
     Transform3DInit(&mo->transform);
 
+    GameObjectSetInitFunc((GameObject *)mo, (void *)ModelDefaultInit);
     GameObjectSetUpdateFunc((GameObject *)mo, (void *)ModelDefaultUpdate);
     GameObjectSetDrawFunc((GameObject *)mo, (void *)ModelDefaultDraw);
     GameObjectSetCleanFunc((GameObject *)mo, (void *)ModelClean);
     GameObjectSetRecreateFunc((GameObject *)mo, (void *)ModelRecreate);
     GameObjectSetDestroyFunc((GameObject *)mo, (void *)ModelglTFDestroy);
-
+    
     mo->self.obj_type = ENGINE_GAME_OBJECT_TYPE_3D;
     mo->self.flags = 0;
 
@@ -758,14 +774,14 @@ void Load3DglTFModel(void *ptr, char *path, char *name, uint8_t type, DrawParam 
     }
 
     if(!DirectIsFileExist(ascii)){
-        GameObjectDestroy(ptr);
+        GameObjectDestroy(model);
         FreeMemory(full_path);            
         FreeMemory(currPath);
         return 0;
     }
     
     if(!DirectIsFileExist(binary)){
-        GameObjectDestroy(ptr);
+        GameObjectDestroy(model);
         return 0;
     }
   
@@ -795,67 +811,34 @@ void Load3DglTFModel(void *ptr, char *path, char *name, uint8_t type, DrawParam 
                     mo->nodes[iter].id_node = node->id_node;
 
 
-                    mo->nodes[iter].models = AllocateMemory(node->num_mesh, sizeof(ModelStruct));
+                    mo->nodes[iter].models = AllocateMemory(node->num_mesh, sizeof(GameObject3D));
                     mo->nodes[iter].num_models = node->num_mesh;
 
                     for(int j=0;j < node->num_mesh;j++)
                     {
-                        ModelStruct *model = &mo->nodes[iter].models[j];
+                        GameObject3D *model = &mo->nodes[iter].models[j];
                         engine_model_mesh *mesh = node->mesh[j];
 
-                        model->diffuse = mesh->image;
-                        model->specular = mesh->specular;
-                        model->normal = mesh->normal;
+                        model->images = AllocateMemory(3, sizeof(GameObjectImage));
 
-                        if(dParam != NULL)
-                        {
-                            if(model->diffuse == NULL)
-                            {
-                                model->diffuse = AllocateMemory(1, sizeof(GameObjectImage));
+                        if(mesh->image)
+                            model->images[0] = *mesh->image;
+                        if(mesh->specular)
+                            model->images[1] = *mesh->specular;
+                        if(mesh->normal)
+                            model->images[2] = *mesh->normal;
 
-                                if(strlen(dParam->diffuse) != 0)
-                                {
-                                    int len = strlen(dParam->diffuse);
-                                    model->diffuse->path = AllocateMemory(len + 1, sizeof(char));
-                                    memcpy(model->diffuse->path, dParam->diffuse, len);
-                                    model->diffuse->path[len] = '\0';
-                                }
-                            }
-
-                            if(model->specular == NULL)
-                            {
-                                model->specular = AllocateMemory(1, sizeof(GameObjectImage));
-
-                                if(strlen(dParam->specular) != 0)
-                                {
-                                    int len = strlen(dParam->specular);
-                                    model->specular->path = AllocateMemory(len + 1, sizeof(char));
-                                    memcpy(model->specular->path, dParam->specular, len);
-                                    model->specular->path[len] = '\0';
-                                }
-                            }
-
-                            if(model->normal == NULL)
-                            {
-                                model->normal = AllocateMemory(1, sizeof(GameObjectImage));
-
-                                if(strlen(dParam->normal) != 0)
-                                {
-                                    int len = strlen(dParam->normal);
-                                    model->normal->path = AllocateMemory(len + 1, sizeof(char));
-                                    memcpy(model->normal->path, dParam->normal, len);
-                                    model->normal->path[len] = '\0';
-                                } 
-                            }
-                        }
+                        model->num_images = 3;
 
                         GraphicsObjectInit(&model->graphObj, ENGINE_VERTEX_TYPE_MODEL_OBJECT);
 
                         model->graphObj.gItems.perspective = true;
 
                         GraphicsObjectSetVertex(&model->graphObj, mesh->verts, mesh->num_verts, sizeof(ModelVertex3D), mesh->indices, mesh->num_indices, sizeof(uint32_t));
+                        
+                        GameObject3DInit(model, ENGINE_GAME_OBJECT_TYPE_MODEL_GLTF);
 
-                        ModelDefaultInit(model, dParam);
+                        GameObjectSetShaderInitFunc((GameObject *)model, ModelglTFSetDefaultShader);
                     }
 
                     iter++;

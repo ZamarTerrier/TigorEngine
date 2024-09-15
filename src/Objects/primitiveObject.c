@@ -32,7 +32,7 @@ void PrimitiveObjectDestroy(PrimitiveObject *po)
 
 int PrimitiveObjectInit(PrimitiveObject *po, DrawParam *dParam, char type, void *params){
 
-    GameObject3DInit((GameObject3D *)po);
+    GameObject3DInit((GameObject3D *)po, ENGINE_GAME_OBJECT_TYPE_3D);
 
     GameObjectSetDestroyFunc((GameObject *)po, (void *)PrimitiveObjectDestroy);
 
@@ -102,7 +102,7 @@ int PrimitiveObjectInit(PrimitiveObject *po, DrawParam *dParam, char type, void 
 
     if(builded)
     {
-        GraphicsObjectSetVertex(&po->go.graphObj, vParam.vertices, vParam.verticesSize, sizeof(Vertex3D), iParam.indices, iParam.indexesSize, sizeof(uint32_t));
+        GraphicsObjectSetVertex(&po->go.graphObj, vParam.vertices, vParam.num_verts, sizeof(Vertex3D), iParam.indices, iParam.indexesSize, sizeof(uint32_t));
         FreeMemory(vParam.vertices);
         FreeMemory(iParam.indices);
     }

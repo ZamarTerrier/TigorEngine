@@ -18,7 +18,10 @@ typedef enum{
 
 typedef enum{
     ENGINE_GAME_OBJECT_TYPE_2D,
-    ENGINE_GAME_OBJECT_TYPE_3D
+    ENGINE_GAME_OBJECT_TYPE_3D,
+    ENGINE_GAME_OBJECT_TYPE_MODEL_GLTF,
+    ENGINE_GAME_OBJECT_TYPE_PARTICLE_2D,
+    ENGINE_GAME_OBJECT_TYPE_PARTICLE_3D,
 } GameObjectType;
 
 typedef struct GameObject{
@@ -28,6 +31,9 @@ typedef struct GameObject{
     void (*CleanPoint)(struct GameObject* go);
     void (*RecreatePoint)(struct GameObject* go);
     void (*DestroyPoint)(struct GameObject* go);
+    
+    void (*ShaderInitPoint)(struct GameObject* go);
+
     uint32_t obj_type;
     uint32_t flags;
     void *vert;
@@ -41,12 +47,16 @@ void GameObjectSetCleanFunc(GameObject *go, void *func);
 void GameObjectSetRecreateFunc(GameObject *go, void *func);
 void GameObjectSetDestroyFunc(GameObject *go, void *func);
 
+void GameObjectSetShaderInitFunc(GameObject *go, void *func);
+
 void GameObjectInit(GameObject* go);
 void GameObjectUpdate(GameObject* go) ;
 void GameObjectDraw(GameObject* go);
 void GameObjectClean(GameObject* go);
 void GameObjectRecreate(GameObject* go);
 void GameObjectDestroy(GameObject* go);
+
+void GameObjectShaderInit(GameObject* go);
 
 #ifdef __cplusplus
 }

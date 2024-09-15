@@ -40,7 +40,7 @@ static void CalcNormal(float N[3], float v0[3], float v1[3], float v2[3]) {
   }
 }
 
-void ParseSomeStruct(ModelObject3D *mo, ModelVertex3D *vertexs){
+void ParseSomeStruct(ModelObject3D *mo, Vertex3D *vertexs){
 
     tinyobj_material_t* materials = NULL;
     size_t face_offset = 0;
@@ -250,43 +250,28 @@ void DestroyOBJModel(ModelObject3D *mo){
     tinyobj_materials_free(obj->materials, obj->num_materials);
     FreeMemory(mo->obj);
 
-    GraphicsObjectDestroy(&mo->nodes[0].models[0].graphObj);
-
-    if(mo->nodes[0].models->diffuse != NULL)
-    {
-        FreeMemory(mo->nodes[0].models->diffuse->path);
-
-        if(mo->nodes[0].models->diffuse->size > 0)
-            FreeMemory(mo->nodes[0].models->diffuse->buffer);
-
-        FreeMemory(mo->nodes[0].models->diffuse);
-    }
-
-    if(mo->nodes[0].models->specular != NULL)
-    {
-        FreeMemory(mo->nodes[0].models->specular->path);
-
-        if(mo->nodes[0].models->specular->size > 0)
-            FreeMemory(mo->nodes[0].models->specular->buffer);
-
-        FreeMemory(mo->nodes[0].models->specular);
-    }
-
-    if(mo->nodes[0].models->normal != NULL)
-    {
-        FreeMemory(mo->nodes[0].models->normal->path);
-
-        if(mo->nodes[0].models->normal->size > 0)
-            FreeMemory(mo->nodes[0].models->normal->buffer);
-
-        FreeMemory(mo->nodes[0].models->normal);
-    }
+    GameObjectDestroy(&mo->nodes[0].models[0]);
+    FreeMemory(mo->nodes[0].models);
+    FreeMemory(mo->nodes);
 }
 
 void Load3DObjModel(ModelObject3D * mo, char *filepath, DrawParam *dParam){
 
+  char *currPath = DirectGetCurrectFilePath();
+  int len = strlen(currPath);
+  currPath[len] = '\\';
+    
+  char *full_path = ToolsMakeString(currPath, filepath);
+
+  if(!DirectIsFileExist(full_path)){
+      FreeMemory(full_path);              
+      FreeMemory(currPath);
+      return;
+  }
+
   Transform3DInit(&mo->transform);
 
+  GameObjectSetInitFunc((GameObject *)mo, (void *)ModelDefaultInit);
   GameObjectSetUpdateFunc((GameObject *)mo, (void *)ModelDefaultUpdate);
   GameObjectSetDrawFunc((GameObject *)mo, (void *)ModelDefaultDraw);
   GameObjectSetCleanFunc((GameObject *)mo, (void *)ModelClean);
@@ -298,77 +283,40 @@ void Load3DObjModel(ModelObject3D * mo, char *filepath, DrawParam *dParam){
   OBJStruct *obj = mo->obj;
 
   unsigned int flags = TINYOBJ_FLAG_TRIANGULATE;
-  tinyobj_parse_obj(&obj->attrib, &obj->shapes, &obj->num_materials, &obj->materials, &obj->num_materials, filepath, (void *)get_file_data, NULL, flags);
+  tinyobj_parse_obj(&obj->attrib, &obj->shapes, &obj->num_materials, &obj->materials, &obj->num_materials, full_path, (void *)get_file_data, NULL, flags);
 
   mo->nodes = AllocateMemory(1, sizeof(ModelNode));
   mo->num_draw_nodes = 1;
 
-  mo->nodes[0].models = AllocateMemory(1, sizeof(ModelStruct));
+  mo->nodes[0].models = AllocateMemory(1, sizeof(GameObject3D));
   mo->nodes[0].num_models = 1;
 
-  ModelStruct *model = &mo->nodes[0].models[0];
+  GameObject3D *model = &mo->nodes[0].models[0];
+  
+  GameObject3DInit(model, ENGINE_GAME_OBJECT_TYPE_3D);
+  
+  GameObjectSetShaderInitFunc(model, ModelDefautShader);
 
-  GraphicsObjectInit(&model->graphObj, ENGINE_VERTEX_TYPE_MODEL_OBJECT);
 
   model->graphObj.gItems.perspective = true;
 
-  model->graphObj.shapes[0].vParam.vertices = (ModelVertex3D *) AllocateMemory(obj->attrib.num_face_num_verts * 3, sizeof(ModelVertex3D));
+  model->graphObj.shapes[0].vParam.vertices = (Vertex3D *) AllocateMemory(obj->attrib.num_face_num_verts * 3, sizeof(Vertex3D));
   model->graphObj.shapes[0].iParam.indices = (uint32_t *) AllocateMemory(obj->attrib.num_face_num_verts * 3, sizeof(uint32_t));
 
   ParseSomeStruct(mo, model->graphObj.shapes[0].vParam.vertices );
 
-  model->graphObj.shapes[0].vParam.verticesSize = obj->attrib.num_face_num_verts * 3;
+  model->graphObj.shapes[0].vParam.num_verts = obj->attrib.num_face_num_verts * 3;
   model->graphObj.shapes[0].iParam.indexesSize = obj->attrib.num_face_num_verts * 3;
 
   for(int i=0; i < model->graphObj.shapes[0].iParam.indexesSize;i++)
       model->graphObj.shapes[0].iParam.indices[i] = i;
 
-  GraphicsObjectSetVertex(&model->graphObj, model->graphObj.shapes[0].vParam.vertices, model->graphObj.shapes[0].vParam.verticesSize, sizeof(ModelVertex3D), model->graphObj.shapes[0].iParam.indices, model->graphObj.shapes[0].iParam.indexesSize, sizeof(uint32_t));
+  GraphicsObjectSetVertex(&model->graphObj, model->graphObj.shapes[0].vParam.vertices, model->graphObj.shapes[0].vParam.num_verts, sizeof(Vertex3D), model->graphObj.shapes[0].iParam.indices, model->graphObj.shapes[0].iParam.indexesSize, sizeof(uint32_t));
 
-
-  if(dParam != NULL)
-  {
-      if(model->diffuse == NULL)
-      {
-          model->diffuse = AllocateMemory(1, sizeof(GameObjectImage));
-
-          if(strlen(dParam->diffuse) != 0)
-          {
-              int len = strlen(dParam->diffuse);
-              model->diffuse->path = AllocateMemory(len + 1, sizeof(char));
-              memcpy(model->diffuse->path, dParam->diffuse, len);
-              model->diffuse->path[len] = '\0';
-          }
-      }
-
-      if(model->specular == NULL)
-      {
-          model->specular = AllocateMemory(1, sizeof(GameObjectImage));
-
-          if(strlen(dParam->specular) != 0)
-          {
-              int len = strlen(dParam->specular);
-              model->specular->path = AllocateMemory(len + 1, sizeof(char));
-              memcpy(model->specular->path, dParam->specular, len);
-              model->specular->path[len] = '\0';
-          }
-      }
-
-      if(model->normal == NULL)
-      {
-          model->normal = AllocateMemory(1, sizeof(GameObjectImage));
-
-          if(strlen(dParam->normal) != 0)
-          {
-              int len = strlen(dParam->normal);
-              model->normal->path = AllocateMemory(len + 1, sizeof(char));
-              memcpy(model->normal->path, dParam->normal, len);
-              model->normal->path[len] = '\0';
-          }
-      }
-  }
-
-  ModelDefaultInit(model, dParam);
+  GameObject3DInitTextures(model, dParam);
+  
+  FreeMemory(full_path);              
+  FreeMemory(currPath);
 }
 
 

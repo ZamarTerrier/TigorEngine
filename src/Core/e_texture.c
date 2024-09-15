@@ -262,15 +262,19 @@ int TextureImageCreate(GameObjectImage *image, struct BluePrintDescriptor_T *des
         descr->textures = &images[0].texture;
         descr->flags |= ENGINE_BLUE_PRINT_FLAG_LINKED_TEXTURE;
         return 0;
-    }else if(image->path == NULL && image->buffer == NULL)
-    {
-        descr->textures = &images[0].texture;
-        descr->flags |= ENGINE_BLUE_PRINT_FLAG_LINKED_TEXTURE;
-        return 0;
-    } else if(!DirectIsFileExist(image->path)){
-        descr->textures = &images[0].texture;
-        descr->flags |= ENGINE_BLUE_PRINT_FLAG_LINKED_TEXTURE;
-        return 0;
+    }
+    
+    if(image->size == 0){
+        if(image->path == NULL)
+        {
+            descr->textures = &images[0].texture;
+            descr->flags |= ENGINE_BLUE_PRINT_FLAG_LINKED_TEXTURE;
+            return 0;
+        } else if(!DirectIsFileExist(image->path)){
+            descr->textures = &images[0].texture;
+            descr->flags |= ENGINE_BLUE_PRINT_FLAG_LINKED_TEXTURE;
+            return 0;
+        }
     }
 
     ImageFileData fileData;
@@ -278,7 +282,7 @@ int TextureImageCreate(GameObjectImage *image, struct BluePrintDescriptor_T *des
     fileData.path = image->path;
     fileData.buffer = image->buffer;
     fileData.buff_size = image->size;
-
+    
     temp_tex = TextureFindTexture(image->path);
 
     if(temp_tex != NULL)
@@ -288,7 +292,10 @@ int TextureImageCreate(GameObjectImage *image, struct BluePrintDescriptor_T *des
         return 0;
     }
 
-    ImageLoadFile(&fileData, from_file);
+    if(image->size == 0)
+        ImageLoadFile(&fileData, from_file);
+    else
+        ImageLoadFile(&fileData, false);
 
     int len = strlen(image->path);
     memset(images[engine.DataR.e_var_num_images].path, 0, 2048);

@@ -43,8 +43,10 @@ void GameObject2DSetDescriptorTextureCreate(GameObject2D* go, uint32_t shader_in
 void GameObject2DSetShader(GameObject2D *go, char *vert_path, char *frag_path);
 void GameObject2DSetShaderSimple(GameObject2D *go, char *vert_path, char *frag_path);
 
+void GameObject2DInitDefault(GameObject2D *go);
+
 void GameObject2DInitDraw(GameObject2D *go);
-void GameObject2DInit(GameObject2D* go);
+void GameObject2DInit(GameObject2D* go, GameObjectType type);
 void GameObject2DClean(GameObject2D* go);
 void GameObject2DRecreate(GameObject2D* go);
 void GameObject2DDestroy(GameObject2D* go);

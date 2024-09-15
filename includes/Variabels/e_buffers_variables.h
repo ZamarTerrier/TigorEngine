@@ -114,8 +114,8 @@ typedef struct{
 } LightStatusBuffer;
 
 typedef struct{
-    mat4 mats[MAX_BONES] __attribute__ ((aligned (16)));
-    float size __attribute__ ((aligned (16)));
+    mat4 mats[MAX_BONES];
+    float size;
 } InvMatrixsBuffer;
 
 #endif // E_BUFFERS_VARIABLES_H

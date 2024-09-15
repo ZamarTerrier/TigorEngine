@@ -5,6 +5,7 @@
 #include "Variabels/model_include.h"
 
 #include "Objects/gameObject.h"
+#include "Objects/gameObject3D.h"
 
 #include "Core/graphicsObject.h"
 #include "Core/e_transform.h"
@@ -15,14 +16,7 @@ extern "C"
 #endif
 
 typedef struct{
-    GraphicsObject graphObj;
-    GameObjectImage *diffuse;
-    GameObjectImage *specular;
-    GameObjectImage *normal;
-} ModelStruct;
-
-typedef struct{
-    ModelStruct *models;
+    GameObject3D *models;
     uint32_t num_models;
     uint32_t id_node;
     mat4 model;
@@ -41,22 +35,20 @@ typedef struct{
     uint32_t obj_size;
 } ModelObject3D;
 
-void ModelModelBufferUpdate(ModelObject3D* mo, uint32_t indx_node, BluePrintDescriptor *descriptor);
-void ModelLightMatrixUpdate(ModelObject3D* mo, uint32_t indx_node, BluePrintDescriptor *descriptor);
-void ModelInvMatrixBuffer(ModelObject3D* mo, uint32_t indx_node, BluePrintDescriptor *descriptor);
-void ModelDescriptorLightObjectsUpdate(ModelObject3D* mo, uint32_t indx_node, BluePrintDescriptor *descriptor);
+void ModelModelBufferUpdate(ModelObject3D* mo, uint32_t indx_node, void *data);
 
-void ModelDefaultDraw(ModelObject3D* mo, void *command);
+void ModelDefaultInit(ModelObject3D *mo, GameObjectType type);
 void ModelDefaultUpdate(ModelObject3D* mo);
+void ModelDefaultDraw(ModelObject3D* mo, void *command);
 void ModelClean(ModelObject3D* mo);
 void ModelRecreate(ModelObject3D* mo);
 void ModelDestroy(ModelObject3D* mo);
 
+void ModelDefautShader(GameObject3D *go);
+
 void ModelSetLightEnable(void *obj, bool enable);
 void ModelSetSelCameraEnable(void *obj, bool enable);
 void ModelSetSomeViewport(ModelObject3D* mo, float x, float y, float height, float width);
-
-void ModelDefaultInit(ModelStruct *model, DrawParam *dParam);
 
 #ifdef __cplusplus
 }
