@@ -12,7 +12,7 @@
 #include "Data/e_resource_data.h"
 #include "Data/e_resource_engine.h"
 
-extern ZEngine engine;
+extern TEngine engine;
 
 void ShapeObjectCreateQuad(ShapeObject *so, QuadParams *param)
 {
@@ -230,20 +230,20 @@ int ShapeObjectInit(ShapeObject *so, DrawParam *dParam, ShapeType type, void *pa
 
     memcpy(so->go.name, name, strlen(name));
 
-    GameObject2DInit((GameObject2D *)so, ENGINE_GAME_OBJECT_TYPE_2D);
+    GameObject2DInit((GameObject2D *)so, TIGOR_GAME_OBJECT_TYPE_2D);
 
     switch(type)
     {
-        case ENGINE_SHAPE_OBJECT_LINE:
+        case TIGOR_SHAPE_OBJECT_LINE:
             ShapeObjectCreateLine(so, param);
             break;
-        case ENGINE_SHAPE_OBJECT_QUAD:
+        case TIGOR_SHAPE_OBJECT_QUAD:
             ShapeObjectCreateQuad(so, param);
             break;
-        case ENGINE_SHAPE_OBJECT_CIRCLE:
+        case TIGOR_SHAPE_OBJECT_CIRCLE:
             ShapeObjectCreateCircle(so, param);
             break;
-        case ENGINE_SHAPE_OBJECT_SHAPE:
+        case TIGOR_SHAPE_OBJECT_SHAPE:
             ShapeObjectCreateShape(so, param);
             break;
         default:

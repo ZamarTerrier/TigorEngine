@@ -1,4 +1,4 @@
-#include "ZamGUI.h"
+#include "TigorGUI.h"
 
 #include "GUI/GUIManager.h"
 
@@ -17,7 +17,7 @@
 #endif
 
 extern GUIManager gui;
-extern ZEngine engine;
+extern TEngine engine;
 
 extern void PathEllipticalArcTo(const vec2 center, const vec2 radius, float rot, float a_min, float a_max, int num_segments);
 extern void _PathArcToFastEx(const vec2 center, float radius, int a_min_sample, int a_max_sample, int a_step);

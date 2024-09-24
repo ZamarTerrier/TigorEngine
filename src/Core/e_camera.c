@@ -1,10 +1,12 @@
+#include "TigorEngine.h"
+
 #include "Core/e_camera.h"
 
 #include "Tools/e_math.h"
 
 #include "Data/e_resource_data.h"
 
-extern ZEngine engine;
+extern TEngine engine;
 
 bool firstMouse = true;
 
@@ -139,13 +141,13 @@ void Camera3DUpdateInput(float deltaTime){
     vec3 viewRot = Camera3DGetRotation();
     vec3 some_pos;
 
-    if (EngineGetKeyPress(ENGINE_KEY_W)){
+    if (TEngineGetKeyPress(TIGOR_KEY_W)){
         if(walk)
             viewRot.y = 0;
         some_pos = v3_sub(pos, v3_muls( viewRot, cameraSpeed * deltaTime));
 
         Camera3DSetPosition(some_pos.x, some_pos.y, some_pos.z);
-    }else if (EngineGetKeyPress(ENGINE_KEY_S)){
+    }else if (TEngineGetKeyPress(TIGOR_KEY_S)){
         if(walk)
             viewRot.y = 0;
         some_pos = v3_add(pos, v3_muls( viewRot, cameraSpeed * deltaTime));
@@ -153,27 +155,27 @@ void Camera3DUpdateInput(float deltaTime){
     }
 
 
-    if (EngineGetKeyPress(ENGINE_KEY_A)){
+    if (TEngineGetKeyPress(TIGOR_KEY_A)){
         some_pos = v3_sub(pos, v3_muls(v3_norm(v3_cross(viewRot, up)), cameraSpeed * deltaTime));
         Camera3DSetPosition(some_pos.x, some_pos.y, some_pos.z);
-    }else if (EngineGetKeyPress(ENGINE_KEY_D)){
+    }else if (TEngineGetKeyPress(TIGOR_KEY_D)){
         some_pos = v3_add(pos, v3_muls(v3_norm(v3_cross(viewRot, up)), cameraSpeed * deltaTime));
         Camera3DSetPosition(some_pos.x, some_pos.y, some_pos.z);
     }
 
-    if (EngineGetKeyPress(ENGINE_KEY_LEFT_SHIFT)){
+    if (TEngineGetKeyPress(TIGOR_KEY_LEFT_SHIFT)){
         cameraSpeed = moveSpeed * 10;
     }else{
         cameraSpeed = moveSpeed * 3;
     }
 
-    /*if (EngineGetKeyPress(ENGINE_KEY_1)){
+    /*if (TEngineGetKeyPress(TIGOR_KEY_1)){
         walk = true;
-    }else if (EngineGetKeyPress(ENGINE_KEY_2)){
+    }else if (TEngineGetKeyPress(TIGOR_KEY_2)){
         walk = false;
     }*/
 
-    /*if (EngineGetKeyPress(ENGINE_KEY_SPACE) && force <= 0 && grounded){
+    /*if (TEngineGetKeyPress(TIGOR_KEY_SPACE) && force <= 0 && grounded){
         jump = true;
         force = 5;
     }*/
@@ -183,7 +185,7 @@ void Camera3DMovementUpdate(float deltaTime){
 
     double xpos, ypos;
 
-    ZEngineGetCursorPos(&xpos, &ypos);
+    TEngineGetCursorPos(&xpos, &ypos);
 
     if (firstMouse)
     {

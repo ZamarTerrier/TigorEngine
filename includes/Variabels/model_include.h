@@ -1,7 +1,7 @@
 #ifndef MODEL_INCLUDE_H
 #define MODEL_INCLUDE_H
 
-#define MAX_BONES 64
+#define MAX_BONES 128
 
 #include "engine_includes.h"
 
@@ -25,7 +25,7 @@ typedef struct{
 
     int32_t *instance_node_indices;
     size_t num_instances;
-
+    
     GameObjectImage *image;
     GameObjectImage *specular;
     GameObjectImage *normal;

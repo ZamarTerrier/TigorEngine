@@ -1,5 +1,5 @@
-#ifndef ZAMGUI_H
-#define ZAMGUI_H
+#ifndef TigorGUI_H
+#define TigorGUI_H
 
 #include "Variabels/engine_includes.h"
 
@@ -152,4 +152,4 @@ extern void GUIAddTextU32(float xpos, float ypos, vec3 color, float font_size, u
 
 #endif
 
-#endif //#ifndef ZAMGUI_H
+#endif //#ifndef TigorGUI_H

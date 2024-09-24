@@ -69,8 +69,8 @@ typedef struct wManagerWindow{
     int32_t stickyMouseButtons;
     int32_t lockKeyMods;
     int     cursorMode;
-    char    mouseButtons[ENGINE_MOUSE_BUTTON_LAST + 1];
-    char    keys[ENGINE_KEY_LAST + 1];
+    char    mouseButtons[TIGOR_MOUSE_BUTTON_LAST + 1];
+    char    keys[TIGOR_KEY_LAST + 1];
 
     double virtualCursorPosX, virtualCursorPosY;
 

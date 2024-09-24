@@ -24,7 +24,7 @@
 #include "Data/e_resource_shapes.h"
 #include "Data/e_resource_engine.h"
 
-extern ZEngine engine;
+extern TEngine engine;
 
 //Не корректно
 int ImageWriteFile(uint32_t indx)
@@ -135,7 +135,7 @@ int ImageResize(ImageFileData *data, uint32_t width, uint32_t height)
 }
 
 void ImageCreateEmpty(Texture2D *texture, uint32_t usage) {
-    ZDevice *device = (ZDevice *)engine.device;
+    TDevice *device = (TDevice *)engine.device;
 
     VkImageCreateInfo imageInfo = {};
     imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -176,7 +176,7 @@ void ImageCreateEmpty(Texture2D *texture, uint32_t usage) {
 
 void TextureCreateEmptyDefault(Texture2D *texture)
 {
-    ZDevice *device = (ZDevice *)engine.device;
+    TDevice *device = (TDevice *)engine.device;
 
     BufferObject stagingBuffer;
 
@@ -187,7 +187,7 @@ void TextureCreateEmptyDefault(Texture2D *texture)
 
     VkDeviceSize bufferSize = EMPTY_IMAGE_HEIGHT * EMPTY_IMAGE_WIDTH * 4;
 
-    BuffersCreate(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &stagingBuffer, ENGINE_BUFFER_ALLOCATE_STAGING);
+    BuffersCreate(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &stagingBuffer, TIGOR_BUFFER_ALLOCATE_STAGING);
 
     uint32_t * data;
     vkMapMemory(device->e_device, stagingBuffer.memory, 0, bufferSize, 0, (void **)&data);
@@ -205,7 +205,7 @@ void TextureCreateEmptyDefault(Texture2D *texture)
 
 void TextureCreateEmpty(Texture2D *texture)
 {
-    ZDevice *device = (ZDevice *)engine.device;
+    TDevice *device = (TDevice *)engine.device;
 
     BufferObject stagingBuffer;
 
@@ -213,7 +213,7 @@ void TextureCreateEmpty(Texture2D *texture)
 
     texture->image_data.mip_levels = 1;
 
-    BuffersCreate(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &stagingBuffer, ENGINE_BUFFER_ALLOCATE_STAGING);
+    BuffersCreate(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &stagingBuffer, TIGOR_BUFFER_ALLOCATE_STAGING);
 
     uint32_t *data;
     vkMapMemory(device->e_device, stagingBuffer.memory, 0, bufferSize, 0, (void **)&data);
@@ -249,7 +249,7 @@ Texture2D *TextureFindTexture(char *path)
 
 int TextureImageCreate(GameObjectImage *image, struct BluePrintDescriptor_T *descriptor, bool from_file) {
 
-    ZDevice *device = (ZDevice *)engine.device;
+    TDevice *device = (TDevice *)engine.device;
 
     Texture2D *temp_tex;
 
@@ -260,7 +260,7 @@ int TextureImageCreate(GameObjectImage *image, struct BluePrintDescriptor_T *des
     if(image == NULL)
     {
         descr->textures = &images[0].texture;
-        descr->flags |= ENGINE_BLUE_PRINT_FLAG_LINKED_TEXTURE;
+        descr->flags |= TIGOR_BLUE_PRINT_FLAG_LINKED_TEXTURE;
         return 0;
     }
     
@@ -268,11 +268,11 @@ int TextureImageCreate(GameObjectImage *image, struct BluePrintDescriptor_T *des
         if(image->path == NULL)
         {
             descr->textures = &images[0].texture;
-            descr->flags |= ENGINE_BLUE_PRINT_FLAG_LINKED_TEXTURE;
+            descr->flags |= TIGOR_BLUE_PRINT_FLAG_LINKED_TEXTURE;
             return 0;
         } else if(!DirectIsFileExist(image->path)){
             descr->textures = &images[0].texture;
-            descr->flags |= ENGINE_BLUE_PRINT_FLAG_LINKED_TEXTURE;
+            descr->flags |= TIGOR_BLUE_PRINT_FLAG_LINKED_TEXTURE;
             return 0;
         }
     }
@@ -288,7 +288,7 @@ int TextureImageCreate(GameObjectImage *image, struct BluePrintDescriptor_T *des
     if(temp_tex != NULL)
     {
         descr->textures = temp_tex;
-        descr->flags |= ENGINE_BLUE_PRINT_FLAG_LINKED_TEXTURE;
+        descr->flags |= TIGOR_BLUE_PRINT_FLAG_LINKED_TEXTURE;
         return 0;
     }
 
@@ -321,7 +321,7 @@ int TextureImageCreate(GameObjectImage *image, struct BluePrintDescriptor_T *des
         return 0;
     }
 
-    BuffersCreate(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &stagingBuffer, ENGINE_BUFFER_ALLOCATE_STAGING);
+    BuffersCreate(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &stagingBuffer, TIGOR_BUFFER_ALLOCATE_STAGING);
 
     vkMapMemory(device->e_device, stagingBuffer.memory, 0, imageSize, 0, &data);
     memcpy(data, fileData.data, imageSize);
@@ -344,7 +344,7 @@ int TextureImageCreate(GameObjectImage *image, struct BluePrintDescriptor_T *des
 
 void TextureGenerateMipmaps(Texture2D *texture){
 
-    ZDevice *device = (ZDevice *)engine.device;
+    TDevice *device = (TDevice *)engine.device;
 
     VkFormatProperties formatProperties;
     vkGetPhysicalDeviceFormatProperties(device->e_physicalDevice, texture->textureType, &formatProperties);
@@ -429,7 +429,7 @@ void TextureCreateTextureImageView(Texture2D *texture, uint32_t type) {
 }
 
 void TextureCreateImage(uint32_t width, uint32_t height, uint32_t mip_levels, uint32_t format, uint32_t tiling, uint32_t usage, uint32_t properties, uint32_t flags, Texture2D *texture) {
-    ZDevice *device = (ZDevice *)engine.device;
+    TDevice *device = (TDevice *)engine.device;
     
     VkImageCreateInfo imageInfo = {};
     memset(&imageInfo, 0, sizeof(VkImageCreateInfo));
@@ -476,7 +476,7 @@ void TextureCreateImage(uint32_t width, uint32_t height, uint32_t mip_levels, ui
 }
 
 VkImageView TextureCreateImageView(VkImage image, uint32_t type, uint32_t format, uint32_t aspectFlags, uint32_t mip_levels) {
-    ZDevice *device = (ZDevice *)engine.device;
+    TDevice *device = (TDevice *)engine.device;
 
     VkImageViewCreateInfo viewInfo = {};
     memset(&viewInfo, 0, sizeof(VkImageViewCreateInfo));
@@ -500,7 +500,7 @@ VkImageView TextureCreateImageView(VkImage image, uint32_t type, uint32_t format
 }
 
 void* TextureCreateImageViewCube(void* image, void **shadowCubeMapFaceImageViews, uint32_t format, uint32_t aspect_mask) {
-    ZDevice *device = (ZDevice *)engine.device;
+    TDevice *device = (TDevice *)engine.device;
 
     VkImageView *some_views = (VkImageView *)shadowCubeMapFaceImageViews;
 
@@ -537,7 +537,7 @@ void* TextureCreateImageViewCube(void* image, void **shadowCubeMapFaceImageViews
 }
 
 void TextureCreateSampler(void *sampler, uint32_t texture_type, uint32_t mip_levels) {
-    ZDevice *device = (ZDevice *)engine.device;
+    TDevice *device = (TDevice *)engine.device;
 
     VkSamplerCreateInfo samplerInfo = {};
     memset(&samplerInfo, 0, sizeof(VkSamplerCreateInfo));
@@ -589,7 +589,7 @@ void TextureArrayInit(Blueprints *blueprints, uint32_t size)
 
     BluePrintDescriptor *descriptor = &blueprints->descriptors[blueprints->count];
 
-    descriptor->descrType = ENGINE_DESCRIPTOR_TYPE_IMAGE_SAMPLER;
+    descriptor->descrType = TIGOR_DESCRIPTOR_TYPE_IMAGE_SAMPLER;
     descriptor->descrCount = 0;
     descriptor->size = 1;
     descriptor->stageflag = VK_SHADER_STAGE_FRAGMENT_BIT;*/
@@ -630,7 +630,7 @@ void TextureCreateSpecific(struct BluePrintDescriptor_T *descriptor, uint32_t fo
 
     Texture2D *texture = descr->textures;
 
-    texture->flags = ENGINE_TEXTURE2D_FLAG_GENERATED;
+    texture->flags = TIGOR_TEXTURE2D_FLAG_GENERATED;
     texture->image_data.texWidth = width;
     texture->image_data.texHeight = height;
     texture->textureType = format;
@@ -645,7 +645,7 @@ void TextureUpdate(struct BluePrintDescriptor_T *descriptor, void *in_data, uint
 {
     BluePrintDescriptor *descr = (BluePrintDescriptor *)descriptor;
 
-    ZDevice *device = (ZDevice *)engine.device;
+    TDevice *device = (TDevice *)engine.device;
 
     Texture2D *texture = &descr->textures[0];
 
@@ -654,7 +654,7 @@ void TextureUpdate(struct BluePrintDescriptor_T *descriptor, void *in_data, uint
 
     VkDeviceSize bufferSize = texture->image_data.texWidth * texture->image_data.texHeight * 4;
 
-    BuffersCreate(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &stagingBuffer, ENGINE_BUFFER_ALLOCATE_STAGING);
+    BuffersCreate(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &stagingBuffer, TIGOR_BUFFER_ALLOCATE_STAGING);
 
     uint32_t *data;
     vkMapMemory(device->e_device, stagingBufferMemory, 0, bufferSize, 0, (void **)&data);
@@ -685,13 +685,13 @@ void TextureSetTexture(struct BluePrintDescriptor_T *descriptor, const char* pat
 }
 
 void ImageDestroyTexture(Texture2D* texture){
-    ZDevice *device = (ZDevice *)engine.device;
+    TDevice *device = (TDevice *)engine.device;
 
     vkFreeMemory(device->e_device, texture->memory, NULL);
     vkDestroyImage(device->e_device, texture->image, NULL);
     vkDestroySampler(device->e_device, texture->sampler, NULL);
     vkDestroyImageView(device->e_device, texture->image_view, NULL);
 
-    if(!(texture->flags & ENGINE_TEXTURE2D_IS_FONT))
+    if(!(texture->flags & TIGOR_TEXTURE2D_IS_FONT))
         free(texture->image_data.data);
 }

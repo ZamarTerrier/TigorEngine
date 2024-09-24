@@ -6,7 +6,7 @@
 #include "wManager/window_manager.h"
 #include "wManager/manager_includes.h"
 
-#include "ZamGUI.h"
+#include "TigorGUI.h"
 
 #include "GUI/GUIManager.h"
 
@@ -22,7 +22,7 @@
 #include "Data/e_resource_engine.h"
 #include "Data/e_resource_shapes.h"
 
-extern ZEngine engine;
+extern TEngine engine;
 extern GUIManager gui;
 
 bool e_var_wasReleased = true, e_var_leftMouse = false;
@@ -154,7 +154,7 @@ void WidgetUpdate(EWidget* ew){
 
 void WidgetDraw(EWidget* ew){
 
-    if(ew->widget_flags & ENGINE_FLAG_WIDGET_VISIBLE){
+    if(ew->widget_flags & TIGOR_FLAG_WIDGET_VISIBLE){
         GUIAddRectFilled(v2_add(ew->base, ew->position), v2_add(v2_add(ew->position, ew->scale), ew->base), ew->color, 5, GUIDrawFlags_RoundCornersAll);
     }    
 }
@@ -166,7 +166,7 @@ void WidgetInit(EWidget* ew, EWidget* parent){
 
     memset(ew, 0, sizeof(EWidget));
 
-    ew->type = ENGINE_WIDGET_TYPE_WIDGET;
+    ew->type = TIGOR_WIDGET_TYPE_WIDGET;
 
     GameObjectSetUpdateFunc((GameObject *)ew, (void *)WidgetUpdate);
     GameObjectSetDrawFunc((GameObject *)ew, (void *)WidgetDraw);
@@ -184,13 +184,13 @@ void WidgetInit(EWidget* ew, EWidget* parent){
 
     WidgetAcceptStack(ew);
 
-    ew->widget_flags = ENGINE_FLAG_WIDGET_ACTIVE | ENGINE_FLAG_WIDGET_VISIBLE | ENGINE_FLAG_WIDGET_SELF_VISIBLE;
+    ew->widget_flags = TIGOR_FLAG_WIDGET_ACTIVE | TIGOR_FLAG_WIDGET_VISIBLE | TIGOR_FLAG_WIDGET_SELF_VISIBLE;
 
     ew->callbacks.stack = (CallbackStruct *) AllocateMemory(MAX_GUI_CALLBACKS, sizeof(CallbackStruct));
     ew->callbacks.size = 0;
     
     
-    ew->go.flags |= ENGINE_GAME_OBJECT_FLAG_INIT;
+    ew->go.flags |= TIGOR_GAME_OBJECT_FLAG_INIT;
 }
 
 void WidgetConnect(EWidget* widget, int trigger, widget_callback callback, void* args){
@@ -226,12 +226,12 @@ void WidgetConfirmTrigger(EWidget* widget, int trigger, void *entry){
 
 int WidgetCheck(EWidget *widget){
     
-    ZWindow *window = (ZWindow *)engine.window;
+    TWindow *window = (TWindow *)engine.window;
 
     if(widget == NULL)
         return 0;
         
-    if(!(widget->widget_flags & ENGINE_FLAG_WIDGET_ACTIVE) || !(widget->widget_flags & ENGINE_FLAG_WIDGET_VISIBLE))
+    if(!(widget->widget_flags & TIGOR_FLAG_WIDGET_ACTIVE) || !(widget->widget_flags & TIGOR_FLAG_WIDGET_VISIBLE))
         return 0;
 
     double xpos, ypos;
@@ -245,7 +245,7 @@ int WidgetCheck(EWidget *widget){
                 return true;
             }
 
-    widget->widget_flags |= ENGINE_FLAG_WIDGET_OUT;
+    widget->widget_flags |= TIGOR_FLAG_WIDGET_OUT;
 
     return false;
 }
@@ -260,7 +260,7 @@ EWidget* WidgetCheckMouseInner(ChildStack* child){
     if(widget == NULL)
         return NULL;
         
-    while((!(widget->widget_flags & ENGINE_FLAG_WIDGET_ACTIVE) || !(widget->widget_flags & ENGINE_FLAG_WIDGET_VISIBLE)) && next != NULL){
+    while((!(widget->widget_flags & TIGOR_FLAG_WIDGET_ACTIVE) || !(widget->widget_flags & TIGOR_FLAG_WIDGET_VISIBLE)) && next != NULL){
 
         widget = next->node;
 
@@ -280,7 +280,7 @@ EWidget* WidgetCheckMouseInner(ChildStack* child){
         if(widget != NULL)
         {
             if(WidgetCheck(widget)){
-                widget->widget_flags |= ENGINE_FLAG_WIDGET_IN;
+                widget->widget_flags |= TIGOR_FLAG_WIDGET_IN;
                 return widget;
             }
         }
@@ -298,7 +298,7 @@ void WidgetEventsPipe(ChildStack *child)
     if(child == NULL)
         return;
 
-    ZWindow *window = (ZWindow *)engine.window;
+    TWindow *window = (TWindow *)engine.window;
 
     EWidget *widget = child->node;
 
@@ -308,50 +308,50 @@ void WidgetEventsPipe(ChildStack *child)
 
     if(e_var_sellected != NULL)
     {      
-        widget->widget_flags |= ENGINE_FLAG_WIDGET_IN;
+        widget->widget_flags |= TIGOR_FLAG_WIDGET_IN;
 
-        if((e_var_sellected->widget_flags & ENGINE_FLAG_WIDGET_WAS_OUT) && !(e_var_sellected->widget_flags & ENGINE_FLAG_WIDGET_WAS_IN))
-            WidgetConfirmTrigger(e_var_sellected, ENGINE_WIDGET_TRIGGER_MOUSE_IN, NULL);
-        else if(!(e_var_sellected->widget_flags & ENGINE_FLAG_WIDGET_WAS_OUT) && (e_var_sellected->widget_flags & ENGINE_FLAG_WIDGET_WAS_IN))
-            WidgetConfirmTrigger(e_var_sellected, ENGINE_WIDGET_TRIGGER_MOUSE_OUT, NULL);
-        else if(!(e_var_sellected->widget_flags & ENGINE_FLAG_WIDGET_WAS_OUT)&& (e_var_sellected->widget_flags & ENGINE_FLAG_WIDGET_WAS_IN))
-            WidgetConfirmTrigger(e_var_sellected, ENGINE_WIDGET_TRIGGER_MOUSE_STAY, NULL);
+        if((e_var_sellected->widget_flags & TIGOR_FLAG_WIDGET_WAS_OUT) && !(e_var_sellected->widget_flags & TIGOR_FLAG_WIDGET_WAS_IN))
+            WidgetConfirmTrigger(e_var_sellected, TIGOR_WIDGET_TRIGGER_MOUSE_IN, NULL);
+        else if(!(e_var_sellected->widget_flags & TIGOR_FLAG_WIDGET_WAS_OUT) && (e_var_sellected->widget_flags & TIGOR_FLAG_WIDGET_WAS_IN))
+            WidgetConfirmTrigger(e_var_sellected, TIGOR_WIDGET_TRIGGER_MOUSE_OUT, NULL);
+        else if(!(e_var_sellected->widget_flags & TIGOR_FLAG_WIDGET_WAS_OUT)&& (e_var_sellected->widget_flags & TIGOR_FLAG_WIDGET_WAS_IN))
+            WidgetConfirmTrigger(e_var_sellected, TIGOR_WIDGET_TRIGGER_MOUSE_STAY, NULL);
 
         if(e_var_leftMouse && e_var_wasReleased)
         {
             if(e_var_current_entry != e_var_sellected)
                 e_var_current_entry = NULL;
 
-            WidgetConfirmTrigger(e_var_sellected, ENGINE_WIDGET_TRIGGER_MOUSE_PRESS, NULL);
+            WidgetConfirmTrigger(e_var_sellected, TIGOR_WIDGET_TRIGGER_MOUSE_PRESS, NULL);
             e_var_wasReleased = false;
 
             if(e_var_last_sellected != e_var_sellected){
 
                 if(e_var_last_sellected != NULL)
-                    WidgetConfirmTrigger(e_var_last_sellected, ENGINE_WIDGET_TRIGGER_WIDGET_UNFOCUS, NULL);
+                    WidgetConfirmTrigger(e_var_last_sellected, TIGOR_WIDGET_TRIGGER_WIDGET_UNFOCUS, NULL);
 
-                WidgetConfirmTrigger(e_var_sellected, ENGINE_WIDGET_TRIGGER_WIDGET_FOCUS, NULL);
+                WidgetConfirmTrigger(e_var_sellected, TIGOR_WIDGET_TRIGGER_WIDGET_FOCUS, NULL);
             }
 
             e_var_last_sellected = e_var_sellected;
         }
         else if(e_var_leftMouse)
-            WidgetConfirmTrigger(e_var_sellected, ENGINE_WIDGET_TRIGGER_MOUSE_MOVE, NULL);
+            WidgetConfirmTrigger(e_var_sellected, TIGOR_WIDGET_TRIGGER_MOUSE_MOVE, NULL);
         else if(!e_var_leftMouse && !e_var_wasReleased)
         {
-            WidgetConfirmTrigger(e_var_sellected, ENGINE_WIDGET_TRIGGER_MOUSE_RELEASE, NULL);
+            WidgetConfirmTrigger(e_var_sellected, TIGOR_WIDGET_TRIGGER_MOUSE_RELEASE, NULL);
             e_var_wasReleased = true;
         }else
         {
-            e_var_sellected->widget_flags |= (((e_var_sellected->widget_flags & ENGINE_FLAG_WIDGET_WAS_OUT) | (e_var_sellected->widget_flags & ENGINE_FLAG_WIDGET_OUT)) | \
-                                            ((e_var_sellected->widget_flags & ENGINE_FLAG_WIDGET_WAS_IN) | (e_var_sellected->widget_flags & ENGINE_FLAG_WIDGET_IN)));
+            e_var_sellected->widget_flags |= (((e_var_sellected->widget_flags & TIGOR_FLAG_WIDGET_WAS_OUT) | (e_var_sellected->widget_flags & TIGOR_FLAG_WIDGET_OUT)) | \
+                                            ((e_var_sellected->widget_flags & TIGOR_FLAG_WIDGET_WAS_IN) | (e_var_sellected->widget_flags & TIGOR_FLAG_WIDGET_IN)));
         }
 
     }
 
-    int state = wManagerGetMouseButton(window->e_window, ENGINE_MOUSE_BUTTON_LEFT);
+    int state = wManagerGetMouseButton(window->e_window, TIGOR_MOUSE_BUTTON_LEFT);
 
-    if(state == ENGINE_PRESS)
+    if(state == TIGOR_PRESS)
         e_var_leftMouse = true;
     else
         e_var_leftMouse = false;
@@ -364,7 +364,7 @@ void WidgetEventsPipe(ChildStack *child)
 
 void WidgetDestroy(EWidget *widget){
 
-    if(!(widget->go.flags & ENGINE_GAME_OBJECT_FLAG_INIT))
+    if(!(widget->go.flags & TIGOR_GAME_OBJECT_FLAG_INIT))
         return;
 
     ChildStack *child = widget->child;
@@ -380,9 +380,9 @@ void WidgetDestroy(EWidget *widget){
 
     FreeMemory(widget->callbacks.stack);
 
-    widget->go.flags &= ~(ENGINE_GAME_OBJECT_FLAG_INIT);
+    widget->go.flags &= ~(TIGOR_GAME_OBJECT_FLAG_INIT);
 
-    if((widget->widget_flags & ENGINE_FLAG_WIDGET_ALLOCATED))
+    if((widget->widget_flags & TIGOR_FLAG_WIDGET_ALLOCATED))
         FreeMemory(widget);
 
 }

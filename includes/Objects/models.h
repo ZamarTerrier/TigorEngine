@@ -15,6 +15,13 @@ extern "C"
 {
 #endif
 
+typedef enum{
+    TIGOR_MODEL_NONE,
+    TIGOR_MODEL_TYPE_GLTF,
+    TIGOR_MODEL_TYPE_FBX,
+    TIGOR_MODEL_TYPE_OBJ
+} ModelType;
+
 typedef struct{
     GameObject3D *models;
     uint32_t num_models;
@@ -33,9 +40,13 @@ typedef struct{
 
     void *obj;
     uint32_t obj_size;
+
+    ModelType type;
 } ModelObject3D;
 
 void ModelModelBufferUpdate(ModelObject3D* mo, uint32_t indx_node, void *data);
+
+void ModelNextFrame(ModelObject3D *mo, double time, int num_animation);
 
 void ModelDefaultInit(ModelObject3D *mo, GameObjectType type);
 void ModelDefaultUpdate(ModelObject3D* mo);

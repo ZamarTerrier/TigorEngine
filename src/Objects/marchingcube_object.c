@@ -537,7 +537,7 @@ void MarchingCubeObjectSetGridValue(float *grid, uint32_t size, int x, int y, in
 
 void MarchingCubeObjectInit(MarchingCubeObject *mco, float *grid, uint32_t size, float isolevel)
 {
-    GameObject3DInit((GameObject3D *)mco, ENGINE_GAME_OBJECT_TYPE_3D);
+    GameObject3DInit((GameObject3D *)mco, TIGOR_GAME_OBJECT_TYPE_3D);
 
     mco->grid = grid;
     mco->isolevel = isolevel;

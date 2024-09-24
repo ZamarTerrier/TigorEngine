@@ -26,7 +26,7 @@ typedef struct{
     uint32_t swapChainImageFormat;
     
     EIExtent2D swapChainExtent;
-} ZSwapChain;
+} TSwapChain;
 
 void querySwapChainSupport(VkPhysicalDevice device, SwapChainSupportDetails* details) ;
 

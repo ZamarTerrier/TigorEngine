@@ -96,11 +96,11 @@ void _wManagerPollMonitorsX11(void)
             }
 
             if (monitor->x11.output == primary)
-                type = _ENGINE_INSERT_FIRST;
+                type = _TIGOR_INSERT_FIRST;
             else
-                type = _ENGINE_INSERT_LAST;
+                type = _TIGOR_INSERT_LAST;
 
-            _wManagerInputMonitor(monitor, ENGINE_CONNECTED, type);
+            _wManagerInputMonitor(monitor, TIGOR_CONNECTED, type);
 
             XRRFreeOutputInfo(oi);
             XRRFreeCrtcInfo(ci);
@@ -114,7 +114,7 @@ void _wManagerPollMonitorsX11(void)
         for (int i = 0;  i < disconnectedCount;  i++)
         {
             if (disconnected[i])
-                _wManagerInputMonitor(disconnected[i], ENGINE_DISCONNECTED, 0);
+                _wManagerInputMonitor(disconnected[i], TIGOR_DISCONNECTED, 0);
         }
 
         _wManager_free(disconnected);
@@ -125,7 +125,7 @@ void _wManagerPollMonitorsX11(void)
         const int heightMM = DisplayHeightMM(wX11->display, wX11->screen);
 
         _wManagerInputMonitor(_wManagerAllocMonitor("Display", widthMM, heightMM),
-                          ENGINE_CONNECTED,
-                          _ENGINE_INSERT_FIRST);
+                          TIGOR_CONNECTED,
+                          _TIGOR_INSERT_FIRST);
     }*/
 }

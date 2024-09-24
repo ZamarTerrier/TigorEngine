@@ -10,7 +10,7 @@
 #include "Tools/e_math.h"
 #include "Tools/e_shaders.h"
 
-extern ZEngine engine;
+extern TEngine engine;
 
 
 void ImageWidgetCreateQuad(GameObject2D *go)
@@ -62,7 +62,7 @@ void ImageWidgetDraw(EWidgetImage *img){
     Transform2DSetScale((struct GameObject2D_T *)&img->image, img->widget.scale.x, img->widget.scale.y);
     Transform2DSetPosition((struct GameObject2D_T *)&img->image, img->widget.position.x + img->widget.base.x, img->widget.position.y + img->widget.base.y);
 
-    if(img->widget.widget_flags & ENGINE_FLAG_WIDGET_VISIBLE){
+    if(img->widget.widget_flags & TIGOR_FLAG_WIDGET_VISIBLE){
         GameObjectDraw((GameObject *)&img->image);
     }
 }
@@ -71,14 +71,14 @@ extern void WidgetDestroy(EWidget *widget);
 
 void ImageWidgetDestroy(EWidgetImage *img){
 
-    if(!(img->image.self.flags & ENGINE_GAME_OBJECT_FLAG_INIT))
+    if(!(img->image.self.flags & TIGOR_GAME_OBJECT_FLAG_INIT))
         return;
 
     WidgetDestroy((EWidget *)img);
 
     GameObjectDestroy((GameObject *)&img->image);
 
-    img->image.self.flags &= ~(ENGINE_GAME_OBJECT_FLAG_INIT);
+    img->image.self.flags &= ~(TIGOR_GAME_OBJECT_FLAG_INIT);
 }
 
 
@@ -95,10 +95,10 @@ void ImageWidgetInit(EWidgetImage *img, char *image_path, EWidget *parent){
     GameObjectSetDrawFunc((GameObject *)img, ImageWidgetDraw);
     GameObjectSetDestroyFunc((GameObject *)img, ImageWidgetDestroy);
 
-    img->widget.type = ENGINE_WIDGET_TYPE_IMAGE;
+    img->widget.type = TIGOR_WIDGET_TYPE_IMAGE;
     ///--------------------------------------------------
 
-    GameObject2DInit(&img->image, ENGINE_GAME_OBJECT_TYPE_2D);
+    GameObject2DInit(&img->image, TIGOR_GAME_OBJECT_TYPE_2D);
 
     ImageWidgetCreateQuad(&img->image);
 
@@ -135,9 +135,9 @@ void ImageWidgetInit(EWidgetImage *img, char *image_path, EWidget *parent){
     BluePrintSetTextureImageCreate(&img->image.graphObj.blueprints, num_pack, img->image.image, 0);
 
     uint32_t flags = BluePrintGetSettingsValue(&img->image.graphObj.blueprints, num_pack, 3);
-    BluePrintSetSettingsValue(&img->image.graphObj.blueprints, num_pack, 3, flags | ENGINE_PIPELINE_FLAG_FACE_CLOCKWISE);
+    BluePrintSetSettingsValue(&img->image.graphObj.blueprints, num_pack, 3, flags | TIGOR_PIPELINE_FLAG_FACE_CLOCKWISE);
 
-    img->image.self.flags |= ENGINE_GAME_OBJECT_FLAG_SHADED;
+    img->image.self.flags |= TIGOR_GAME_OBJECT_FLAG_SHADED;
     //----------------------------------------------------
 
     GameObject2DInitDraw(&img->image);

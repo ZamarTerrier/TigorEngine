@@ -9,7 +9,7 @@
 #include "Data/e_resource_data.h"
 #include "Data/e_resource_engine.h"
 
-extern ZEngine engine;
+extern TEngine engine;
 
 extern void EntryWidgetPress(EWidget *widget, void *entry, void *arg);
 extern void EntryWidgetUnfocus(EWidget *widget, void *entry, void *arg);
@@ -44,7 +44,7 @@ int EntryAreaWidgetKeyPressInput(EWidget* widget, int key, void *arg){
 
 int EntryAreaWidgetKeyRepeatInput(EWidget* widget, int key, void *arg)
 {
-    if(key == ENGINE_KEY_BACKSPACE)
+    if(key == TIGOR_KEY_BACKSPACE)
         EntryAreaWidgetMakeDelete((EWidgetEntryArea *)widget);
 
     return 0;

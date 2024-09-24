@@ -16,7 +16,7 @@
 #include "Data/e_resource_data.h"
 #include "Data/e_resource_engine.h"
 
-extern ZEngine engine;
+extern TEngine engine;
 
 void GameObject2DTransformBufferUpdate(GameObject2D *go, void *data)
 {
@@ -45,7 +45,7 @@ void GameObject2DImageBuffer(GameObject2D *go, void *data)
 
 void GameObject2DDefaultUpdate(GameObject2D* go) {
 
-    ZDevice *device = (ZDevice *)engine.device;
+    TDevice *device = (TDevice *)engine.device;
     
     for(int i=0; i < go->graphObj.gItems.num_shader_packs;i++)
     {
@@ -75,7 +75,7 @@ void GameObject2DDefaultUpdate(GameObject2D* go) {
 
 void GameObject2DDefaultDraw(GameObject2D* go){
     
-    ZDevice *device = (ZDevice *)engine.device;
+    TDevice *device = (TDevice *)engine.device;
     
     VkCommandBuffer command = device->commandBuffers[engine.imageIndex];
 
@@ -97,7 +97,7 @@ void GameObject2DDefaultDraw(GameObject2D* go){
 
             vkCmdBindPipeline(command, VK_PIPELINE_BIND_POINT_GRAPHICS, pack->pipeline.pipeline);
 
-            if(settings->flags & ENGINE_PIPELINE_FLAG_DYNAMIC_VIEW){
+            if(settings->flags & TIGOR_PIPELINE_FLAG_DYNAMIC_VIEW){
                 vkCmdSetViewport(command, 0, 1, (const VkViewport *)&settings->viewport);
                 vkCmdSetScissor(command, 0, 1, (const VkRect2D *)&settings->scissor);
             }
@@ -108,7 +108,7 @@ void GameObject2DDefaultDraw(GameObject2D* go){
             vkCmdBindVertexBuffers(command, 0, 1, vertexBuffers, offsets);
             vkCmdBindDescriptorSets(command, VK_PIPELINE_BIND_POINT_GRAPHICS, pack->pipeline.layout, 0, 1, &pack->descriptor.descr_sets[engine.imageIndex], 0, NULL);
 
-            if(settings->flags & ENGINE_PIPELINE_FLAG_DRAW_INDEXED){
+            if(settings->flags & TIGOR_PIPELINE_FLAG_DRAW_INDEXED){
 
                 vkCmdBindIndexBuffer(command, iParam->buffer.buffer, 0, VK_INDEX_TYPE_UINT32);
                 vkCmdDrawIndexed(command, iParam->indexesSize, 1, 0, 0, 0);
@@ -165,9 +165,9 @@ void GameObject2DSetShader(GameObject2D *go, char *vert_path, char *frag_path){
     uint32_t num_pack = BluePrintInit(&go->graphObj.blueprints);
 
     ShaderObject vert_code = readFile(full_path_vert);
-    vert_code.flags |= ENGINE_SHADER_OBJECT_READED;
+    vert_code.flags |= TIGOR_SHADER_OBJECT_READED;
     ShaderObject frag_code = readFile(full_path_frag);
-    frag_code.flags |= ENGINE_SHADER_OBJECT_READED;
+    frag_code.flags |= TIGOR_SHADER_OBJECT_READED;
     
     GraphicsObjectSetShaderWithUniform(&go->graphObj, &vert_code, num_pack);
     GraphicsObjectSetShaderWithUniform(&go->graphObj, &frag_code, num_pack);
@@ -176,7 +176,7 @@ void GameObject2DSetShader(GameObject2D *go, char *vert_path, char *frag_path){
     FreeMemory(full_path_vert);
     FreeMemory(full_path_frag);    
 
-    go->self.flags |= ENGINE_GAME_OBJECT_FLAG_SHADED;
+    go->self.flags |= TIGOR_GAME_OBJECT_FLAG_SHADED;
 }
 
 void GameObject2DSetShaderSimple(GameObject2D *go, char *vert_path, char *frag_path){
@@ -205,9 +205,9 @@ void GameObject2DSetShaderSimple(GameObject2D *go, char *vert_path, char *frag_p
     uint32_t num_pack = BluePrintInit(&go->graphObj.blueprints);
 
     ShaderObject vert_code = readFile(full_path_vert);
-    vert_code.flags |= ENGINE_SHADER_OBJECT_READED;
+    vert_code.flags |= TIGOR_SHADER_OBJECT_READED;
     ShaderObject frag_code = readFile(full_path_frag);
-    frag_code.flags |= ENGINE_SHADER_OBJECT_READED;
+    frag_code.flags |= TIGOR_SHADER_OBJECT_READED;
     
     GraphicsObjectSetShader(&go->graphObj, &vert_code, num_pack, VK_SHADER_STAGE_VERTEX_BIT);
     GraphicsObjectSetShader(&go->graphObj, &frag_code, num_pack, VK_SHADER_STAGE_FRAGMENT_BIT);
@@ -216,13 +216,13 @@ void GameObject2DSetShaderSimple(GameObject2D *go, char *vert_path, char *frag_p
     FreeMemory(full_path_vert);
     FreeMemory(full_path_frag);    
 
-    go->self.flags |= ENGINE_GAME_OBJECT_FLAG_SHADED;
+    go->self.flags |= TIGOR_GAME_OBJECT_FLAG_SHADED;
 }
 
 
 void GameObject2DInitDefaultShader(GameObject2D *go){    
     
-    if(go->self.flags & ENGINE_GAME_OBJECT_FLAG_SHADED)
+    if(go->self.flags & TIGOR_GAME_OBJECT_FLAG_SHADED)
         return;
     
     uint32_t num_pack = BluePrintInit(&go->graphObj.blueprints);
@@ -250,29 +250,29 @@ void GameObject2DInitDefaultShader(GameObject2D *go){
     GameObject2DSetDescriptorTextureCreate(go, num_pack, 2, go->image);
 
     uint32_t flags = BluePrintGetSettingsValue(&go->graphObj.blueprints, num_pack, 3);
-    BluePrintSetSettingsValue(&go->graphObj.blueprints, num_pack, 3, flags | ENGINE_PIPELINE_FLAG_FACE_CLOCKWISE);
+    BluePrintSetSettingsValue(&go->graphObj.blueprints, num_pack, 3, flags | TIGOR_PIPELINE_FLAG_FACE_CLOCKWISE);
 
-    /*if(so->type == ENGINE_SHAPE_OBJECT_LINE)
+    /*if(so->type == TIGOR_SHAPE_OBJECT_LINE)
     {
         flags = BluePrintGetSettingsValue(&so->go.graphObj.blueprints, num_pack, 3);
 
         BluePrintSetSettingsValue(&so->go.graphObj.blueprints, num_pack, 1, VK_PRIMITIVE_TOPOLOGY_LINE_LIST);
-        BluePrintSetSettingsValue(&so->go.graphObj.blueprints, num_pack, 3, flags & ~(ENGINE_PIPELINE_FLAG_DRAW_INDEXED));
+        BluePrintSetSettingsValue(&so->go.graphObj.blueprints, num_pack, 3, flags & ~(TIGOR_PIPELINE_FLAG_DRAW_INDEXED));
     }*/
     
-    go->self.flags |= ENGINE_GAME_OBJECT_FLAG_SHADED;
+    go->self.flags |= TIGOR_GAME_OBJECT_FLAG_SHADED;
 }
 
 void GameObject2DInitDraw(GameObject2D *go)
 {
-    if(!(go->self.flags & ENGINE_GAME_OBJECT_FLAG_SHADED))
+    if(!(go->self.flags & TIGOR_GAME_OBJECT_FLAG_SHADED))
         return;
 
     GraphicsObjectCreateDrawItems(&go->graphObj);
 
     PipelineCreateGraphics(&go->graphObj);
 
-    go->self.flags |= ENGINE_GAME_OBJECT_FLAG_INIT;
+    go->self.flags |= TIGOR_GAME_OBJECT_FLAG_INIT;
 }
 
 void GameObject2DInitDefault(GameObject2D *go){
@@ -342,7 +342,7 @@ void GameObject2DDestroy(GameObject2D* go){
     FreeMemory(go->self.vert);
     FreeMemory(go->self.frag);
     
-    go->self.flags &= ~(ENGINE_GAME_OBJECT_FLAG_INIT);
+    go->self.flags &= ~(TIGOR_GAME_OBJECT_FLAG_INIT);
 }
 
 void GameObject2DInit(GameObject2D* go, GameObjectType type)
@@ -361,11 +361,11 @@ void GameObject2DInit(GameObject2D* go, GameObjectType type)
     Transform2DInit(&go->transform);
 
     switch(type){
-        case ENGINE_GAME_OBJECT_TYPE_2D:
-            GraphicsObjectInit(&go->graphObj, ENGINE_VERTEX_TYPE_2D_OBJECT);
+        case TIGOR_GAME_OBJECT_TYPE_2D:
+            GraphicsObjectInit(&go->graphObj, TIGOR_VERTEX_TYPE_2D_OBJECT);
             break;
-        case ENGINE_GAME_OBJECT_TYPE_PARTICLE_2D:
-            GraphicsObjectInit(&go->graphObj, ENGINE_VERTEX_TYPE_2D_PARTICLE);
+        case TIGOR_GAME_OBJECT_TYPE_PARTICLE_2D:
+            GraphicsObjectInit(&go->graphObj, TIGOR_VERTEX_TYPE_2D_PARTICLE);
             break;
     }
 

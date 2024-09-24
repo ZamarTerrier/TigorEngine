@@ -1,5 +1,5 @@
-#include <ZamEngine.h>
-#include <ZamGUI.h>
+#include <TigorEngine.h>
+#include <TigorGUI.h>
 
 #include <Core/e_camera.h>
 
@@ -8,6 +8,7 @@
 #include <Tools/e_math.h>
 #include <Tools/objLoader.h>
 #include <Tools/glTFLoader.h>
+#include <Tools/fbxLoader.h>
 
 Camera2D cam2D;
 Camera3D cam3D;
@@ -16,9 +17,9 @@ ModelObject3D model;
 
 int main(){
 
-    ZEngineInitSystem(800, 600, "Test");
+    TEngineInitSystem(800, 600, "Test");
 
-    ZEngineSetFont("res\\RobotoBlack.ttf");
+    TEngineSetFont("res\\RobotoBlack.ttf");
 
     printf("Size uniform is %i\n", sizeof(InvMatrixsBuffer));
 
@@ -28,33 +29,36 @@ int main(){
     DrawParam dParam;
     memset(&dParam, 0, sizeof(DrawParam));
    
-    dParam.diffuse = "res\\texture.jpg";
+    dParam.diffuse = "res\\secretary_tex.png";
 
-    Load3DglTFModel(&model, "res\\", "Little_Tokyo", 2, &dParam);
+    //Load3DglTFModel(&model, "res\\", "Little_Tokyo", 2, &dParam);
+    Load3DFBXModel(&model, "res\\Dismissing Gesture.fbx", &dParam);
 
     Transform3DSetScaleT(&model.transform, 0.1, 0.1, -0.1);
 
     //Load3DObjModel(&model, "res\\rabochiy_i_kolkhoznitsa_lou_poli.obj", &dParam);
 
     float ticker = 0;
-    while (!ZEngineWindowIsClosed())
+    while (!TEngineWindowIsClosed())
     {
-        ZEnginePoolEvents();
+        TEnginePoolEvents();
 
         Camera3DMovementUpdate(0.1);
         Camera3DUpdateInput(0.1);
 
-        ZEngineDraw(&model);
+        TEngineDraw(&model);
 
-        ZEngineRender();
+        TEngineRender();
+
+        ModelNextFrame(&model, 0.02, 1);
     }
         
 
     GameObjectDestroy(&model);
 
-    EngineDeviceWaitIdle();
+    //EngineDeviceWaitIdle();
     
-    ZEngineCleanUp();
+    TEngineCleanUp();
 
     return 0;
 }

@@ -27,14 +27,14 @@ int ListWidgetPressItem(EWidget *widget, void *entry, int id){
 
     ButtonWidgetSetColor(button, parent->color.x + 0.6, parent->color.y, parent->color.z);
 
-    WidgetConfirmTrigger((EWidget *)list, ENGINE_WIDGET_TRIGGER_LIST_PRESS_ITEM, (void *)id);
+    WidgetConfirmTrigger((EWidget *)list, TIGOR_WIDGET_TRIGGER_LIST_PRESS_ITEM, (void *)id);
 
     return -1;
 }
 
 void ListWidgetDraw(EWidgetList *list){
 
-    if(list->widget.widget_flags & ENGINE_FLAG_WIDGET_VISIBLE){
+    if(list->widget.widget_flags & TIGOR_FLAG_WIDGET_VISIBLE){
 
         ChildStack *child = list->widget.child;
 
@@ -87,12 +87,12 @@ EWidgetButton *ListWidgetAddItem(EWidgetList *list, const char *text){
 
     ButtonWidgetInit(item, list->widget.scale, text, (EWidget *)list);
 
-    item->widget.widget_flags |= ENGINE_FLAG_WIDGET_ALLOCATED;
+    item->widget.widget_flags |= TIGOR_FLAG_WIDGET_ALLOCATED;
     item->widget.rounding = 0.f;
 
     ButtonWidgetSetColor(item, list->widget.color.x, list->widget.color.y, list->widget.color.z);
 
-    WidgetConnect((EWidget *)item, ENGINE_WIDGET_TRIGGER_BUTTON_PRESS, (widget_callback)ListWidgetPressItem, (void *)list->size);
+    WidgetConnect((EWidget *)item, TIGOR_WIDGET_TRIGGER_BUTTON_PRESS, (widget_callback)ListWidgetPressItem, (void *)list->size);
 
     list->size ++;
     return item;

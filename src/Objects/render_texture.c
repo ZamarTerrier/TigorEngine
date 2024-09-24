@@ -15,7 +15,7 @@
 #include "Data/e_resource_data.h"
 #include "Data/e_resource_engine.h"
 
-extern ZEngine engine;
+extern TEngine engine;
 
 void RenderTextureCreateDepthResource(RenderTexture *render, RenderFrame *frame)
 {
@@ -31,7 +31,7 @@ void RenderTextureCreateDepthResource(RenderTexture *render, RenderFrame *frame)
 
 void RenderTextureCreateRenderPass(RenderTexture *render, void **render_pass)
 {
-    ZDevice *device = (ZDevice *)engine.device;
+    TDevice *device = (TDevice *)engine.device;
 
     if(render->m_format == 0)
     {
@@ -65,8 +65,8 @@ void RenderTextureCreateRenderPass(RenderTexture *render, void **render_pass)
     colorAttachment->storeOp = VK_ATTACHMENT_STORE_OP_STORE;
     colorAttachment->stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
     colorAttachment->stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-    colorAttachment->initialLayout = render->type == ENGINE_RENDER_TYPE_IMAGE || render->type == ENGINE_RENDER_TYPE_CUBEMAP ? VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL : VK_IMAGE_LAYOUT_UNDEFINED;
-    colorAttachment->finalLayout = render->type == ENGINE_RENDER_TYPE_IMAGE || render->type == ENGINE_RENDER_TYPE_CUBEMAP ? VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL : VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+    colorAttachment->initialLayout = render->type == TIGOR_RENDER_TYPE_IMAGE || render->type == TIGOR_RENDER_TYPE_CUBEMAP ? VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL : VK_IMAGE_LAYOUT_UNDEFINED;
+    colorAttachment->finalLayout = render->type == TIGOR_RENDER_TYPE_IMAGE || render->type == TIGOR_RENDER_TYPE_CUBEMAP ? VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL : VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
     VkAttachmentDescription *depthAttachment = AllocateMemory(1, sizeof(VkAttachmentDescription));
     depthAttachment->format = findDepthFormat();
@@ -76,7 +76,7 @@ void RenderTextureCreateRenderPass(RenderTexture *render, void **render_pass)
     depthAttachment->stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
     depthAttachment->stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 
-    if(render->type == ENGINE_RENDER_TYPE_DEPTH || (render->flags & ENGINE_RENDER_FLAG_DEPTH))
+    if(render->type == TIGOR_RENDER_TYPE_DEPTH || (render->flags & TIGOR_RENDER_FLAG_DEPTH))
     {
         depthAttachment->initialLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
         depthAttachment->finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -90,17 +90,17 @@ void RenderTextureCreateRenderPass(RenderTexture *render, void **render_pass)
     colorAttachmentRef->layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
     VkAttachmentReference *depthAttachmentRef = AllocateMemory(1, sizeof(VkAttachmentReference));
-    depthAttachmentRef->attachment = render->type  == ENGINE_RENDER_TYPE_DEPTH || (render->flags & ENGINE_RENDER_FLAG_DEPTH) ? 0 : 1;//Номер атачмента
+    depthAttachmentRef->attachment = render->type  == TIGOR_RENDER_TYPE_DEPTH || (render->flags & TIGOR_RENDER_FLAG_DEPTH) ? 0 : 1;//Номер атачмента
     depthAttachmentRef->layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
     VkSubpassDescription subpass;
     memset(&subpass, 0, sizeof(VkSubpassDescription));
     subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 
-    if(render->type != ENGINE_RENDER_TYPE_IMAGE)
+    if(render->type != TIGOR_RENDER_TYPE_IMAGE)
         subpass.pDepthStencilAttachment = depthAttachmentRef;
 
-    if(render->type != ENGINE_RENDER_TYPE_DEPTH && !(render->flags & ENGINE_RENDER_FLAG_DEPTH)){
+    if(render->type != TIGOR_RENDER_TYPE_DEPTH && !(render->flags & TIGOR_RENDER_FLAG_DEPTH)){
         subpass.colorAttachmentCount = 1;
         subpass.pColorAttachments = colorAttachmentRef;
     }
@@ -108,11 +108,11 @@ void RenderTextureCreateRenderPass(RenderTexture *render, void **render_pass)
     VkRenderPassCreateInfo renderPassInfo;
     memset(&renderPassInfo, 0, sizeof(VkRenderPassCreateInfo));
 
-    VkSubpassDependency *depency = AllocateMemory( render->type != ENGINE_RENDER_TYPE_DEPTH ? 2 : 1, sizeof(VkSubpassDependency));
+    VkSubpassDependency *depency = AllocateMemory( render->type != TIGOR_RENDER_TYPE_DEPTH ? 2 : 1, sizeof(VkSubpassDependency));
 
-    if(render->type == ENGINE_RENDER_TYPE_CUBEMAP)
+    if(render->type == TIGOR_RENDER_TYPE_CUBEMAP)
     {
-        if(render->flags & ENGINE_RENDER_FLAG_DEPTH)
+        if(render->flags & TIGOR_RENDER_FLAG_DEPTH)
         {
             renderPassInfo.attachmentCount = 1;
             renderPassInfo.pAttachments = depthAttachment;
@@ -124,7 +124,7 @@ void RenderTextureCreateRenderPass(RenderTexture *render, void **render_pass)
         }
 
 
-    }else if(render->type != ENGINE_RENDER_TYPE_DEPTH){
+    }else if(render->type != TIGOR_RENDER_TYPE_DEPTH){
 
 
         depency[0].srcSubpass = VK_SUBPASS_EXTERNAL;
@@ -141,7 +141,7 @@ void RenderTextureCreateRenderPass(RenderTexture *render, void **render_pass)
         depency[1].srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
         depency[1].dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
 
-        if(render->type == ENGINE_RENDER_TYPE_WINDOW)
+        if(render->type == TIGOR_RENDER_TYPE_WINDOW)
         {
             VkAttachmentDescription attachments[] = {*colorAttachment, *depthAttachment};
 
@@ -171,7 +171,7 @@ void RenderTextureCreateRenderPass(RenderTexture *render, void **render_pass)
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
     renderPassInfo.subpassCount = 1;
     renderPassInfo.pSubpasses = &subpass;
-    renderPassInfo.dependencyCount = render->type == ENGINE_RENDER_TYPE_CUBEMAP ? 0 : 1;
+    renderPassInfo.dependencyCount = render->type == TIGOR_RENDER_TYPE_CUBEMAP ? 0 : 1;
 
     if(vkCreateRenderPass(device->e_device, &renderPassInfo, NULL, (VkRenderPass *)render_pass) != VK_SUCCESS)
     {
@@ -200,12 +200,12 @@ void RenderTextureTransitionLayer(RenderFrame *frame, uint32_t render_type, uint
     imgBar.newLayout = type_layout;
     imgBar.image = frame->render_texture.image;
 
-    imgBar.subresourceRange.aspectMask = aspect_mask;//render_type == ENGINE_RENDER_TYPE_DEPTH ? VK_IMAGE_ASPECT_DEPTH_BIT : VK_IMAGE_ASPECT_COLOR_BIT;
+    imgBar.subresourceRange.aspectMask = aspect_mask;//render_type == TIGOR_RENDER_TYPE_DEPTH ? VK_IMAGE_ASPECT_DEPTH_BIT : VK_IMAGE_ASPECT_COLOR_BIT;
     imgBar.subresourceRange.baseMipLevel = 0;
     imgBar.subresourceRange.levelCount = 1;
     imgBar.subresourceRange.baseArrayLayer = 0;
 
-    imgBar.subresourceRange.layerCount = render_type == ENGINE_RENDER_TYPE_CUBEMAP ? 6 : 1;
+    imgBar.subresourceRange.layerCount = render_type == TIGOR_RENDER_TYPE_CUBEMAP ? 6 : 1;
 
     void *cmd_buff = beginSingleTimeCommands();
 
@@ -216,8 +216,8 @@ void RenderTextureTransitionLayer(RenderFrame *frame, uint32_t render_type, uint
 
 void RenderTextureCreateFrames(RenderTexture *render, uint32_t flags)
 {
-    ZDevice *device = (ZDevice *)engine.device;
-    ZSwapChain *swapchain = (ZSwapChain *)engine.swapchain;
+    TDevice *device = (TDevice *)engine.device;
+    TSwapChain *swapchain = (TSwapChain *)engine.swapchain;
 
     for (int i=0;i < render->num_frames;i++) {
 
@@ -225,29 +225,29 @@ void RenderTextureCreateFrames(RenderTexture *render, uint32_t flags)
 
         if(render->m_format != 0)
         {
-            frame->m_currentLayout = render->type == ENGINE_RENDER_TYPE_WINDOW ? VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL : VK_IMAGE_LAYOUT_UNDEFINED;
+            frame->m_currentLayout = render->type == TIGOR_RENDER_TYPE_WINDOW ? VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL : VK_IMAGE_LAYOUT_UNDEFINED;
 
-            if(render->type != ENGINE_RENDER_TYPE_WINDOW)
+            if(render->type != TIGOR_RENDER_TYPE_WINDOW)
             {
-                uint32_t usage = render->type == ENGINE_RENDER_TYPE_DEPTH || (render->flags & ENGINE_RENDER_FLAG_DEPTH) ?  VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT :  VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+                uint32_t usage = render->type == TIGOR_RENDER_TYPE_DEPTH || (render->flags & TIGOR_RENDER_FLAG_DEPTH) ?  VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT :  VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
 
                 TextureCreateImage(render->width, render->height, 1,render->m_format, VK_IMAGE_TILING_OPTIMAL, usage, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, flags, &frame->render_texture);
 
                 TextureCreateSampler(&frame->render_texture.sampler, render->m_format, 1);
 
-                if(render->type & ENGINE_RENDER_TYPE_CUBEMAP)
+                if(render->type & TIGOR_RENDER_TYPE_CUBEMAP)
                 {
                     frame->shadowCubeMapFaceImageViews = AllocateMemoryP(6, sizeof(VkImageView), render);
-                    frame->render_texture.image_view = TextureCreateImageViewCube(frame->render_texture.image, frame->shadowCubeMapFaceImageViews, render->m_format, render->flags & ENGINE_RENDER_FLAG_DEPTH ? VK_IMAGE_ASPECT_DEPTH_BIT : VK_IMAGE_ASPECT_COLOR_BIT);
+                    frame->render_texture.image_view = TextureCreateImageViewCube(frame->render_texture.image, frame->shadowCubeMapFaceImageViews, render->m_format, render->flags & TIGOR_RENDER_FLAG_DEPTH ? VK_IMAGE_ASPECT_DEPTH_BIT : VK_IMAGE_ASPECT_COLOR_BIT);
                     frame->framebufers = AllocateMemoryP(6, sizeof(VkFramebuffer), render);
                 }else{
-                    frame->render_texture.image_view = TextureCreateImageView(frame->render_texture.image, VK_IMAGE_VIEW_TYPE_2D, render->m_format, render->type == ENGINE_RENDER_TYPE_DEPTH || (render->flags & ENGINE_RENDER_FLAG_DEPTH) ? VK_IMAGE_ASPECT_DEPTH_BIT : VK_IMAGE_ASPECT_COLOR_BIT, 1);
+                    frame->render_texture.image_view = TextureCreateImageView(frame->render_texture.image, VK_IMAGE_VIEW_TYPE_2D, render->m_format, render->type == TIGOR_RENDER_TYPE_DEPTH || (render->flags & TIGOR_RENDER_FLAG_DEPTH) ? VK_IMAGE_ASPECT_DEPTH_BIT : VK_IMAGE_ASPECT_COLOR_BIT, 1);
                     frame->framebufers = AllocateMemoryP(1, sizeof(VkFramebuffer), render);
                 }
 
                 RenderTextureCreateDepthResource(render, frame);
 
-                RenderTextureTransitionLayer(frame, render->type, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, render->type == ENGINE_RENDER_TYPE_DEPTH || (render->flags & ENGINE_RENDER_FLAG_DEPTH) ? VK_IMAGE_ASPECT_DEPTH_BIT : VK_IMAGE_ASPECT_COLOR_BIT);
+                RenderTextureTransitionLayer(frame, render->type, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, render->type == TIGOR_RENDER_TYPE_DEPTH || (render->flags & TIGOR_RENDER_FLAG_DEPTH) ? VK_IMAGE_ASPECT_DEPTH_BIT : VK_IMAGE_ASPECT_COLOR_BIT);
 
             }else{
                 frame->render_texture.image_view = swapchain->swapChainImageViews[i];
@@ -266,14 +266,14 @@ void RenderTextureCreateFrames(RenderTexture *render, uint32_t flags)
         framebufferInfo->height = render->height;
         framebufferInfo->layers = 1;
 
-        if(render->type == ENGINE_RENDER_TYPE_GEOMETRY)
+        if(render->type == TIGOR_RENDER_TYPE_GEOMETRY)
         {
             if(vkCreateFramebuffer(device->e_device, framebufferInfo, NULL, (VkFramebuffer *)&frame->framebufers[0]) != VK_SUCCESS)
             {
                 printf("Error create framebuffer for render texture.");
                 exit(1);
             }
-        }else if(render->type == ENGINE_RENDER_TYPE_WINDOW)
+        }else if(render->type == TIGOR_RENDER_TYPE_WINDOW)
         {
             VkImageView attachments[2];
             attachments[0] = frame->render_texture.image_view;
@@ -288,10 +288,10 @@ void RenderTextureCreateFrames(RenderTexture *render, uint32_t flags)
                 exit(1);
             }
 
-        }else if(render->type == ENGINE_RENDER_TYPE_CUBEMAP){
+        }else if(render->type == TIGOR_RENDER_TYPE_CUBEMAP){
 
 
-            if(render->flags & ENGINE_RENDER_FLAG_DEPTH)
+            if(render->flags & TIGOR_RENDER_FLAG_DEPTH)
             {
                 for(int j=0;j < 6;j++)
                 {
@@ -345,22 +345,22 @@ void RenderTextureCreateFrames(RenderTexture *render, uint32_t flags)
 
 void RenderTextureInit(RenderTexture *render, uint32_t type, uint32_t width, uint32_t height, uint32_t flags)
 {
-    ZSwapChain *swapchain = (ZSwapChain *)engine.swapchain;
+    TSwapChain *swapchain = (TSwapChain *)engine.swapchain;
 
     memset(render, 0, sizeof(RenderTexture));
 
     switch(type)
     {
-        case ENGINE_RENDER_TYPE_DEPTH:
+        case TIGOR_RENDER_TYPE_DEPTH:
             render->m_format = findDepthFormat();
             break;
-        case ENGINE_RENDER_TYPE_CUBEMAP:
+        case TIGOR_RENDER_TYPE_CUBEMAP:
             render->m_format = VK_FORMAT_R32_SFLOAT;
             break;
-        case ENGINE_RENDER_TYPE_WINDOW:
+        case TIGOR_RENDER_TYPE_WINDOW:
             render->m_format = swapchain->swapChainImageFormat;
             break;
-        case ENGINE_RENDER_TYPE_IMAGE:
+        case TIGOR_RENDER_TYPE_IMAGE:
             render->m_format = swapchain->swapChainImageFormat;
             break;
         default:
@@ -371,14 +371,14 @@ void RenderTextureInit(RenderTexture *render, uint32_t type, uint32_t width, uin
     render->type = type;
     render->mip_levels = floor(log2(e_max(width, height))) + 1;
 
-    if(flags & ENGINE_RENDER_FLAG_DEPTH)
+    if(flags & TIGOR_RENDER_FLAG_DEPTH)
         render->m_format = findDepthFormat();
 
     render->flags = flags;
 
     render->currFrame = 0;
 
-    if(type != ENGINE_RENDER_TYPE_WINDOW && type != ENGINE_RENDER_TYPE_GEOMETRY)
+    if(type != TIGOR_RENDER_TYPE_WINDOW && type != TIGOR_RENDER_TYPE_GEOMETRY)
     {
         render->height = height;
         render->width = width;
@@ -403,9 +403,9 @@ void RenderTextureInit(RenderTexture *render, uint32_t type, uint32_t width, uin
     render->clear_color = vec3_f( 0.3, 0.01f, 0.01f);
     render->up_vector = vec3_f( 0, 1, 0);
 
-    if(render->type == ENGINE_RENDER_TYPE_IMAGE)
+    if(render->type == TIGOR_RENDER_TYPE_IMAGE)
     {
-        render->flags |= ENGINE_RENDER_FLAG_ONE_SHOT;
+        render->flags |= TIGOR_RENDER_FLAG_ONE_SHOT;
         render->frames = (RenderFrame*) AllocateMemoryP(1, sizeof(RenderFrame), render);
         render->num_frames = 1;
     }else{
@@ -415,7 +415,7 @@ void RenderTextureInit(RenderTexture *render, uint32_t type, uint32_t width, uin
 
     RenderTextureCreateRenderPass(render, &render->render_pass);
 
-    if(type & ENGINE_RENDER_TYPE_CUBEMAP)
+    if(type & TIGOR_RENDER_TYPE_CUBEMAP)
         RenderTextureCreateFrames(render, VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT);
     else
         RenderTextureCreateFrames(render, 0);
@@ -425,15 +425,15 @@ void RenderTextureInit(RenderTexture *render, uint32_t type, uint32_t width, uin
 
 void RenderTextureReload(RenderTexture *render, uint32_t indx_surf)
 {
-    if(render->flags & ENGINE_RENDER_FLAG_ONE_SHOT)
-        render->flags &= ~(ENGINE_RENDER_FLAG_SHOOTED);
+    if(render->flags & TIGOR_RENDER_FLAG_ONE_SHOT)
+        render->flags &= ~(TIGOR_RENDER_FLAG_SHOOTED);
 }
 
 void RenderTextureRecreate(RenderTexture *render)
 {
     RenderTextureDestroy(render);
 
-    if(render->type == ENGINE_RENDER_TYPE_WINDOW)
+    if(render->type == TIGOR_RENDER_TYPE_WINDOW)
         RenderTextureInit(render, render->type, engine.width, engine.height, render->flags);
     else
         RenderTextureInit(render, render->type, render->width, render->height, render->flags);
@@ -443,7 +443,7 @@ void RenderTextureBeginRendering(RenderTexture *render, void *cmd_buff)
 {
     RenderFrame *frame;
 
-    if(render->flags & ENGINE_RENDER_FLAG_ONE_SHOT)
+    if(render->flags & TIGOR_RENDER_FLAG_ONE_SHOT)
         frame = &render->frames[0];
     else
         frame = &render->frames[engine.imageIndex];
@@ -452,7 +452,7 @@ void RenderTextureBeginRendering(RenderTexture *render, void *cmd_buff)
     renderBeginInfo->sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
     renderBeginInfo->renderPass = render->render_pass;
 
-    if(render->type & ENGINE_RENDER_TYPE_CUBEMAP)
+    if(render->type & TIGOR_RENDER_TYPE_CUBEMAP)
         renderBeginInfo->framebuffer = frame->framebufers[render->currFrame];
     else{
         renderBeginInfo->framebuffer = frame->framebufers[0];
@@ -464,7 +464,7 @@ void RenderTextureBeginRendering(RenderTexture *render, void *cmd_buff)
 
     if(render->m_format != 0)
     {
-        if(render->type == ENGINE_RENDER_TYPE_DEPTH || (render->flags & ENGINE_RENDER_FLAG_DEPTH))
+        if(render->type == TIGOR_RENDER_TYPE_DEPTH || (render->flags & TIGOR_RENDER_FLAG_DEPTH))
         {
             VkClearValue clearValue;
 
@@ -505,18 +505,18 @@ void RenderTextureEndRendering(RenderTexture *render, void *cmd_buff)
 
 void RenderTextureDestroy(RenderTexture *render)
 {
-    ZDevice *device = (ZDevice *)engine.device;
+    TDevice *device = (TDevice *)engine.device;
 
     for (int j=0;j< render->num_frames;j++) {
 
-        if(render->type != ENGINE_RENDER_TYPE_WINDOW)
+        if(render->type != TIGOR_RENDER_TYPE_WINDOW)
         {
 
             ImageDestroyTexture(&render->frames[j].render_texture);
             ImageDestroyTexture(&render->frames[j].depth_texture);
         }
 
-        if(render->type & ENGINE_RENDER_TYPE_CUBEMAP)
+        if(render->type & TIGOR_RENDER_TYPE_CUBEMAP)
         {
             for(int i=0;i < 6;i++){
                 vkDestroyFramebuffer(device->e_device, render->frames[j].framebufers[i], NULL);

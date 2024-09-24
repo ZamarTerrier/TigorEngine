@@ -16,127 +16,127 @@ void createKeyTables(void *wData)
     memset(windowData->keycodes, -1, sizeof(windowData->keycodes));
     memset(windowData->scancodes, -1, sizeof(windowData->scancodes));
 
-    windowData->keycodes[0x00B] = ENGINE_KEY_0;
-    windowData->keycodes[0x002] = ENGINE_KEY_1;
-    windowData->keycodes[0x003] = ENGINE_KEY_2;
-    windowData->keycodes[0x004] = ENGINE_KEY_3;
-    windowData->keycodes[0x005] = ENGINE_KEY_4;
-    windowData->keycodes[0x006] = ENGINE_KEY_5;
-    windowData->keycodes[0x007] = ENGINE_KEY_6;
-    windowData->keycodes[0x008] = ENGINE_KEY_7;
-    windowData->keycodes[0x009] = ENGINE_KEY_8;
-    windowData->keycodes[0x00A] = ENGINE_KEY_9;
-    windowData->keycodes[0x01E] = ENGINE_KEY_A;
-    windowData->keycodes[0x030] = ENGINE_KEY_B;
-    windowData->keycodes[0x02E] = ENGINE_KEY_C;
-    windowData->keycodes[0x020] = ENGINE_KEY_D;
-    windowData->keycodes[0x012] = ENGINE_KEY_E;
-    windowData->keycodes[0x021] = ENGINE_KEY_F;
-    windowData->keycodes[0x022] = ENGINE_KEY_G;
-    windowData->keycodes[0x023] = ENGINE_KEY_H;
-    windowData->keycodes[0x017] = ENGINE_KEY_I;
-    windowData->keycodes[0x024] = ENGINE_KEY_J;
-    windowData->keycodes[0x025] = ENGINE_KEY_K;
-    windowData->keycodes[0x026] = ENGINE_KEY_L;
-    windowData->keycodes[0x032] = ENGINE_KEY_M;
-    windowData->keycodes[0x031] = ENGINE_KEY_N;
-    windowData->keycodes[0x018] = ENGINE_KEY_O;
-    windowData->keycodes[0x019] = ENGINE_KEY_P;
-    windowData->keycodes[0x010] = ENGINE_KEY_Q;
-    windowData->keycodes[0x013] = ENGINE_KEY_R;
-    windowData->keycodes[0x01F] = ENGINE_KEY_S;
-    windowData->keycodes[0x014] = ENGINE_KEY_T;
-    windowData->keycodes[0x016] = ENGINE_KEY_U;
-    windowData->keycodes[0x02F] = ENGINE_KEY_V;
-    windowData->keycodes[0x011] = ENGINE_KEY_W;
-    windowData->keycodes[0x02D] = ENGINE_KEY_X;
-    windowData->keycodes[0x015] = ENGINE_KEY_Y;
-    windowData->keycodes[0x02C] = ENGINE_KEY_Z;
+    windowData->keycodes[0x00B] = TIGOR_KEY_0;
+    windowData->keycodes[0x002] = TIGOR_KEY_1;
+    windowData->keycodes[0x003] = TIGOR_KEY_2;
+    windowData->keycodes[0x004] = TIGOR_KEY_3;
+    windowData->keycodes[0x005] = TIGOR_KEY_4;
+    windowData->keycodes[0x006] = TIGOR_KEY_5;
+    windowData->keycodes[0x007] = TIGOR_KEY_6;
+    windowData->keycodes[0x008] = TIGOR_KEY_7;
+    windowData->keycodes[0x009] = TIGOR_KEY_8;
+    windowData->keycodes[0x00A] = TIGOR_KEY_9;
+    windowData->keycodes[0x01E] = TIGOR_KEY_A;
+    windowData->keycodes[0x030] = TIGOR_KEY_B;
+    windowData->keycodes[0x02E] = TIGOR_KEY_C;
+    windowData->keycodes[0x020] = TIGOR_KEY_D;
+    windowData->keycodes[0x012] = TIGOR_KEY_E;
+    windowData->keycodes[0x021] = TIGOR_KEY_F;
+    windowData->keycodes[0x022] = TIGOR_KEY_G;
+    windowData->keycodes[0x023] = TIGOR_KEY_H;
+    windowData->keycodes[0x017] = TIGOR_KEY_I;
+    windowData->keycodes[0x024] = TIGOR_KEY_J;
+    windowData->keycodes[0x025] = TIGOR_KEY_K;
+    windowData->keycodes[0x026] = TIGOR_KEY_L;
+    windowData->keycodes[0x032] = TIGOR_KEY_M;
+    windowData->keycodes[0x031] = TIGOR_KEY_N;
+    windowData->keycodes[0x018] = TIGOR_KEY_O;
+    windowData->keycodes[0x019] = TIGOR_KEY_P;
+    windowData->keycodes[0x010] = TIGOR_KEY_Q;
+    windowData->keycodes[0x013] = TIGOR_KEY_R;
+    windowData->keycodes[0x01F] = TIGOR_KEY_S;
+    windowData->keycodes[0x014] = TIGOR_KEY_T;
+    windowData->keycodes[0x016] = TIGOR_KEY_U;
+    windowData->keycodes[0x02F] = TIGOR_KEY_V;
+    windowData->keycodes[0x011] = TIGOR_KEY_W;
+    windowData->keycodes[0x02D] = TIGOR_KEY_X;
+    windowData->keycodes[0x015] = TIGOR_KEY_Y;
+    windowData->keycodes[0x02C] = TIGOR_KEY_Z;
 
-    windowData->keycodes[0x028] = ENGINE_KEY_APOSTROPHE;
-    windowData->keycodes[0x02B] = ENGINE_KEY_BACKSLASH;
-    windowData->keycodes[0x033] = ENGINE_KEY_COMMA;
-    windowData->keycodes[0x00D] = ENGINE_KEY_EQUAL;
-    windowData->keycodes[0x029] = ENGINE_KEY_GRAVE_ACCENT;
-    windowData->keycodes[0x01A] = ENGINE_KEY_LEFT_BRACKET;
-    windowData->keycodes[0x00C] = ENGINE_KEY_MINUS;
-    windowData->keycodes[0x034] = ENGINE_KEY_PERIOD;
-    windowData->keycodes[0x01B] = ENGINE_KEY_RIGHT_BRACKET;
-    windowData->keycodes[0x027] = ENGINE_KEY_SEMICOLON;
-    windowData->keycodes[0x035] = ENGINE_KEY_SLASH;
-    windowData->keycodes[0x056] = ENGINE_KEY_WORLD_2;
+    windowData->keycodes[0x028] = TIGOR_KEY_APOSTROPHE;
+    windowData->keycodes[0x02B] = TIGOR_KEY_BACKSLASH;
+    windowData->keycodes[0x033] = TIGOR_KEY_COMMA;
+    windowData->keycodes[0x00D] = TIGOR_KEY_EQUAL;
+    windowData->keycodes[0x029] = TIGOR_KEY_GRAVE_ACCENT;
+    windowData->keycodes[0x01A] = TIGOR_KEY_LEFT_BRACKET;
+    windowData->keycodes[0x00C] = TIGOR_KEY_MINUS;
+    windowData->keycodes[0x034] = TIGOR_KEY_PERIOD;
+    windowData->keycodes[0x01B] = TIGOR_KEY_RIGHT_BRACKET;
+    windowData->keycodes[0x027] = TIGOR_KEY_SEMICOLON;
+    windowData->keycodes[0x035] = TIGOR_KEY_SLASH;
+    windowData->keycodes[0x056] = TIGOR_KEY_WORLD_2;
 
-    windowData->keycodes[0x00E] = ENGINE_KEY_BACKSPACE;
-    windowData->keycodes[0x153] = ENGINE_KEY_DELETE;
-    windowData->keycodes[0x14F] = ENGINE_KEY_END;
-    windowData->keycodes[0x01C] = ENGINE_KEY_ENTER;
-    windowData->keycodes[0x001] = ENGINE_KEY_ESCAPE;
-    windowData->keycodes[0x147] = ENGINE_KEY_HOME;
-    windowData->keycodes[0x152] = ENGINE_KEY_INSERT;
-    windowData->keycodes[0x15D] = ENGINE_KEY_MENU;
-    windowData->keycodes[0x151] = ENGINE_KEY_PAGE_DOWN;
-    windowData->keycodes[0x149] = ENGINE_KEY_PAGE_UP;
-    windowData->keycodes[0x045] = ENGINE_KEY_PAUSE;
-    windowData->keycodes[0x039] = ENGINE_KEY_SPACE;
-    windowData->keycodes[0x00F] = ENGINE_KEY_TAB;
-    windowData->keycodes[0x03A] = ENGINE_KEY_CAPS_LOCK;
-    windowData->keycodes[0x145] = ENGINE_KEY_NUM_LOCK;
-    windowData->keycodes[0x046] = ENGINE_KEY_SCROLL_LOCK;
-    windowData->keycodes[0x03B] = ENGINE_KEY_F1;
-    windowData->keycodes[0x03C] = ENGINE_KEY_F2;
-    windowData->keycodes[0x03D] = ENGINE_KEY_F3;
-    windowData->keycodes[0x03E] = ENGINE_KEY_F4;
-    windowData->keycodes[0x03F] = ENGINE_KEY_F5;
-    windowData->keycodes[0x040] = ENGINE_KEY_F6;
-    windowData->keycodes[0x041] = ENGINE_KEY_F7;
-    windowData->keycodes[0x042] = ENGINE_KEY_F8;
-    windowData->keycodes[0x043] = ENGINE_KEY_F9;
-    windowData->keycodes[0x044] = ENGINE_KEY_F10;
-    windowData->keycodes[0x057] = ENGINE_KEY_F11;
-    windowData->keycodes[0x058] = ENGINE_KEY_F12;
-    windowData->keycodes[0x064] = ENGINE_KEY_F13;
-    windowData->keycodes[0x065] = ENGINE_KEY_F14;
-    windowData->keycodes[0x066] = ENGINE_KEY_F15;
-    windowData->keycodes[0x067] = ENGINE_KEY_F16;
-    windowData->keycodes[0x068] = ENGINE_KEY_F17;
-    windowData->keycodes[0x069] = ENGINE_KEY_F18;
-    windowData->keycodes[0x06A] = ENGINE_KEY_F19;
-    windowData->keycodes[0x06B] = ENGINE_KEY_F20;
-    windowData->keycodes[0x06C] = ENGINE_KEY_F21;
-    windowData->keycodes[0x06D] = ENGINE_KEY_F22;
-    windowData->keycodes[0x06E] = ENGINE_KEY_F23;
-    windowData->keycodes[0x076] = ENGINE_KEY_F24;
-    windowData->keycodes[0x038] = ENGINE_KEY_LEFT_ALT;
-    windowData->keycodes[0x01D] = ENGINE_KEY_LEFT_CONTROL;
-    windowData->keycodes[0x02A] = ENGINE_KEY_LEFT_SHIFT;
-    windowData->keycodes[0x15B] = ENGINE_KEY_LEFT_SUPER;
-    windowData->keycodes[0x137] = ENGINE_KEY_PRINT_SCREEN;
-    windowData->keycodes[0x138] = ENGINE_KEY_RIGHT_ALT;
-    windowData->keycodes[0x11D] = ENGINE_KEY_RIGHT_CONTROL;
-    windowData->keycodes[0x036] = ENGINE_KEY_RIGHT_SHIFT;
-    windowData->keycodes[0x15C] = ENGINE_KEY_RIGHT_SUPER;
-    windowData->keycodes[0x150] = ENGINE_KEY_DOWN;
-    windowData->keycodes[0x14B] = ENGINE_KEY_LEFT;
-    windowData->keycodes[0x14D] = ENGINE_KEY_RIGHT;
-    windowData->keycodes[0x148] = ENGINE_KEY_UP;
+    windowData->keycodes[0x00E] = TIGOR_KEY_BACKSPACE;
+    windowData->keycodes[0x153] = TIGOR_KEY_DELETE;
+    windowData->keycodes[0x14F] = TIGOR_KEY_END;
+    windowData->keycodes[0x01C] = TIGOR_KEY_ENTER;
+    windowData->keycodes[0x001] = TIGOR_KEY_ESCAPE;
+    windowData->keycodes[0x147] = TIGOR_KEY_HOME;
+    windowData->keycodes[0x152] = TIGOR_KEY_INSERT;
+    windowData->keycodes[0x15D] = TIGOR_KEY_MENU;
+    windowData->keycodes[0x151] = TIGOR_KEY_PAGE_DOWN;
+    windowData->keycodes[0x149] = TIGOR_KEY_PAGE_UP;
+    windowData->keycodes[0x045] = TIGOR_KEY_PAUSE;
+    windowData->keycodes[0x039] = TIGOR_KEY_SPACE;
+    windowData->keycodes[0x00F] = TIGOR_KEY_TAB;
+    windowData->keycodes[0x03A] = TIGOR_KEY_CAPS_LOCK;
+    windowData->keycodes[0x145] = TIGOR_KEY_NUM_LOCK;
+    windowData->keycodes[0x046] = TIGOR_KEY_SCROLL_LOCK;
+    windowData->keycodes[0x03B] = TIGOR_KEY_F1;
+    windowData->keycodes[0x03C] = TIGOR_KEY_F2;
+    windowData->keycodes[0x03D] = TIGOR_KEY_F3;
+    windowData->keycodes[0x03E] = TIGOR_KEY_F4;
+    windowData->keycodes[0x03F] = TIGOR_KEY_F5;
+    windowData->keycodes[0x040] = TIGOR_KEY_F6;
+    windowData->keycodes[0x041] = TIGOR_KEY_F7;
+    windowData->keycodes[0x042] = TIGOR_KEY_F8;
+    windowData->keycodes[0x043] = TIGOR_KEY_F9;
+    windowData->keycodes[0x044] = TIGOR_KEY_F10;
+    windowData->keycodes[0x057] = TIGOR_KEY_F11;
+    windowData->keycodes[0x058] = TIGOR_KEY_F12;
+    windowData->keycodes[0x064] = TIGOR_KEY_F13;
+    windowData->keycodes[0x065] = TIGOR_KEY_F14;
+    windowData->keycodes[0x066] = TIGOR_KEY_F15;
+    windowData->keycodes[0x067] = TIGOR_KEY_F16;
+    windowData->keycodes[0x068] = TIGOR_KEY_F17;
+    windowData->keycodes[0x069] = TIGOR_KEY_F18;
+    windowData->keycodes[0x06A] = TIGOR_KEY_F19;
+    windowData->keycodes[0x06B] = TIGOR_KEY_F20;
+    windowData->keycodes[0x06C] = TIGOR_KEY_F21;
+    windowData->keycodes[0x06D] = TIGOR_KEY_F22;
+    windowData->keycodes[0x06E] = TIGOR_KEY_F23;
+    windowData->keycodes[0x076] = TIGOR_KEY_F24;
+    windowData->keycodes[0x038] = TIGOR_KEY_LEFT_ALT;
+    windowData->keycodes[0x01D] = TIGOR_KEY_LEFT_CONTROL;
+    windowData->keycodes[0x02A] = TIGOR_KEY_LEFT_SHIFT;
+    windowData->keycodes[0x15B] = TIGOR_KEY_LEFT_SUPER;
+    windowData->keycodes[0x137] = TIGOR_KEY_PRINT_SCREEN;
+    windowData->keycodes[0x138] = TIGOR_KEY_RIGHT_ALT;
+    windowData->keycodes[0x11D] = TIGOR_KEY_RIGHT_CONTROL;
+    windowData->keycodes[0x036] = TIGOR_KEY_RIGHT_SHIFT;
+    windowData->keycodes[0x15C] = TIGOR_KEY_RIGHT_SUPER;
+    windowData->keycodes[0x150] = TIGOR_KEY_DOWN;
+    windowData->keycodes[0x14B] = TIGOR_KEY_LEFT;
+    windowData->keycodes[0x14D] = TIGOR_KEY_RIGHT;
+    windowData->keycodes[0x148] = TIGOR_KEY_UP;
 
-    windowData->keycodes[0x052] = ENGINE_KEY_KP_0;
-    windowData->keycodes[0x04F] = ENGINE_KEY_KP_1;
-    windowData->keycodes[0x050] = ENGINE_KEY_KP_2;
-    windowData->keycodes[0x051] = ENGINE_KEY_KP_3;
-    windowData->keycodes[0x04B] = ENGINE_KEY_KP_4;
-    windowData->keycodes[0x04C] = ENGINE_KEY_KP_5;
-    windowData->keycodes[0x04D] = ENGINE_KEY_KP_6;
-    windowData->keycodes[0x047] = ENGINE_KEY_KP_7;
-    windowData->keycodes[0x048] = ENGINE_KEY_KP_8;
-    windowData->keycodes[0x049] = ENGINE_KEY_KP_9;
-    windowData->keycodes[0x04E] = ENGINE_KEY_KP_ADD;
-    windowData->keycodes[0x053] = ENGINE_KEY_KP_DECIMAL;
-    windowData->keycodes[0x135] = ENGINE_KEY_KP_DIVIDE;
-    windowData->keycodes[0x11C] = ENGINE_KEY_KP_ENTER;
-    windowData->keycodes[0x059] = ENGINE_KEY_KP_EQUAL;
-    windowData->keycodes[0x037] = ENGINE_KEY_KP_MULTIPLY;
-    windowData->keycodes[0x04A] = ENGINE_KEY_KP_SUBTRACT;
+    windowData->keycodes[0x052] = TIGOR_KEY_KP_0;
+    windowData->keycodes[0x04F] = TIGOR_KEY_KP_1;
+    windowData->keycodes[0x050] = TIGOR_KEY_KP_2;
+    windowData->keycodes[0x051] = TIGOR_KEY_KP_3;
+    windowData->keycodes[0x04B] = TIGOR_KEY_KP_4;
+    windowData->keycodes[0x04C] = TIGOR_KEY_KP_5;
+    windowData->keycodes[0x04D] = TIGOR_KEY_KP_6;
+    windowData->keycodes[0x047] = TIGOR_KEY_KP_7;
+    windowData->keycodes[0x048] = TIGOR_KEY_KP_8;
+    windowData->keycodes[0x049] = TIGOR_KEY_KP_9;
+    windowData->keycodes[0x04E] = TIGOR_KEY_KP_ADD;
+    windowData->keycodes[0x053] = TIGOR_KEY_KP_DECIMAL;
+    windowData->keycodes[0x135] = TIGOR_KEY_KP_DIVIDE;
+    windowData->keycodes[0x11C] = TIGOR_KEY_KP_ENTER;
+    windowData->keycodes[0x059] = TIGOR_KEY_KP_EQUAL;
+    windowData->keycodes[0x037] = TIGOR_KEY_KP_MULTIPLY;
+    windowData->keycodes[0x04A] = TIGOR_KEY_KP_SUBTRACT;
 
     for (scancode = 0;  scancode < 512;  scancode++)
     {
@@ -152,7 +152,7 @@ void _wManagerUpdateKeyNamesWin32(void)
 
     memset(((wManagerWin* )_wMWindow.WindowData)->keynames, 0, sizeof(((wManagerWin* )_wMWindow.WindowData)->keynames));
 
-    for (key = ENGINE_KEY_SPACE;  key <= ENGINE_KEY_LAST;  key++)
+    for (key = TIGOR_KEY_SPACE;  key <= TIGOR_KEY_LAST;  key++)
     {
         UINT vk;
         int scancode, length;
@@ -162,7 +162,7 @@ void _wManagerUpdateKeyNamesWin32(void)
         if (scancode == -1)
             continue;
 
-        if (key >= ENGINE_KEY_KP_0 && key <= ENGINE_KEY_KP_ADD)
+        if (key >= TIGOR_KEY_KP_0 && key <= TIGOR_KEY_KP_ADD)
         {
             const UINT vks[] = {
                 VK_NUMPAD0,  VK_NUMPAD1,  VK_NUMPAD2, VK_NUMPAD3,
@@ -171,7 +171,7 @@ void _wManagerUpdateKeyNamesWin32(void)
                 VK_MULTIPLY, VK_SUBTRACT, VK_ADD
             };
 
-            vk = vks[key - ENGINE_KEY_KP_0];
+            vk = vks[key - TIGOR_KEY_KP_0];
         }
         else
             vk = MapVirtualKeyW(scancode, MAPVK_VSC_TO_VK);
@@ -214,15 +214,15 @@ uint32_t _wManagerInitWin32(void)
         SetProcessDPIAware();
 
     if (!createHelperWindow())
-        return ENGINE_FALSE;*/
+        return TIGOR_FALSE;*/
 
     //Some hacks are needed to support Remote Desktop...
     /*initRemoteSession();
     if (_wMWindow.isRemoteSession && _wMWindow.blankCursor == NULL )
     {
-        _wManagerInputErrorWin32(ENGINE_PLATFORM_ERROR,
+        _wManagerInputErrorWin32(TIGOR_PLATFORM_ERROR,
                              "Win32: Failed to create blank cursor for remote session.");
-        return ENGINE_FALSE;
+        return TIGOR_FALSE;
     }
 
     _wManagerPollMonitorsWin32();*/

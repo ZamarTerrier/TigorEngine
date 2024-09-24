@@ -85,8 +85,8 @@
     typedef BOOL (WINAPI * PFN_wglMakeCurrent)(HDC,HGLRC);
     typedef BOOL (WINAPI * PFN_wglShareLists)(HGLRC,HGLRC);
 
-    #define ENGINE_WIN32_TLS_STATE            _wManagerWtlsWin32     win32;
-    #define ENGINE_WIN32_MUTEX_STATE          _wManagermutexWin32   win32;
+    #define TIGOR_WIN32_TLS_STATE            _wManagerWtlsWin32     win32;
+    #define TIGOR_WIN32_MUTEX_STATE          _wManagermutexWin32   win32;
 
     typedef struct _wManagerMonitorWin32
     {
@@ -165,8 +165,8 @@
 
         char*               clipboardString;
         short int           keycodes[512];
-        short int           scancodes[ENGINE_KEY_LAST + 1];
-        char                keynames[ENGINE_KEY_LAST + 1][5];
+        short int           scancodes[TIGOR_KEY_LAST + 1];
+        char                keynames[TIGOR_KEY_LAST + 1][5];
 
         // The last received high surrogate when decoding pairs of UTF-16 messages
         WCHAR               highSurrogate;

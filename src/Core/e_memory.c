@@ -3,16 +3,17 @@
 ChildStack *alloc_memory_head = NULL;
 
 typedef enum{
-    ENGINE_ALLOC_TYPE_DATA,
-    ENGINE_ALLOC_TYPE_BUFFER,
-    ENGINE_ALLOC_TYPE_PIPELINE,
-    ENGINE_ALLOC_TYPE_DESCRIPTOR
+    TIGOR_ALLOC_TYPE_DATA,
+    TIGOR_ALLOC_TYPE_BUFFER,
+    TIGOR_ALLOC_TYPE_PIPELINE,
+    TIGOR_ALLOC_TYPE_DESCRIPTOR
 } AllocType;
 
 typedef struct{
     uint32_t size;
     uint32_t count;
     void *parent;
+    char *name;
     void *ptr;
 } AllocObj;
 
@@ -52,6 +53,20 @@ void *MakeAlloc(AllocObj *obj){
     alloc_counter ++;
 
     return data;
+}
+
+void *AllocateMemoryN(int32_t count, int32_t size, char *name){
+
+    AllocObj *obj = calloc(1, sizeof(AllocObj));
+    obj->size = size;
+    obj->count = count;
+
+    uint32_t len = strlen(name);
+    obj->name = calloc(len + 1, sizeof(char));
+    memcpy(obj->name, name, sizeof(char) * len);
+    obj->name[len] = '\0';
+
+    return MakeAlloc(obj);
 }
 
 void *AllocateMemoryP(int32_t count, int32_t size, void *parent){
@@ -124,6 +139,8 @@ void FreeMemory(void *data){
     {
         obj = child->node;
         free(obj->ptr);
+        if(obj->name != NULL)
+            free(obj->name);
         free(child->node);
         child->node = NULL;
 
@@ -160,6 +177,10 @@ void ClearAllAllocatedMemory(){
         if(child->node != NULL){
             obj = child->node;
             free(obj->ptr);
+            if(obj->name != NULL){
+                printf("Object not free with name : %s\n", obj->name);
+                free(obj->name);
+            }
             free(child->node);
             child->node = NULL;
         }

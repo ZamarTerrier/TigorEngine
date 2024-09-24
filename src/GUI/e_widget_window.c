@@ -1,7 +1,7 @@
 #include "GUI/e_widget_window.h"
 
-#include "ZamGUI.h"
-#include "ZamEngine.h"
+#include "TigorGUI.h"
+#include "TigorEngine.h"
 
 #include <vulkan/vulkan.h>
 
@@ -13,7 +13,7 @@
 #include "Data/e_resource_engine.h"
 #include "Data/e_resource_shapes.h"
 
-extern ZEngine engine;
+extern TEngine engine;
 
 vec2 e_var_mouse, e_var_temp, e_var_tscale ;
 
@@ -38,7 +38,7 @@ int WindowWidgetPress(EWidget* widget, void* entry, void* args)
 
     double xpos, ypos;
 
-    ZEngineGetCursorPos(&xpos, &ypos);
+    TEngineGetCursorPos(&xpos, &ypos);
     e_var_mouse.x = xpos * 2;
     e_var_mouse.y = ypos * 2;
 
@@ -59,7 +59,7 @@ int WindowWidgetMove(EWidget* widget, void* entry, void* args)
     vec2 te;
     double xpos, ypos;
 
-    ZEngineGetCursorPos(&xpos, &ypos);
+    TEngineGetCursorPos(&xpos, &ypos);
     te.x = xpos * 2;
     te.y = ypos * 2;
 
@@ -92,9 +92,9 @@ int WindowWidgetCloseButton(EWidget* widget, void* entry, void *arg){
 
     EWidgetWindow *window = (EWidgetWindow *)arg;
 
-    window->window.widget_flags &= ~(ENGINE_FLAG_WIDGET_VISIBLE);
+    window->window.widget_flags &= ~(TIGOR_FLAG_WIDGET_VISIBLE);
 
-    WidgetConfirmTrigger((EWidget *)window, ENGINE_WIDGET_TRIGGER_WINDOW_CLOSE, NULL);
+    WidgetConfirmTrigger((EWidget *)window, TIGOR_WIDGET_TRIGGER_WINDOW_CLOSE, NULL);
     
     EWidget *child_widget = NULL;
     ChildStack *child = window->surface.child;
@@ -104,7 +104,7 @@ int WindowWidgetCloseButton(EWidget* widget, void* entry, void *arg){
         child_widget = child->node;
 
         if(child_widget != NULL)
-            child_widget->widget_flags &= ~(ENGINE_FLAG_WIDGET_VISIBLE);
+            child_widget->widget_flags &= ~(TIGOR_FLAG_WIDGET_VISIBLE);
             
         child = child->next;
     }
@@ -116,7 +116,7 @@ int WindowWidgetCloseButton(EWidget* widget, void* entry, void *arg){
         child_widget = child->node;
 
         if(child_widget != NULL)
-            child_widget->widget_flags &= ~(ENGINE_FLAG_WIDGET_VISIBLE);
+            child_widget->widget_flags &= ~(TIGOR_FLAG_WIDGET_VISIBLE);
             
         child = child->next;
     }
@@ -172,7 +172,7 @@ int WindowWidgetHideButton(EWidget* widget, void* entry, void *arg){
             widget = child->node;
 
             if(widget != NULL)
-                widget->widget_flags &= ~(ENGINE_FLAG_WIDGET_VISIBLE);
+                widget->widget_flags &= ~(TIGOR_FLAG_WIDGET_VISIBLE);
             
             child = child->next;
         }
@@ -191,7 +191,7 @@ int WindowWidgetHideButton(EWidget* widget, void* entry, void *arg){
             widget = child->node;
 
             if(widget != NULL)
-                widget->widget_flags |= ENGINE_FLAG_WIDGET_VISIBLE;
+                widget->widget_flags |= TIGOR_FLAG_WIDGET_VISIBLE;
             
             child = child->next;
         }
@@ -211,7 +211,7 @@ extern void WidgetDraw(EWidget* ew);
 
 void WindowWidgetDraw(EWidgetWindow *window){
 
-    if(window->window.widget_flags & ENGINE_FLAG_WIDGET_VISIBLE){
+    if(window->window.widget_flags & TIGOR_FLAG_WIDGET_VISIBLE){
 
         vec2 pos = v2_add(window->window.position, window->window.base);
 
@@ -244,7 +244,7 @@ void WindowWidgetDestroy(EWidgetWindow *window){
     ChildStack *child = window->window.child;
     ChildStack *lastChild;
 
-    if(!(window->window.go.flags & ENGINE_GAME_OBJECT_FLAG_INIT))
+    if(!(window->window.go.flags & TIGOR_GAME_OBJECT_FLAG_INIT))
         return;
     
     while(child != NULL)
@@ -257,7 +257,7 @@ void WindowWidgetDestroy(EWidgetWindow *window){
     
     FreeMemory(window->window.callbacks.stack);
     
-    window->window.go.flags &= ~(ENGINE_GAME_OBJECT_FLAG_INIT);
+    window->window.go.flags &= ~(TIGOR_GAME_OBJECT_FLAG_INIT);
 }
 
 
@@ -267,7 +267,7 @@ void WindowWidgetInitWindow(EWidget* widget, vec2 scale, vec2 position){
     GameObjectSetDrawFunc((GameObject *)widget, (void *)WindowWidgetDraw);
     GameObjectSetDestroyFunc((GameObject *)widget, (void *)WindowWidgetDestroy);
 
-    widget->type = ENGINE_WIDGET_TYPE_WINDOW;
+    widget->type = TIGOR_WIDGET_TYPE_WINDOW;
 
     WidgetSetColor(widget, vec3_f(1, 1, 1));
     WidgetSetScale(widget, scale.x, scale.y);
@@ -337,14 +337,14 @@ void WindowWidgetInit(EWidgetWindow *window, char* name, vec2 size, vec2 positio
 
     window->origScale = size;
 
-    WidgetConnect(&window->window, ENGINE_WIDGET_TRIGGER_MOUSE_PRESS, WindowWidgetPress, NULL);
-    WidgetConnect(&window->window, ENGINE_WIDGET_TRIGGER_MOUSE_MOVE, WindowWidgetMove, window);
+    WidgetConnect(&window->window, TIGOR_WIDGET_TRIGGER_MOUSE_PRESS, WindowWidgetPress, NULL);
+    WidgetConnect(&window->window, TIGOR_WIDGET_TRIGGER_MOUSE_MOVE, WindowWidgetMove, window);
 
-    WidgetConnect((EWidget *)&window->close, ENGINE_WIDGET_TRIGGER_MOUSE_PRESS, WindowWidgetCloseButton, window);
-    WidgetConnect((EWidget *)&window->resize, ENGINE_WIDGET_TRIGGER_MOUSE_PRESS, WindowWidgetResizeButton, window);
-    WidgetConnect((EWidget *)&window->hide, ENGINE_WIDGET_TRIGGER_MOUSE_PRESS, WindowWidgetHideButton, window);
+    WidgetConnect((EWidget *)&window->close, TIGOR_WIDGET_TRIGGER_MOUSE_PRESS, WindowWidgetCloseButton, window);
+    WidgetConnect((EWidget *)&window->resize, TIGOR_WIDGET_TRIGGER_MOUSE_PRESS, WindowWidgetResizeButton, window);
+    WidgetConnect((EWidget *)&window->hide, TIGOR_WIDGET_TRIGGER_MOUSE_PRESS, WindowWidgetHideButton, window);
 
-    window->window.type = ENGINE_WIDGET_TYPE_WINDOW;
+    window->window.type = TIGOR_WIDGET_TYPE_WINDOW;
     window->wasHide = false;
     window->wasResize = false;
     window->resizeble = true;
@@ -356,9 +356,9 @@ void WindowWidgetAddWidget(EWidgetWindow *window, EWidget *widget){
 }
 
 void WindowWidgetShow(EWidgetWindow *window){
-    window->window.widget_flags |= ENGINE_FLAG_WIDGET_VISIBLE;
+    window->window.widget_flags |= TIGOR_FLAG_WIDGET_VISIBLE;
 
-    WidgetConfirmTrigger((EWidget *)window, ENGINE_WIDGET_TRIGGER_WINDOW_OPEN, NULL);
+    WidgetConfirmTrigger((EWidget *)window, TIGOR_WIDGET_TRIGGER_WINDOW_OPEN, NULL);
 
     EWidget *widget = NULL;
     ChildStack *child = window->surface.child;
@@ -368,7 +368,7 @@ void WindowWidgetShow(EWidgetWindow *window){
         widget = child->node;
 
         if(widget != NULL)
-            widget->widget_flags |= ENGINE_FLAG_WIDGET_VISIBLE;
+            widget->widget_flags |= TIGOR_FLAG_WIDGET_VISIBLE;
             
         child = child->next;
     }
@@ -380,7 +380,7 @@ void WindowWidgetShow(EWidgetWindow *window){
         widget = child->node;
 
         if(widget != NULL)
-            widget->widget_flags |= ENGINE_FLAG_WIDGET_VISIBLE;
+            widget->widget_flags |= TIGOR_FLAG_WIDGET_VISIBLE;
             
         child = child->next;
     }
@@ -388,9 +388,9 @@ void WindowWidgetShow(EWidgetWindow *window){
 }
 
 void WindowWidgetHide(EWidgetWindow *window){
-    window->window.widget_flags &= ~(ENGINE_FLAG_WIDGET_VISIBLE);
+    window->window.widget_flags &= ~(TIGOR_FLAG_WIDGET_VISIBLE);
 
-    WidgetConfirmTrigger((EWidget *)window, ENGINE_WIDGET_TRIGGER_WINDOW_CLOSE, NULL);
+    WidgetConfirmTrigger((EWidget *)window, TIGOR_WIDGET_TRIGGER_WINDOW_CLOSE, NULL);
 
     EWidget *widget = NULL;
     ChildStack *child = window->surface.child;
@@ -400,7 +400,7 @@ void WindowWidgetHide(EWidgetWindow *window){
         widget = child->node;
 
         if(widget != NULL)
-            widget->widget_flags &= ~(ENGINE_FLAG_WIDGET_VISIBLE);
+            widget->widget_flags &= ~(TIGOR_FLAG_WIDGET_VISIBLE);
             
         child = child->next;
     }
@@ -412,7 +412,7 @@ void WindowWidgetHide(EWidgetWindow *window){
         widget = child->node;
 
         if(widget != NULL)
-            widget->widget_flags &= ~(ENGINE_FLAG_WIDGET_VISIBLE);
+            widget->widget_flags &= ~(TIGOR_FLAG_WIDGET_VISIBLE);
             
         child = child->next;
     }

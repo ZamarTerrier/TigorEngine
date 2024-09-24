@@ -121,7 +121,7 @@ void readKeyframeTimes(engine_gltf_anim_channel *a_channel, cgltf_animation_chan
     }
 }
 
-vec3 getValueV3(engine_gltf_anim_channel *channel, float time)
+vec3 getValueV3(engine_gltf_anim_channel *channel, double time)
 {
     if(channel->num_keyframes <= 0)
         return (vec3){0,0,0};
@@ -150,7 +150,7 @@ vec3 getValueV3(engine_gltf_anim_channel *channel, float time)
     return v3_slerp(val1, val2, alpha);
 }
 
-vec4 getValueV4(engine_gltf_anim_channel *channel, float time)
+vec4 getValueV4(engine_gltf_anim_channel *channel, double time)
 {
     if(channel->num_keyframes <= 0)
       return (vec4){0,0,0,0};
@@ -213,6 +213,7 @@ void SetupMeshState(glTFStruct *glTF, cgltf_data *model) {
 
     int iter = 0;
 
+    cgltf_node *skin_node = NULL;
     for(int i = 0; i < model->nodes_count; i++)
     {
         cgltf_node *node = &model->nodes[i];
@@ -263,19 +264,38 @@ void SetupMeshState(glTFStruct *glTF, cgltf_data *model) {
 
                         if(image->uri != NULL)
                         {
+                            int size_uri = strlen(image->uri);
+
+                            g_mesh->image->path = AllocateMemory( 256, sizeof(char));
                             memset(g_mesh->image->path , 0, 256);
-                            int size = strlen(glTF->path) + strlen(image->uri);
-                            ToolsAddStrings(g_mesh->image->path, size, glTF->path, image->uri);
-                            g_mesh->image->size = 0;
-                            //g_mesh->image->buffer = ToolsLoadImageFromFile(&g_mesh->image->size, buff);
+
+                            if(size_uri > 256){
+
+                                ToolsAddStrings(g_mesh->image->path, 256, glTF->path, texture->name);
+                                g_mesh->image->buffer = AllocateMemory(size_uri, sizeof(char));
+                                memcpy(g_mesh->image->buffer, image->uri, size_uri);
+                                g_mesh->image->size = size_uri;
+
+                            }else{
+
+                                int size = strlen(glTF->path) + strlen(image->uri);
+                                ToolsAddStrings(g_mesh->image->path, size, glTF->path, image->uri);
+                                g_mesh->image->size = 0;
+                                //g_mesh->image->buffer = ToolsLoadImageFromFile(&g_mesh->image->size, buff);
+
+                            }
 
                         }
                         else if(image->buffer_view->buffer != NULL)
                         {
                             char *name_point = image->name;
-
+                            
                             if(name_point == NULL)
                                 name_point = image->buffer_view->name;
+
+                            if(name_point == NULL)
+                                name_point = texture->name;
+                            
 
                             int size = strlen(glTF->name) + strlen(name_point);
                             g_mesh->image->path = AllocateMemory( size + 1, sizeof(char));
@@ -298,9 +318,26 @@ void SetupMeshState(glTFStruct *glTF, cgltf_data *model) {
                         {
                             int size = strlen(glTF->path) + strlen(image->uri);
                             g_mesh->normal->path = AllocateMemory( size + 1, sizeof(char));
-                            ToolsAddStrings(g_mesh->normal->path, size, glTF->path, image->uri);
-                            g_mesh->normal->size = 0;
-                            //g_mesh->image->buffer = ToolsLoadImageFromFile(&g_mesh->image->size, buff);
+
+                            
+                            int size_uri = strlen(image->uri);
+
+                            g_mesh->normal->path = AllocateMemory( 256, sizeof(char));
+                            memset(g_mesh->normal->path , 0, 256);
+
+                            if(size_uri > 256){
+
+                                ToolsAddStrings(g_mesh->normal->path, 256, glTF->path, texture->name);
+                                g_mesh->normal->buffer = AllocateMemory(size_uri, sizeof(char));
+                                memcpy(g_mesh->normal->buffer, image->uri, size_uri);
+                                g_mesh->normal->size = size_uri;
+
+                            }else{
+                                ToolsAddStrings(g_mesh->normal->path, size, glTF->path, image->uri);
+                                g_mesh->normal->size = 0;
+                                //g_mesh->image->buffer = ToolsLoadImageFromFile(&g_mesh->image->size, buff);
+
+                            }
 
                         }
                         else if(image->buffer_view->buffer != NULL)
@@ -310,12 +347,16 @@ void SetupMeshState(glTFStruct *glTF, cgltf_data *model) {
                             if(name_point == NULL)
                                 name_point = image->buffer_view->name;
 
+                            if(name_point == NULL)
+                                name_point = texture->name;
+
                             int size = strlen(glTF->name) + strlen(name_point);
                             g_mesh->normal->path = AllocateMemory( size + 1, sizeof(char));
                             ToolsAddStrings(g_mesh->normal->path, size, glTF->name, name_point);
                             g_mesh->normal->buffer = AllocateMemory(image->buffer_view->size, sizeof(char));
                             memcpy(g_mesh->normal->buffer, image->buffer_view->buffer->data + image->buffer_view->offset, image->buffer_view->size);
                             g_mesh->normal->size = image->buffer_view->size;
+                            
                         }
                     }
 
@@ -331,9 +372,24 @@ void SetupMeshState(glTFStruct *glTF, cgltf_data *model) {
                         {
                             int size = strlen(glTF->path) + strlen(image->uri);
                             g_mesh->specular->path = AllocateMemory( size + 1, sizeof(char));
-                            ToolsAddStrings(g_mesh->specular->path, size, glTF->path, image->uri);
-                            g_mesh->specular->size = 0;
-                            //g_mesh->image->buffer = ToolsLoadImageFromFile(&g_mesh->image->size, buff);
+
+                            
+                            int size_uri = strlen(image->uri);
+
+                            g_mesh->specular->path = AllocateMemory( 256, sizeof(char));
+                            memset(g_mesh->specular->path , 0, 256);
+
+                            if(size_uri > 256){
+                                ToolsAddStrings(g_mesh->specular->path, 256, glTF->path, texture->name);
+                                g_mesh->specular->buffer = AllocateMemory(size_uri, sizeof(char));
+                                memcpy(g_mesh->specular->buffer, image->uri, size_uri);
+                                g_mesh->specular->size = size_uri;
+
+                            }else{
+                                ToolsAddStrings(g_mesh->specular->path, size, glTF->path, image->uri);
+                                g_mesh->specular->size = 0;
+                                //g_mesh->image->buffer = ToolsLoadImageFromFile(&g_mesh->image->size, buff);
+                            }
 
                         }
                         else if(image->buffer_view->buffer != NULL)
@@ -343,6 +399,9 @@ void SetupMeshState(glTFStruct *glTF, cgltf_data *model) {
 
                             if(name_point == NULL)
                                 name_point = image->buffer_view->name;
+
+                            if(name_point == NULL)
+                                name_point = texture->name;
 
                             int size = strlen(glTF->name) + strlen(name_point);
                             g_mesh->specular->path = AllocateMemory( size + 1, sizeof(char));
@@ -471,38 +530,45 @@ void SetupMeshState(glTFStruct *glTF, cgltf_data *model) {
 
         if(node->skin != NULL)
         {
-            glTF->num_join_mats = node->skin->joints_count;
-            glTF->joint_mats = AllocateMemory(glTF->num_join_mats, sizeof(join_mat_struct));
+            skin_node = node;
 
-            cgltf_accessor *accessor = node->skin->inverse_bind_matrices;
+            cgltf_accessor *accessor = skin_node->skin->inverse_bind_matrices;       
+            mat4 *mat_point = accessor->buffer_view->offset + accessor->buffer_view->buffer->data;      
 
-            mat4 *mat_point = accessor->buffer_view->offset + accessor->buffer_view->buffer->data;
-
-            for(int j=0;j < glTF->num_join_mats;j++)
-            {
-
-                join_mat_struct *j_mat = &glTF->joint_mats[j];
-
-                j_mat->inv_mat = mat_point[j];
+            for(int j=0;j < skin_node->skin->joints_count;j++)
+            {       
+                join_mat_struct *j_mat = &glTF->joint_mats[glTF->num_join_mats];   
+                uint32_t temp = 0, find = 1;  
 
                 for(int k=0;k < glTF->num_nodes;k++)
                 {
-                    if(node->skin->joints[j] == &model->nodes[k])
+                    if(skin_node->skin->joints[j] == &model->nodes[k])
                     {
-                        j_mat->id_node = k;
+                        temp = k;
                         break;
                     }
+                }       
+                
+                for(int k=0;k < glTF->num_join_mats;k++){
+                    if(glTF->joint_mats[k].id_node == temp)
+                        find = 0;
                 }
 
+                if(find){
+                    j_mat->id_node = temp;   
+                    j_mat->inv_mat = mat_point[j];  
+                    glTF->num_join_mats ++;
+                }
             }
+
         }
         g_node->local_matrix = getLocalTransform(node);
         g_node->global_matrix = getFullTransform(node);
     }
 
-    for(int j=0;j < glTF->num_join_mats;j++)
+    for(int i=0;i < glTF->num_join_mats;i++)
     {
-        join_mat_struct *j_mat = &glTF->joint_mats[j];
+        join_mat_struct *j_mat = &glTF->joint_mats[i];
         engine_gltf_node *node = &glTF->nodes[j_mat->id_node];
         j_mat->join_mat = mat4_mult_transform(j_mat->inv_mat, node->global_matrix);
     }
@@ -528,7 +594,7 @@ void update_frame(ModelObject3D *mo, engine_gltf_anim * animation)
           {
               float duration = channel->keyframes[channel->num_keyframes - 1].time;
 
-              float wrappedTime = fmod(glTF->anim_time, duration);
+              double wrappedTime = fmod(glTF->anim_time, duration);
 
               vec3 vector3;
               vec4 vector4;
@@ -557,44 +623,43 @@ void update_frame(ModelObject3D *mo, engine_gltf_anim * animation)
 
 void update_hierarhy(ModelObject3D *mo)
 {
-  glTFStruct *glTF = mo->obj;
+    glTFStruct *glTF = mo->obj;
 
-  for(int i=0; i < glTF->num_nodes;i++)
-  {
-    engine_gltf_node * node = &glTF->nodes[i];
-
-    mat4 mat = node->local_matrix;
-
-    if(node->id_parent != -1)
+    for(int i=0; i < glTF->num_nodes;i++)
     {
-      engine_gltf_node *parent = &glTF->nodes[node->id_parent];
+        engine_gltf_node * node = &glTF->nodes[i];
 
-      while (parent)
-      {
-          mat4 pm = parent->local_matrix;
+        mat4 mat = node->local_matrix;
 
-          mat = mat4_mult_transform(mat, pm);
+        if(node->id_parent != -1)
+        {
+            engine_gltf_node *parent = &glTF->nodes[node->id_parent];
 
-          if(parent->id_parent != -1)
-            parent = &glTF->nodes[parent->id_parent];
-          else
-            parent = NULL;
-      }
+            while (parent)
+            {
+                mat4 pm = parent->local_matrix;
+
+                mat = mat4_mult_transform(mat, pm);
+
+                if(parent->id_parent != -1)
+                    parent = &glTF->nodes[parent->id_parent];
+                else
+                    parent = NULL;
+            }
+        }
+
+        node->global_matrix = mat;
     }
 
-    node->global_matrix = mat;
-  }
-
-  for(int j=0;j < glTF->num_join_mats;j++)
-  {
-      join_mat_struct *j_mat = &glTF->joint_mats[j];
-      engine_gltf_node *node = &glTF->nodes[j_mat->id_node];
-      j_mat->join_mat = mat4_mult_transform(j_mat->inv_mat, node->global_matrix);
-  }
-
+    for(int i=0;i < glTF->num_join_mats;i++)
+    {
+        join_mat_struct *j_mat = &glTF->joint_mats[i];
+        engine_gltf_node *node = &glTF->nodes[j_mat->id_node];
+        j_mat->join_mat = mat4_mult_transform(j_mat->inv_mat, node->global_matrix);
+    }
 }
 
-void Load3DglTFNextFrame(void *ptr, float time, int num_animation)
+void Load3DglTFNextFrame(void *ptr, double time, int num_animation)
 {
   ModelObject3D *mo = ptr;
 
@@ -630,6 +695,7 @@ void ModelglTFDestroy(ModelObject3D* mo){
 
         FreeMemory(mo->nodes[i].models);
     }
+    FreeMemory(mo->nodes);
 
     for(int i=0; i < glTF->num_anims;i++)
     {
@@ -639,24 +705,40 @@ void ModelglTFDestroy(ModelObject3D* mo){
         }
         FreeMemory(glTF->animations[i].channels);
     }
+    FreeMemory(glTF->animations);
 
     for(int i=0; i < glTF->num_nodes;i++)
     {
         for(int j=0;j < glTF->nodes[i].num_mesh;j++)
         {
             FreeMemory(glTF->nodes[i].mesh[j]->instance_node_indices);
-            FreeMemory(glTF->nodes[i].mesh[j]);
+
+            engine_model_mesh *mesh = glTF->nodes[i].mesh[j];
+
+            if(mesh->image != NULL){
+                FreeMemory(mesh->image);
+            }
+            
+            if(mesh->normal != NULL){
+                FreeMemory(mesh->normal);
+            }
+            
+            if(mesh->specular != NULL){
+                FreeMemory(mesh->specular);
+            }
+            
+            FreeMemory(mesh->indices);
+            FreeMemory(mesh->verts);
+
+            FreeMemory(mesh);
         }
         FreeMemory(glTF->nodes[i].mesh);
     }
-
     FreeMemory(glTF->nodes);
-    FreeMemory(glTF->joint_mats);
-    FreeMemory(glTF->animations);
-    FreeMemory(glTF);
-    FreeMemory(mo->nodes);
-}
+    FreeMemory(glTF->name);
 
+    FreeMemory(glTF);
+}
 
 void ModelglTFnvMatrixBuffer(ModelObject3D* mo, uint32_t indx_node, void *data)
 {
@@ -668,18 +750,16 @@ void ModelglTFnvMatrixBuffer(ModelObject3D* mo, uint32_t indx_node, void *data)
     InvMatrixsBuffer imb = {};
     memset(&imb, 0, sizeof(InvMatrixsBuffer));
 
-    for(int k=0;k < glTF->num_join_mats;k++)
-      imb.mats[k] = glTF->joint_mats[k].join_mat;
-
     imb.size = glTF->num_join_mats;
+    for(int i=0;i < glTF->num_join_mats;i++)
+        imb.mats[i] = glTF->joint_mats[i].join_mat;
 
     memcpy(data, (char *)&imb, sizeof(imb));
 }
 
-
 void ModelglTFSetDefaultShader(GameObject3D *go)
 {    
-    if(go->self.flags & ENGINE_GAME_OBJECT_FLAG_SHADED)
+    if(go->self.flags & TIGOR_GAME_OBJECT_FLAG_SHADED)
         return;
 
     uint32_t num_pack = BluePrintInit(&go->graphObj.blueprints);
@@ -709,9 +789,9 @@ void ModelglTFSetDefaultShader(GameObject3D *go)
     GameObject3DSetDescriptorTextureCreate(go, num_pack, 4, go->num_images > 0 ? &go->images[2] : NULL);
     
     /*uint32_t flags = BluePrintGetSettingsValue(&go->graphObj.blueprints, 0, 3);
-    BluePrintSetSettingsValue(&go->graphObj.blueprints, 0, 3, flags | ENGINE_PIPELINE_FLAG_FACE_CLOCKWISE);*/
+    BluePrintSetSettingsValue(&go->graphObj.blueprints, 0, 3, flags | TIGOR_PIPELINE_FLAG_FACE_CLOCKWISE);*/
     
-    go->self.flags |= ENGINE_GAME_OBJECT_FLAG_SHADED;
+    go->self.flags |= TIGOR_GAME_OBJECT_FLAG_SHADED;
 }
 
 void Load3DglTFModel(void *model, char *path, char *name, uint8_t type, DrawParam *dParam){
@@ -724,6 +804,8 @@ void Load3DglTFModel(void *model, char *path, char *name, uint8_t type, DrawPara
     
     char *full_path = ToolsMakeString(currPath, path);
         
+    mo->type = TIGOR_MODEL_TYPE_GLTF;
+
     Transform3DInit(&mo->transform);
 
     GameObjectSetInitFunc((GameObject *)mo, (void *)ModelDefaultInit);
@@ -731,9 +813,8 @@ void Load3DglTFModel(void *model, char *path, char *name, uint8_t type, DrawPara
     GameObjectSetDrawFunc((GameObject *)mo, (void *)ModelDefaultDraw);
     GameObjectSetCleanFunc((GameObject *)mo, (void *)ModelClean);
     GameObjectSetRecreateFunc((GameObject *)mo, (void *)ModelRecreate);
-    GameObjectSetDestroyFunc((GameObject *)mo, (void *)ModelglTFDestroy);
     
-    mo->self.obj_type = ENGINE_GAME_OBJECT_TYPE_3D;
+    mo->self.obj_type = TIGOR_GAME_OBJECT_TYPE_3D;
     mo->self.flags = 0;
 
     mo->obj = AllocateMemory(1, sizeof(glTFStruct));
@@ -772,18 +853,20 @@ void Load3DglTFModel(void *model, char *path, char *name, uint8_t type, DrawPara
         default:
             break;
     }
-
+    
     if(!DirectIsFileExist(ascii)){
         GameObjectDestroy(model);
-        FreeMemory(full_path);            
-        FreeMemory(currPath);
-        return 0;
+        FreeMemory(glTF->name);
+        return;
     }
     
     if(!DirectIsFileExist(binary)){
         GameObjectDestroy(model);
-        return 0;
+        FreeMemory(glTF->name);
+        return;
     }
+    
+    GameObjectSetDestroyFunc((GameObject *)mo, (void *)ModelglTFDestroy);
   
     cgltf_options options = {0};
     cgltf_data* data = NULL;
@@ -819,24 +902,29 @@ void Load3DglTFModel(void *model, char *path, char *name, uint8_t type, DrawPara
                         GameObject3D *model = &mo->nodes[iter].models[j];
                         engine_model_mesh *mesh = node->mesh[j];
 
-                        model->images = AllocateMemory(3, sizeof(GameObjectImage));
+                        GameObject3DInit(model, TIGOR_GAME_OBJECT_TYPE_MODEL);
 
-                        if(mesh->image)
-                            model->images[0] = *mesh->image;
-                        if(mesh->specular)
-                            model->images[1] = *mesh->specular;
-                        if(mesh->normal)
-                            model->images[2] = *mesh->normal;
+                        if(mesh->image || mesh->specular || mesh->normal){
+                            model->images = AllocateMemory(3, sizeof(GameObjectImage));
 
-                        model->num_images = 3;
-
-                        GraphicsObjectInit(&model->graphObj, ENGINE_VERTEX_TYPE_MODEL_OBJECT);
+                            if(mesh->image)
+                                model->images[0] = *mesh->image;
+                            if(mesh->specular)
+                                model->images[1] = *mesh->specular;
+                            if(mesh->normal)
+                                model->images[2] = *mesh->normal;
+                                
+                            model->num_images = 3;
+                        }else{
+                            GameObject3DInitTextures(model, dParam);
+                        }                          
 
                         model->graphObj.gItems.perspective = true;
 
                         GraphicsObjectSetVertex(&model->graphObj, mesh->verts, mesh->num_verts, sizeof(ModelVertex3D), mesh->indices, mesh->num_indices, sizeof(uint32_t));
                         
-                        GameObject3DInit(model, ENGINE_GAME_OBJECT_TYPE_MODEL_GLTF);
+
+                        GameObjectSetUpdateFunc((GameObject *)model, NULL);
 
                         GameObjectSetShaderInitFunc((GameObject *)model, ModelglTFSetDefaultShader);
                     }

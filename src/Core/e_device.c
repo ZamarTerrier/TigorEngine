@@ -7,7 +7,7 @@
 #include "Data/e_resource_data.h"
 #include "Data/e_resource_engine.h"
 
-extern ZEngine engine;
+extern TEngine engine;
 
 bool checkDeviceExtensionSupport(void* arg) {
 
@@ -68,8 +68,8 @@ bool isDeviceSuitable(void* arg) {
 }
 
 void pickPhysicalDevice() {
-    ZWindow *window = (ZWindow *)engine.window;
-    ZDevice *device = (ZDevice *)engine.device;
+    TWindow *window = (TWindow *)engine.window;
+    TDevice *device = (TDevice *)engine.device;
 
     uint32_t deviceCount = 0;
     vkEnumeratePhysicalDevices(window->instance, &deviceCount, NULL);
@@ -101,7 +101,7 @@ void pickPhysicalDevice() {
 }
 
 void createLogicalDevice() {
-    ZDevice *device = (ZDevice *)engine.device;
+    TDevice *device = (TDevice *)engine.device;
 
     VkDeviceQueueCreateInfo* queueCreateInfos;
     uint32_t* uniqueQueueFamilies;

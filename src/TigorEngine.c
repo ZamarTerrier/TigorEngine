@@ -1,4 +1,4 @@
-#include "ZamEngine.h"
+#include "TigorEngine.h"
 
 #include <vulkan/vulkan.h>
 
@@ -19,7 +19,7 @@
 
 #include "Variabels/engine_includes.h"
 
-ZEngine engine;
+TEngine engine;
 
 extern bool enableValidationLayers;
 
@@ -40,8 +40,8 @@ void EngineKeyCallback(wManagerWindow* window,  unsigned int key, unsigned int s
 }
 
 
-void ZEngineInitSystem(int width, int height, const char* name){
-    memset(&engine, 0, sizeof(ZEngine));
+void TEngineInitSystem(int width, int height, const char* name){
+    memset(&engine, 0, sizeof(TEngine));
 
     strcpy(engine.app_name, name);
 
@@ -57,9 +57,9 @@ void ZEngineInitSystem(int width, int height, const char* name){
 
     //rootDirPath = e_GetCurrectFilePath();
 
-    engine.window = AllocateMemoryP(1, sizeof(ZWindow), &engine);
-    engine.device = AllocateMemoryP(1, sizeof(ZDevice), &engine);
-    engine.swapchain = AllocateMemoryP(1, sizeof(ZSwapChain), &engine);
+    engine.window = AllocateMemoryP(1, sizeof(TWindow), &engine);
+    engine.device = AllocateMemoryP(1, sizeof(TDevice), &engine);
+    engine.swapchain = AllocateMemoryP(1, sizeof(TSwapChain), &engine);
 
     engine.cache.alloc_buffers_memory_head = calloc(1, sizeof(ChildStack));
     engine.cache.alloc_descriptor_head = calloc(1, sizeof(ChildStack));
@@ -78,7 +78,7 @@ void ZEngineInitSystem(int width, int height, const char* name){
     InitWindow(engine.window);
     EngineInitVulkan();
     
-    ZWindow *window = (ZWindow *)engine.window;
+    TWindow *window = (TWindow *)engine.window;
     wManagerSetCharCallback(window->e_window, EngineCharacterCallback);
     wManagerSetKeyCallback(window->e_window, EngineKeyCallback);
     
@@ -95,12 +95,12 @@ void ZEngineInitSystem(int width, int height, const char* name){
     
     engine.main_render = AllocateMemory(1, sizeof(RenderTexture));
     
-    RenderTextureInit(engine.main_render, ENGINE_RENDER_TYPE_WINDOW, 0, 0, 0);
+    RenderTextureInit(engine.main_render, TIGOR_RENDER_TYPE_WINDOW, 0, 0, 0);
 
-    ZEngineSetRender(engine.main_render, 1);
+    TEngineSetRender(engine.main_render, 1);
 }
 
-void ZEngineSetRender(void *obj, uint32_t count)
+void TEngineSetRender(void *obj, uint32_t count)
 {
     if(count == 0)
         return;
@@ -120,14 +120,14 @@ void ZEngineSetRender(void *obj, uint32_t count)
     }
 }
 
-void ZEngineRender(){
+void TEngineRender(){
 
-    ZDevice *device = (ZDevice *)engine.device;
-    ZSwapChain *swapchain = (ZSwapChain *)engine.swapchain;
+    TDevice *device = (TDevice *)engine.device;
+    TSwapChain *swapchain = (TSwapChain *)engine.swapchain;
 
     
     for( int i=0;i < engine.gameObjects.size;i++){
-        if(!(engine.gameObjects.objects[i]->flags & ENGINE_GAME_OBJECT_FLAG_INIT))
+        if(!(engine.gameObjects.objects[i]->flags & TIGOR_GAME_OBJECT_FLAG_INIT))
             GameObjectInit(engine.gameObjects.objects[i]);
     }
 
@@ -166,10 +166,10 @@ void ZEngineRender(){
         RenderTexture *render;
         engine.current_render = render = engine.renders.objects[i];
 
-        if((render->flags & ENGINE_RENDER_FLAG_ONE_SHOT) && (render->flags & ENGINE_RENDER_FLAG_SHOOTED))
+        if((render->flags & TIGOR_RENDER_FLAG_ONE_SHOT) && (render->flags & TIGOR_RENDER_FLAG_SHOOTED))
             continue;
 
-        if(render->type & ENGINE_RENDER_TYPE_CUBEMAP)
+        if(render->type & TIGOR_RENDER_TYPE_CUBEMAP)
         {
             for(int k=0;k < 6;k++)
             {
@@ -264,8 +264,8 @@ void ZEngineRender(){
     {
         RenderTexture *render = engine.renders.objects[i];
 
-        if((render->flags & ENGINE_RENDER_FLAG_ONE_SHOT) && !(render->flags & ENGINE_RENDER_FLAG_SHOOTED))
-            render->flags |= ENGINE_RENDER_FLAG_SHOOTED;
+        if((render->flags & TIGOR_RENDER_FLAG_ONE_SHOT) && !(render->flags & TIGOR_RENDER_FLAG_SHOOTED))
+            render->flags |= TIGOR_RENDER_FLAG_SHOOTED;
     }
 
     engine.currentFrame = (engine.currentFrame + 1) % engine.MAX_FRAMES_IN_FLIGHT;
@@ -276,15 +276,15 @@ void ZEngineRender(){
         GUIManagerClear();
 }
 
-void ZEngineSetDrawFunc(DrawFunc_T func){
+void TEngineSetDrawFunc(DrawFunc_T func){
     engine.func.DrawFunc = func;
 }
 
-void ZEngineSetRecreateFunc(RecreateFunc_T func){
+void TEngineSetRecreateFunc(RecreateFunc_T func){
     engine.func.RecreateFunc = func;
 }
 
-void ZEngineDraw(GameObject *go){
+void TEngineDraw(GameObject *go){
 
     for( int i=0;i < engine.gameObjects.size;i++){
         if(engine.gameObjects.objects[i] == go)
@@ -295,105 +295,113 @@ void ZEngineDraw(GameObject *go){
     engine.gameObjects.size ++;
 }
 
-void ZEnginePoolEvents(){
+void TEnginePoolEvents(){
     wManagerPoolEvents();
 }
 
-void ZEngineSetKeyCallback(void *callback){
+void TEngineSetKeyCallback(void *callback){
     engine.func.keyCallbackSize ++;
 
     engine.func.keyCallbacks = (e_keyCallback *)realloc(engine.func.keyCallbacks, engine.func.keyCallbackSize * sizeof(e_keyCallback));
     engine.func.keyCallbacks[engine.func.keyCallbackSize - 1] = (e_keyCallback)callback;
 }
 
-void ZEngineSetCharCallback(void *callback){
+void TEngineSetCharCallback(void *callback){
     engine.func.charCallbackSize ++;
 
     engine.func.charCallbacks = (e_charCallback *)realloc(engine.func.charCallbacks, engine.func.charCallbackSize * sizeof(e_charCallback));
     engine.func.charCallbacks[engine.func.charCallbackSize - 1] = (e_charCallback)callback;
 }
 
-void ZEngineSetMouseKeyCallback(void *callback){
-    ZWindow *window = (ZWindow *)engine.window;
+void TEngineSetMouseKeyCallback(void *callback){
+    TWindow *window = (TWindow *)engine.window;
 
     wManagerSetMouseButtonCallback(window->e_window, callback);
 }
 
-void ZEngineSetCursorPoscallback(void * callback){
-    ZWindow *window = (ZWindow *)engine.window;
+void TEngineSetCursorPoscallback(void * callback){
+    TWindow *window = (TWindow *)engine.window;
 
     wManagerSetCursorPosCallback(window->e_window, callback);
 }
 
-void ZEngineGetWindowSize(int *width, int *height){
+void TEngineGetWindowSize(int *width, int *height){
 
     *width = engine.width;
     *height = engine.height;
 }
 
-void ZEngineFixedCursorCenter(){
-    ZWindow *window = (ZWindow *)engine.window;
+void TEngineFixedCursorCenter(){
+    TWindow *window = (TWindow *)engine.window;
 
     wManagerSetCursorPos(window->e_window, engine.width / 2, engine.height / 2);
 }
 
-void ZEngineGetCursorPos(double *xpos, double *ypos){
-    ZWindow *window = (ZWindow *)engine.window;
+void TEngineGetCursorPos(double *xpos, double *ypos){
+    TWindow *window = (TWindow *)engine.window;
 
     wManagerGetCursorPos(window->e_window, xpos, ypos);
 }
 
-void ZEngineSetCursorPos(float xpos, float ypos){
-    ZWindow *window = (ZWindow *)engine.window;
+void TEngineSetCursorPos(float xpos, float ypos){
+    TWindow *window = (TWindow *)engine.window;
 
     wManagerSetCursorPos(window->e_window, xpos, ypos);
 }
 
-void ZEngineHideCursor(char state){
-    ZWindow *window = (ZWindow *)engine.window;
+void TEngineHideCursor(char state){
+    TWindow *window = (TWindow *)engine.window;
 
     switch(state){
         case 0 :
-            wManagerSetInputMode(window->e_window, ENGINE_CURSOR, ENGINE_CURSOR_DISABLED);
+            wManagerSetInputMode(window->e_window, TIGOR_CURSOR, TIGOR_CURSOR_DISABLED);
             break;
         case 1 :
-            wManagerSetInputMode(window->e_window, ENGINE_CURSOR, ENGINE_CURSOR_HIDDEN);
+            wManagerSetInputMode(window->e_window, TIGOR_CURSOR, TIGOR_CURSOR_HIDDEN);
             break;
         case 2 :
-            wManagerSetInputMode(window->e_window, ENGINE_CURSOR, ENGINE_CURSOR_NORMAL);
+            wManagerSetInputMode(window->e_window, TIGOR_CURSOR, TIGOR_CURSOR_NORMAL);
             break;
     }
 }
 
-int ZEngineGetMousePress(int Key){
-    ZWindow *window = (ZWindow *)engine.window;
+int TEngineGetMousePress(int Key){
+    TWindow *window = (TWindow *)engine.window;
 
     int state = wManagerGetMouseButton(window->e_window, Key);
 
     return state;
 }
 
-int ZEngineWindowIsClosed(){
+int TEngineWindowIsClosed(){
     return wManagerWindowIsClosed();
 }
 
-double ZEngineGetTime(){
+double TEngineGetTime(){
     return wManagerGetTime();
 }
 
-const char *ZEngineGetClipBoardString(){
-    ZWindow *window = (ZWindow *)engine.window;
+int TEngineGetKeyPress(int Key){
+    TWindow *window = (TWindow *)engine.window;
+
+    int res = wManagerGetKey(window->e_window, Key);
+
+    return res;
+}
+
+const char *TEngineGetClipBoardString(){
+    TWindow *window = (TWindow *)engine.window;
 
     return wManagerGetClipboardString(window->e_window);
 }
 
-void ZEngineSetClipBoardString(const char *string){
-    ZWindow *window = (ZWindow *)engine.window;
+void TEngineSetClipBoardString(const char *string){
+    TWindow *window = (TWindow *)engine.window;
 
     wManagerSetClipboardString(window->e_window, string);
 }
 
-void ZEngineSetFont(char *font_path){
+void TEngineSetFont(char *font_path){
     
     char *currPath = DirectGetCurrectFilePath();
     int len = strlen(currPath);
@@ -415,11 +423,11 @@ void ZEngineSetFont(char *font_path){
         GUIManagerInit();
 }
 
-void ZEngineCleanUp(){
+void TEngineCleanUp(){
 
-    ZDevice *device = (ZDevice *)engine.device;
-    ZWindow *window = (ZWindow *)engine.window;
-    ZSwapChain *swapchain = (ZSwapChain *)engine.swapchain;
+    TDevice *device = (TDevice *)engine.device;
+    TWindow *window = (TWindow *)engine.window;
+    TSwapChain *swapchain = (TSwapChain *)engine.swapchain;
 
     vkDeviceWaitIdle(device->e_device);
 

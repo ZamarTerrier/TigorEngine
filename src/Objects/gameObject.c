@@ -3,7 +3,7 @@
 #include "Core/engine.h"
 #include "Core/e_device.h"
 
-extern ZEngine engine;
+extern TEngine engine;
 
 void GameObjectSetInitFunc(GameObject *go, void *func){
     go->InitPoint = func;
@@ -59,7 +59,7 @@ void GameObjectDraw(GameObject* go) {
     if(go == NULL)
         return;
 
-    if(!(go->flags & ENGINE_GAME_OBJECT_FLAG_INIT))
+    if(!(go->flags & TIGOR_GAME_OBJECT_FLAG_INIT))
         return;
 
     GameObjectUpdate(go);

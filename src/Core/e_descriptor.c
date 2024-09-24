@@ -14,7 +14,7 @@
 
 #include "Data/e_resource_engine.h"
 
-extern ZEngine engine;
+extern TEngine engine;
 
 void DescriptorAcceptStack(ShaderDescriptor *descriptor)
 {
@@ -77,7 +77,7 @@ void DescriptorDestroy(ShaderDescriptor *descriptor)
     else if(descriptor->descr_pool == VK_NULL_HANDLE)
         return;
 
-    ZDevice *device = (ZDevice *)engine.device;
+    TDevice *device = (TDevice *)engine.device;
 
     ChildStack *child = engine.cache.alloc_descriptor_head;
     ShaderDescriptor *curr = NULL;    
@@ -128,7 +128,7 @@ void DescriptorUpdateIndex(BluePrintDescriptor *descriptor, char *data, uint32_t
     BufferObject stagingBuffer;
     VkDeviceMemory stagingBufferMemory;
 
-    BuffersCreate(descriptor->uniform.type_size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &stagingBuffer, ENGINE_BUFFER_ALLOCATE_STAGING);
+    BuffersCreate(descriptor->uniform.type_size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &stagingBuffer, TIGOR_BUFFER_ALLOCATE_STAGING);
 
     BuffersCopy(&stagingBuffer,  &descriptor->uniform.buffers[index], descriptor->uniform.type_size);
 
@@ -151,12 +151,12 @@ void DescriptorSetImage(VkWriteDescriptorSet* descriptorWrites, void *descr_set,
     for(int i=0;i < array_size;i++)
     {
 
-        if((blueprint_descriptor->flags & ENGINE_BLUE_PRINT_FLAG_SINGLE_IMAGE) && (blueprint_descriptor->flags & ENGINE_BLUE_PRINT_FLAG_ARRAY_IMAGE)){
+        if((blueprint_descriptor->flags & TIGOR_BLUE_PRINT_FLAG_SINGLE_IMAGE) && (blueprint_descriptor->flags & TIGOR_BLUE_PRINT_FLAG_ARRAY_IMAGE)){
             imageInfo[i].imageView = textures[i].image_view;
             imageInfo[i].sampler = textures[i].sampler;
             imageInfo[i].imageLayout = textures[i].imageLayout == 0 ? VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL : textures[i].imageLayout;
         }
-        else if(blueprint_descriptor->flags & ENGINE_BLUE_PRINT_FLAG_SINGLE_IMAGE){
+        else if(blueprint_descriptor->flags & TIGOR_BLUE_PRINT_FLAG_SINGLE_IMAGE){
             imageInfo[i].imageView = textures[0].image_view;
             imageInfo[i].sampler = textures[0].sampler;
             imageInfo[i].imageLayout = textures[0].imageLayout == 0 ? VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL : textures[i].imageLayout;
@@ -197,7 +197,7 @@ void DescriptorSetBuffer(VkWriteDescriptorSet* descriptorWrites, void *descr_set
 
 void DescriptorCreate(ShaderDescriptor *descriptor, BluePrintDescriptor *descriptors, Blueprints *blueprints, size_t num_descr, size_t num_frame) {
 
-    ZDevice *device = (ZDevice *)engine.device;
+    TDevice *device = (TDevice *)engine.device;
 
     //Создаем параметры дескриптора
     {
@@ -296,13 +296,13 @@ void DescriptorCreate(ShaderDescriptor *descriptor, BluePrintDescriptor *descrip
                 Texture2D *textures = (Texture2D *)blueprint_descriptor->textures;
 
                 //Если изображение еденичное и является массивом
-                if((blueprint_descriptor->flags & ENGINE_BLUE_PRINT_FLAG_SINGLE_IMAGE) && (blueprint_descriptor->flags & ENGINE_BLUE_PRINT_FLAG_ARRAY_IMAGE))
+                if((blueprint_descriptor->flags & TIGOR_BLUE_PRINT_FLAG_SINGLE_IMAGE) && (blueprint_descriptor->flags & TIGOR_BLUE_PRINT_FLAG_ARRAY_IMAGE))
                 {
 
                     DescriptorSetImage(&descriptorWrites[blueprint_descriptor->binding], descriptor->descr_sets[i], blueprint_descriptor->count, blueprint_descriptor);
 
                 //Если изображение еденичное
-                }else if(blueprint_descriptor->flags & ENGINE_BLUE_PRINT_FLAG_SINGLE_IMAGE){
+                }else if(blueprint_descriptor->flags & TIGOR_BLUE_PRINT_FLAG_SINGLE_IMAGE){
 
                     DescriptorSetImage(&descriptorWrites[blueprint_descriptor->binding], descriptor->descr_sets[i], 1, blueprint_descriptor);
 

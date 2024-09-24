@@ -100,17 +100,17 @@ int getKeyMods(void)
     int mods = 0;
 
     if (GetKeyState(VK_SHIFT) & 0x8000)
-        mods |= ENGINE_MOD_SHIFT;
+        mods |= TIGOR_MOD_SHIFT;
     if (GetKeyState(VK_CONTROL) & 0x8000)
-        mods |= ENGINE_MOD_CONTROL;
+        mods |= TIGOR_MOD_CONTROL;
     if (GetKeyState(VK_MENU) & 0x8000)
-        mods |= ENGINE_MOD_ALT;
+        mods |= TIGOR_MOD_ALT;
     if ((GetKeyState(VK_LWIN) | GetKeyState(VK_RWIN)) & 0x8000)
-        mods |= ENGINE_MOD_SUPER;
+        mods |= TIGOR_MOD_SUPER;
     if (GetKeyState(VK_CAPITAL) & 1)
-        mods |= ENGINE_MOD_CAPS_LOCK;
+        mods |= TIGOR_MOD_CAPS_LOCK;
     if (GetKeyState(VK_NUMLOCK) & 1)
-        mods |= ENGINE_MOD_NUM_LOCK;
+        mods |= TIGOR_MOD_NUM_LOCK;
 
     return mods;
 }

@@ -21,7 +21,7 @@
 
 #include "wManager/window_manager.h"
 
-#define ENGINE_DEFINE_NON_DISPATCHABLE_HANDLE(object) typedef struct object##_T *object;
+#define TIGOR_DEFINE_NON_DISPATCHABLE_HANDLE(object) typedef struct object##_T *object;
 
 #define MAX_FONTS 16
 #define MAX_IMAGES 16
@@ -47,9 +47,9 @@ extern "C"
 struct GameObject_T;
 struct RenderTexture_T;
 
-struct ZWindow_T;
-struct ZDevice_T;
-struct ZSwapChain_T;
+struct TWindow_T;
+struct TDevice_T;
+struct TSwapChain_T;
 
 typedef struct{
     struct RenderTexture *objects[MAX_DRAW_OBJECTS];
@@ -89,9 +89,9 @@ typedef struct{
     vec2 viewSize;
     vec2 diffSize;
 
-    struct ZWindow_T *window;
-    struct ZDevice_T *device;
-    struct ZSwapChain_T *swapchain;
+    struct TWindow_T *window;
+    struct TDevice_T *device;
+    struct TSwapChain_T *swapchain;
 
     EngineRenderItems renders;
 
@@ -154,11 +154,11 @@ typedef struct{
         int define_font_loaded;
     } DataR;
 
-} ZEngine;
+} TEngine;
 
 typedef enum{
-    ENGINE_DRAW_PARAM_FLAG_ADD_SHADOW = 0x1,
-    ENGINE_DRAW_PARAM_FLAG_DRAW_INDEXED = 0x2
+    TIGOR_DRAW_PARAM_FLAG_ADD_SHADOW = 0x1,
+    TIGOR_DRAW_PARAM_FLAG_DRAW_INDEXED = 0x2
 } EngineDrawParamFlags;
 
 typedef struct EIExtent2D {

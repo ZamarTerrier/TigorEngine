@@ -7,18 +7,18 @@
 extern wManagerWindow _wMWindow;
 
 // Internal key state used for sticky keys
-#define _ENGINE_STICK 3
+#define _TIGOR_STICK 3
 
 // Internal constants for gamepad mapping source types
-#define _ENGINE_JOYSTICK_AXIS     1
-#define _ENGINE_JOYSTICK_BUTTON   2
-#define _ENGINE_JOYSTICK_HATBIT   3
+#define _TIGOR_JOYSTICK_AXIS     1
+#define _TIGOR_JOYSTICK_BUTTON   2
+#define _TIGOR_JOYSTICK_HATBIT   3
 
-#define ENGINE_MOD_MASK (ENGINE_MOD_SHIFT | \
-                       ENGINE_MOD_CONTROL | \
-                       ENGINE_MOD_ALT | \
-                       ENGINE_MOD_SUPER | \
-                       ENGINE_MOD_CAPS_LOCK |
+#define TIGOR_MOD_MASK (TIGOR_MOD_SHIFT | \
+                       TIGOR_MOD_CONTROL | \
+                       TIGOR_MOD_ALT | \
+                       TIGOR_MOD_SUPER | \
+                       TIGOR_MOD_CAPS_LOCK |
 
 void _wManagerCenterCursorInContentArea(wManagerWindow* window)
 {
@@ -32,27 +32,27 @@ void _wManagerCenterCursorInContentArea(wManagerWindow* window)
 //
 void _wManagerInputKey(wManagerWindow* window, int key, int scancode, int action, int mods)
 {
-    if (key >= 0 && key <= ENGINE_KEY_LAST)
+    if (key >= 0 && key <= TIGOR_KEY_LAST)
     {
         int32_t repeated = false;
 
-        if (action == ENGINE_RELEASE && window->keys[key] == ENGINE_RELEASE)
+        if (action == TIGOR_RELEASE && window->keys[key] == TIGOR_RELEASE)
             return;
 
-        if (action == ENGINE_PRESS && window->keys[key] == ENGINE_PRESS)
+        if (action == TIGOR_PRESS && window->keys[key] == TIGOR_PRESS)
             repeated = true;
 
-        if (action == ENGINE_RELEASE && window->stickyKeys)
-            window->keys[key] = _ENGINE_STICK;
+        if (action == TIGOR_RELEASE && window->stickyKeys)
+            window->keys[key] = _TIGOR_STICK;
         else
             window->keys[key] = (char) action;
 
         if (repeated)
-            action = ENGINE_REPEAT;
+            action = TIGOR_REPEAT;
     }
 
     if (!window->lockKeyMods)
-        mods &= ~(ENGINE_MOD_CAPS_LOCK | ENGINE_MOD_NUM_LOCK);
+        mods &= ~(TIGOR_MOD_CAPS_LOCK | TIGOR_MOD_NUM_LOCK);
 
     if (window->callbacks.key)
         window->callbacks.key((wManagerWindow*) window, key, scancode, action, mods);
@@ -67,7 +67,7 @@ void _wManagerInputChar(wManagerWindow* window, uint32_t codepoint, int mods, in
         return;
 
     if (!window->lockKeyMods)
-        mods &= ~(ENGINE_MOD_CAPS_LOCK | ENGINE_MOD_NUM_LOCK);
+        mods &= ~(TIGOR_MOD_CAPS_LOCK | TIGOR_MOD_NUM_LOCK);
 
     if (window->callbacks.charmods)
         window->callbacks.charmods((wManagerWindow*) window, codepoint, mods);
@@ -103,14 +103,14 @@ void _wManagerInputCursorPos(wManagerWindow* window, double xpos, double ypos)
 
 void _wManagerInputMouseClick(wManagerWindow* window, int button, int action, int mods)
 {
-    if (button < 0 || (button > ENGINE_MOUSE_BUTTON_LAST))
+    if (button < 0 || (button > TIGOR_MOUSE_BUTTON_LAST))
         return;
 
     if (!window->lockKeyMods)
-        mods &= ~(ENGINE_MOD_CAPS_LOCK | ENGINE_MOD_NUM_LOCK);
+        mods &= ~(TIGOR_MOD_CAPS_LOCK | TIGOR_MOD_NUM_LOCK);
 
-    if (action == ENGINE_RELEASE && window->stickyMouseButtons)
-        window->mouseButtons[button] = _ENGINE_STICK;
+    if (action == TIGOR_RELEASE && window->stickyMouseButtons)
+        window->mouseButtons[button] = _TIGOR_STICK;
     else
         window->mouseButtons[button] = (char) action;
 

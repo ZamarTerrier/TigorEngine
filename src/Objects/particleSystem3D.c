@@ -1,6 +1,6 @@
 #include "Objects/particleSystem3D.h"
 
-#include "ZamEngine.h"
+#include "TigorEngine.h"
 
 #include <vulkan/vulkan.h>
 
@@ -22,7 +22,7 @@
 #include "Data/e_resource_data.h"
 #include "Data/e_resource_engine.h"
 
-extern ZEngine engine;
+extern TEngine engine;
 
 #define MAX_PARTICLES_COUNT 1024
 
@@ -74,7 +74,7 @@ void Particle3DDesctroyObj(ParticleObject3D *particle, Particle3D *part){
     if(part == NULL)
         return;
 
-    ZDevice *device = (ZDevice *)engine.device;
+    TDevice *device = (TDevice *)engine.device;
 
     Particle3D *curr = NULL;
 
@@ -120,7 +120,7 @@ void Particle3DDesctroyObj(ParticleObject3D *particle, Particle3D *part){
 
 void Particle3DCopyToBuffer(ParticleObject3D *particle){
 
-    ZDevice *device = (ZDevice *)engine.device;
+    TDevice *device = (TDevice *)engine.device;
 
     ChildStack *child = particle->part_header;
     
@@ -274,21 +274,21 @@ void Particle3DDestroy(ParticleObject3D* particle){
     FreeMemory(particle->go.self.vert);
     FreeMemory(particle->go.self.frag);
     
-    particle->go.self.flags &= ~(ENGINE_GAME_OBJECT_FLAG_INIT);
+    particle->go.self.flags &= ~(TIGOR_GAME_OBJECT_FLAG_INIT);
 }
 
 void Particle3DInit(ParticleObject3D* particle, DrawParam *dParam){
 
-    ZDevice *device = (ZDevice *)engine.device;
+    TDevice *device = (TDevice *)engine.device;
 
     memset(particle, 0, sizeof(ParticleObject3D));
 
-    GameObject3DInit((GameObject3D *)particle, ENGINE_GAME_OBJECT_TYPE_PARTICLE_3D);
+    GameObject3DInit((GameObject3D *)particle, TIGOR_GAME_OBJECT_TYPE_PARTICLE_3D);
 
     GameObjectSetDestroyFunc((GameObject *)particle, (void *)Particle3DDestroy);
     GameObjectSetShaderInitFunc((GameObject *)particle, (void *)Particle3DSetDefaultShader);
 
-    BuffersCreate(sizeof(ParticleVertex3D) * MAX_PARTICLES_COUNT, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, &particle->go.graphObj.shapes[0].vParam.buffer, ENGINE_BUFFER_ALLOCATE_VERTEX);
+    BuffersCreate(sizeof(ParticleVertex3D) * MAX_PARTICLES_COUNT, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, &particle->go.graphObj.shapes[0].vParam.buffer, TIGOR_BUFFER_ALLOCATE_VERTEX);
         
     particle->go.graphObj.shapes[0].vParam.bufferSize = sizeof(ParticleVertex3D) * MAX_PARTICLES_COUNT;
     particle->go.graphObj.shapes[0].vParam.typeSize = sizeof(ParticleVertex3D);
@@ -323,7 +323,7 @@ void Particle3DInit(ParticleObject3D* particle, DrawParam *dParam){
 void Particle3DSetDefaultShader(ParticleObject3D* particle)
 {
     
-    if(particle->go.self.flags & ENGINE_GAME_OBJECT_FLAG_SHADED)
+    if(particle->go.self.flags & TIGOR_GAME_OBJECT_FLAG_SHADED)
         return;
 
     uint32_t num_pack = BluePrintInit(&particle->go.graphObj.blueprints);
@@ -351,10 +351,10 @@ void Particle3DSetDefaultShader(ParticleObject3D* particle)
     
     uint32_t flags = BluePrintGetSettingsValue(&particle->go.graphObj.blueprints, num_pack, 3);
     BluePrintSetSettingsValue(&particle->go.graphObj.blueprints, num_pack, 1, VK_PRIMITIVE_TOPOLOGY_POINT_LIST);
-    flags &= ~(ENGINE_PIPELINE_FLAG_DRAW_INDEXED);
+    flags &= ~(TIGOR_PIPELINE_FLAG_DRAW_INDEXED);
     BluePrintSetSettingsValue(&particle->go.graphObj.blueprints, num_pack, 3, flags);
     
-    particle->go.self.flags |= ENGINE_GAME_OBJECT_FLAG_SHADED;
+    particle->go.self.flags |= TIGOR_GAME_OBJECT_FLAG_SHADED;
 }
 
 void Particle3DAdd(ParticleObject3D* particle, vec3 position, vec3 direction, float speed, float gravity, float life){

@@ -1115,7 +1115,7 @@ have multiple listeners which can be configured via the config:
     engineConfig.listenerCount = 2;
     ```
 
-The maximum number of listeners is restricted to `MA_ENGINE_MAX_LISTENERS`. By default, when a
+The maximum number of listeners is restricted to `MA_TIGOR_MAX_LISTENERS`. By default, when a
 sound is spatialized, it will be done so relative to the closest listener. You can also pin a sound
 to a specific listener which will be explained later. Listener's have a position, direction, cone,
 and velocity (for doppler effect). A listener is referenced by an index, the meaning of which is up
@@ -10771,8 +10771,8 @@ typedef enum
     MA_SOUND_FLAG_NO_SPATIALIZATION     = 0x00000040    /* Disable spatialization. */
 } ma_sound_flags;
 
-#ifndef MA_ENGINE_MAX_LISTENERS
-#define MA_ENGINE_MAX_LISTENERS             4
+#ifndef MA_TIGOR_MAX_LISTENERS
+#define MA_TIGOR_MAX_LISTENERS             4
 #endif
 
 #define MA_LISTENER_INDEX_CLOSEST           ((ma_uint8)-1)
@@ -10898,7 +10898,7 @@ typedef struct
     ma_device_notification_proc notificationCallback;
 #endif
     ma_log* pLog;                               /* When set to NULL, will use the context's log. */
-    ma_uint32 listenerCount;                    /* Must be between 1 and MA_ENGINE_MAX_LISTENERS. */
+    ma_uint32 listenerCount;                    /* Must be between 1 and MA_TIGOR_MAX_LISTENERS. */
     ma_uint32 channels;                         /* The number of channels to use when mixing and spatializing. When set to 0, will use the native channel count of the device. */
     ma_uint32 sampleRate;                       /* The sample rate. When set to 0 will use the native channel count of the device. */
     ma_uint32 periodSizeInFrames;               /* If set to something other than 0, updates will always be exactly this size. The underlying device may be a different size, but from the perspective of the mixer that won't matter.*/
@@ -10927,7 +10927,7 @@ struct ma_engine
     ma_log* pLog;
     ma_uint32 sampleRate;
     ma_uint32 listenerCount;
-    ma_spatializer_listener listeners[MA_ENGINE_MAX_LISTENERS];
+    ma_spatializer_listener listeners[MA_TIGOR_MAX_LISTENERS];
     ma_allocation_callbacks allocationCallbacks;
     ma_bool8 ownsResourceManager;
     ma_bool8 ownsDevice;
@@ -17445,8 +17445,8 @@ MA_API ma_bool32 ma_is_loopback_supported(ma_backend backend)
 #define MA_AUDCLNT_E_NONOFFLOAD_MODE_ONLY         ((HRESULT)0x88890025)
 #define MA_AUDCLNT_E_RESOURCES_INVALIDATED        ((HRESULT)0x88890026)
 #define MA_AUDCLNT_E_RAW_MODE_UNSUPPORTED         ((HRESULT)0x88890027)
-#define MA_AUDCLNT_E_ENGINE_PERIODICITY_LOCKED    ((HRESULT)0x88890028)
-#define MA_AUDCLNT_E_ENGINE_FORMAT_LOCKED         ((HRESULT)0x88890029)
+#define MA_AUDCLNT_E_TIGOR_PERIODICITY_LOCKED    ((HRESULT)0x88890028)
+#define MA_AUDCLNT_E_TIGOR_FORMAT_LOCKED         ((HRESULT)0x88890029)
 #define MA_AUDCLNT_E_HEADTRACKING_ENABLED         ((HRESULT)0x88890030)
 #define MA_AUDCLNT_E_HEADTRACKING_UNSUPPORTED     ((HRESULT)0x88890040)
 #define MA_AUDCLNT_S_BUFFER_EMPTY                 ((HRESULT)0x08890001)
@@ -17531,8 +17531,8 @@ static ma_result ma_result_from_HRESULT(HRESULT hr)
         case MA_AUDCLNT_E_NONOFFLOAD_MODE_ONLY:         return MA_INVALID_OPERATION;
         case MA_AUDCLNT_E_RESOURCES_INVALIDATED:        return MA_INVALID_DATA;
         case MA_AUDCLNT_E_RAW_MODE_UNSUPPORTED:         return MA_INVALID_OPERATION;
-        case MA_AUDCLNT_E_ENGINE_PERIODICITY_LOCKED:    return MA_INVALID_OPERATION;
-        case MA_AUDCLNT_E_ENGINE_FORMAT_LOCKED:         return MA_INVALID_OPERATION;
+        case MA_AUDCLNT_E_TIGOR_PERIODICITY_LOCKED:    return MA_INVALID_OPERATION;
+        case MA_AUDCLNT_E_TIGOR_FORMAT_LOCKED:         return MA_INVALID_OPERATION;
         case MA_AUDCLNT_E_HEADTRACKING_ENABLED:         return MA_INVALID_OPERATION;
         case MA_AUDCLNT_E_HEADTRACKING_UNSUPPORTED:     return MA_INVALID_OPERATION;
         case MA_AUDCLNT_S_BUFFER_EMPTY:                 return MA_NO_SPACE;
@@ -72535,7 +72535,7 @@ MA_API ma_result ma_engine_init(const ma_engine_config* pConfig, ma_engine* pEng
         engineConfig.listenerCount = 1;
     }
 
-    if (engineConfig.listenerCount > MA_ENGINE_MAX_LISTENERS) {
+    if (engineConfig.listenerCount > MA_TIGOR_MAX_LISTENERS) {
         result = MA_INVALID_ARGS;   /* Too many listeners. */
         goto on_error_1;
     }

@@ -7,7 +7,7 @@
 #include "Data/e_resource_data.h"
 #include "Data/e_resource_engine.h"
 
-extern ZEngine engine;
+extern TEngine engine;
 
 bool checkValidationLayerSupport(){
     uint32_t layerCount;
@@ -63,10 +63,10 @@ const char** getRequiredExtensions(){
 }
 
 void InitWindow(){
-    ZWindow *window = (ZWindow *)engine.window;
+    TWindow *window = (TWindow *)engine.window;
 
     wManagerInit();
-    //wManagerWindowHint(ENGINE_RESIZABLE, false);
+    //wManagerWindowHint(TIGOR_RESIZABLE, false);
     if(!wManagerCreateWindow(window->e_window, engine.width, engine.height, engine.app_name)){
         wManagerTerminate();
         printf("Error when create window!\n");
@@ -85,7 +85,7 @@ static void framebufferResizeCallback(void* window, int width, int height) {
 }
 
 void createInstance(){
-    ZWindow *window = (ZWindow *)engine.window;
+    TWindow *window = (TWindow *)engine.window;
 
     if(enableValidationLayers && !checkValidationLayerSupport()){
         printf("validation layers requested, but not available\n");
@@ -97,7 +97,7 @@ void createInstance(){
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
     appInfo.pApplicationName = engine.app_name;
     appInfo.applicationVersion = VK_MAKE_VERSION(0,0,0);
-    appInfo.pEngineName = "ZamEngine";
+    appInfo.pEngineName = "TigorEngine";
     appInfo.applicationVersion = VK_MAKE_VERSION(0,0,0);
     appInfo.apiVersion = VK_API_VERSION_1_0;
 
@@ -137,7 +137,7 @@ void createInstance(){
 }
 
 void createSurface() {
-    ZWindow *window = (ZWindow *)engine.window;
+    TWindow *window = (TWindow *)engine.window;
 
     if (wManagerCreateWindowSurface(window->instance, window->e_window, NULL, (VkSurfaceKHR *) &window->surface) != VK_SUCCESS) {
         printf("failed to create window surface!");

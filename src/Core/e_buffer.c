@@ -10,10 +10,10 @@
 #include "Data/e_resource_data.h"
 #include "Data/e_resource_engine.h"
 
-extern ZEngine engine;
+extern TEngine engine;
 
 void BuffersCreateCommandPool() {
-    ZDevice *device = (ZDevice *)engine.device;
+    TDevice *device = (TDevice *)engine.device;
 
     QueueFamilyIndices queueFamilyIndices = findQueueFamilies(device->e_physicalDevice);
 
@@ -30,7 +30,7 @@ void BuffersCreateCommandPool() {
 }
 
 void BuffersCreateCommand(){
-    ZDevice *device = (ZDevice *)engine.device;
+    TDevice *device = (TDevice *)engine.device;
 
     device->commandBuffers = AllocateMemoryP(engine.imagesCount, sizeof(VkCommandBuffer), &device);
 
@@ -58,7 +58,7 @@ int BuffersCreateVertex(struct VertexParam_T* vert) {
     if(bufferSize == 0)
         return 1;
 
-    BuffersCreate(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &vertex->buffer, ENGINE_BUFFER_ALLOCATE_VERTEX);
+    BuffersCreate(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &vertex->buffer, TIGOR_BUFFER_ALLOCATE_VERTEX);
 
     vertex->bufferSize = bufferSize;
     vertex->extend = false;
@@ -80,7 +80,7 @@ int BuffersCreateVertexInst(struct VertexParam_T* vert) {
 
     bufferSize = vertex->typeSize * MAX_VERTEX_COUNT;
 
-    BuffersCreate(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &vertex->buffer, ENGINE_BUFFER_ALLOCATE_VERTEX);
+    BuffersCreate(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &vertex->buffer, TIGOR_BUFFER_ALLOCATE_VERTEX);
 
     vertex->bufferSize = bufferSize;
     vertex->extend = true;
@@ -91,7 +91,7 @@ int BuffersCreateVertexInst(struct VertexParam_T* vert) {
 int BuffersUpdateVertex(struct VertexParam_T* vert) {
     vertexParam *vertex = (vertexParam *)vert;
 
-    ZDevice *device = (ZDevice *)engine.device;
+    TDevice *device = (TDevice *)engine.device;
 
     BufferObject stagingBuffer;
     VkDeviceSize bufferSize;
@@ -114,7 +114,7 @@ int BuffersUpdateVertex(struct VertexParam_T* vert) {
         if(bufferSize != vertex->bufferSize)
             return 1;
 
-    BuffersCreate(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &stagingBuffer, ENGINE_BUFFER_ALLOCATE_STAGING);
+    BuffersCreate(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &stagingBuffer, TIGOR_BUFFER_ALLOCATE_STAGING);
 
     //Изменение памяти
     void* data;
@@ -143,7 +143,7 @@ int BuffersCreateIndex(struct IndexParam_T* indx) {
     if(bufferSize == 0)
         return 1;
 
-    BuffersCreate(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &index->buffer, ENGINE_BUFFER_ALLOCATE_INDEX);
+    BuffersCreate(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &index->buffer, TIGOR_BUFFER_ALLOCATE_INDEX);
     index->bufferSize = bufferSize;
     index->extend = false;
 
@@ -161,7 +161,7 @@ int BuffersCreateIndexInst(struct IndexParam_T* indx) {
 
     VkDeviceSize bufferSize = index->typeSize * MAX_INDEX_COUNT;
 
-    BuffersCreate(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &index->buffer, ENGINE_BUFFER_ALLOCATE_INDEX);
+    BuffersCreate(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &index->buffer, TIGOR_BUFFER_ALLOCATE_INDEX);
 
     index->bufferSize = bufferSize;
     index->extend = true;
@@ -173,7 +173,7 @@ int BuffersUpdateIndex(struct IndexParam_T* indx)
 {
     indexParam *index = (indexParam *)indx;
 
-    ZDevice *device = (ZDevice *)engine.device;
+    TDevice *device = (TDevice *)engine.device;
 
     BufferObject stagingBuffer;
     VkDeviceSize bufferSize;
@@ -192,7 +192,7 @@ int BuffersUpdateIndex(struct IndexParam_T* indx)
         }
     }
 
-    BuffersCreate(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &stagingBuffer, ENGINE_BUFFER_ALLOCATE_STAGING);
+    BuffersCreate(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &stagingBuffer, TIGOR_BUFFER_ALLOCATE_STAGING);
 
     void* data;
     vkMapMemory(device->e_device, stagingBuffer.memory, 0, bufferSize, 0, &data);
@@ -215,7 +215,7 @@ void BuffersCreateUniform(BufferContainer* uniform) {
     uniform->buffers = AllocateMemoryP(uniform->count, sizeof(BufferObject), uniform);
 
     for (int i = 0; i < uniform->count; i++) {
-        BuffersCreate(uniform->type_size, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &uniform->buffers[i], ENGINE_BUFFER_ALLOCATE_UNIFORM);
+        BuffersCreate(uniform->type_size, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &uniform->buffers[i], TIGOR_BUFFER_ALLOCATE_UNIFORM);
     }
 }
 
@@ -223,7 +223,7 @@ void BuffersCreateStorage(BufferContainer* uniform){
     uniform->buffers = AllocateMemoryP(uniform->count, sizeof(BufferObject), uniform);
 
     for (int i = 0; i < uniform->count; i++) {
-        BuffersCreate(uniform->type_size, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &uniform->buffers[i], ENGINE_BUFFER_ALLOCATE_UNIFORM);
+        BuffersCreate(uniform->type_size, VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &uniform->buffers[i], TIGOR_BUFFER_ALLOCATE_UNIFORM);
     }
 }
 
@@ -231,12 +231,12 @@ void BuffersCreateStorageVertex(BufferContainer* uniform){
     uniform->buffers = AllocateMemoryP(uniform->count, sizeof(BufferObject), uniform);
 
     for (int i = 0; i < uniform->count; i++) {
-        BuffersCreate(uniform->type_size,VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &uniform->buffers[i], ENGINE_BUFFER_ALLOCATE_UNIFORM);
+        BuffersCreate(uniform->type_size,VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &uniform->buffers[i], TIGOR_BUFFER_ALLOCATE_UNIFORM);
     }
 }
 
 uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) {
-    ZDevice *device = (ZDevice *)engine.device;
+    TDevice *device = (TDevice *)engine.device;
 
     VkPhysicalDeviceMemoryProperties memProperties;
     vkGetPhysicalDeviceMemoryProperties(device->e_physicalDevice, &memProperties);
@@ -279,7 +279,7 @@ void AcceptAllocBuffer(uint32_t type, BufferObject *buffer)
 }
 
 void BuffersCreate(uint64_t size, uint32_t usage, uint32_t properties, BufferObject *buffer, uint32_t type) {
-    ZDevice *device = (ZDevice *)engine.device;
+    TDevice *device = (TDevice *)engine.device;
 
     VkBufferCreateInfo bufferInfo = {};
     memset(&bufferInfo, 0, sizeof(VkBufferCreateInfo));
@@ -318,7 +318,7 @@ void BuffersDestroyBuffer(BufferObject *buffer)
     if(buffer == NULL || buffer->buffer == NULL)
         return;
 
-    ZDevice *device = (ZDevice *)engine.device;
+    TDevice *device = (TDevice *)engine.device;
 
     BufferObject *curr = NULL;
 

@@ -24,7 +24,7 @@ void ShaderBuilderSetCurrent(ShaderBuilder *builder){
     curr_builder = builder;
 }
 
-void ShaderBuilderSetCurrentLabel(int label_indx){
+ShaderLabel *ShaderBuilderFindLabel(uint32_t label_indx){
 
     ShaderLabel *label = NULL;
 
@@ -32,6 +32,13 @@ void ShaderBuilderSetCurrentLabel(int label_indx){
         if(curr_builder->main_point_index->labels[i].index == label_indx)
             label = &curr_builder->main_point_index->labels[i];
     }
+
+    return label;
+}
+
+void ShaderBuilderSetCurrentLabel(uint32_t label_indx){
+
+    ShaderLabel *label = ShaderBuilderFindLabel(label_indx);
 
     if(label == NULL)
         return;
@@ -1198,25 +1205,6 @@ uint32_t ShaderBuilderCompositeConstruct(uint32_t *arr_arg, uint32_t size_arr){
     return res;
 }
 
-uint32_t ShaderBuilderAddFuncSetTexure(uint32_t texture_indx, uint32_t uv_indx, uint32_t dest_indx, uint32_t dest_size){
-    
-    uint32_t res = ShaderBuilderAcceptLoad(texture_indx, 0);
-    
-    uint32_t res2 = ShaderBuilderAcceptLoad(uv_indx, 0);
-
-    uint32_t res_type = ShaderBuilderAddVector(4, NULL);
-
-    uint32_t arr[] = {res_type, res, res2};
-
-    res = ShaderBuilderAddOperand(arr, sizeof(arr), SHADER_OPERAND_TYPE_IMAGE_SAMLE_IMPLICIT_LOD);;
-        
-    uint32_t arr2[] = {dest_indx, res};
-
-    ShaderBuilderStoreValue(arr2, sizeof(arr2));
-
-    return res;
-}
-
 uint32_t ShaderBuilderAddFuncDiv(uint32_t val_1, uint32_t indx_1, uint32_t type_1, uint32_t size_1,  uint32_t val_2, uint32_t indx_2, uint32_t type_2, uint32_t size_2, uint32_t res_size){
     uint32_t res = 0;
 
@@ -1498,31 +1486,23 @@ ShaderLabel *ShaderBuilderAddLabel(uint32_t func_indx, int will_return){
     return &curr_builder->functions[func_indx].labels[num_labels];
 }
 
-uint32_t ShaderBuilderNextLabel(int with_transition, uint32_t indx_label, int will_return){
-    ShaderLabel *label = ShaderBuilderAddLabel(0, will_return);
+uint32_t ShaderBuilderMakeTransition(uint32_t indx_label){
+
     ShaderOperand *oper = NULL;
-
-    if(with_transition){
-        oper = &curr_label->operands[curr_label->num_operands];
-
-        oper->num_vars = 1;
-        oper->op_type = SHADER_OPERAND_TYPE_BRANCH;
-        oper->var_indx[0] = label->index;
-
-        curr_label->num_operands++;
-    }else if(indx_label != 0){
-        oper = &label->operands[label->num_operands];
-
-        oper->num_vars = 1;
-        oper->op_type = SHADER_OPERAND_TYPE_BRANCH;
-        oper->var_indx[0] = indx_label;
-
-        label->num_operands++;
-
-    }
     
-    if(with_transition && !indx_label)
-        curr_label = label;
+    oper = &curr_label->operands[curr_label->num_operands];
+
+    oper->num_vars = 1;
+    oper->op_type = SHADER_OPERAND_TYPE_BRANCH;
+    oper->var_indx[0] = indx_label;
+
+    curr_label->num_operands++;
+
+    ShaderBuilderSetCurrentLabel(indx_label);
+}
+
+uint32_t ShaderBuilderNextLabel(int will_return){
+    ShaderLabel *label = ShaderBuilderAddLabel(0, will_return);
 
     return label->index;
 }
@@ -1542,6 +1522,12 @@ void ShaderBuilderMakeBranchConditional(ConditionalType cond_type, uint32_t *val
             break;
         case SHADER_CONDITIONAL_TYPE_FLESS_THAN:
             res = ShaderBuilderAddOperand((uint32_t []){type_bool, vals[0], vals[1]}, 3, SHADER_OPERAND_TYPE_FLESSTHAN);
+            break;
+        case SHADER_CONDITIONAL_TYPE_SGREAT_THAN:
+            res = ShaderBuilderAddOperand((uint32_t []){type_bool, vals[0], vals[1]}, 3, SHADER_OPERAND_TYPE_SGREATTHAN);
+            break;
+        case SHADER_CONDITIONAL_TYPE_FGREAT_THAN:
+            res = ShaderBuilderAddOperand((uint32_t []){type_bool, vals[0], vals[1]}, 3, SHADER_OPERAND_TYPE_FGREATTHAN);
             break;
     }
     
@@ -1897,6 +1883,20 @@ void ShaderBuilderCheckThatLabel(ShaderLabel *label){
                     break;  
                 case SHADER_OPERAND_TYPE_FLESSTHAN:
                     ShaderBuilderAddOp(SpvOpFOrdLessThan, 5);
+                    ShaderBuilderAddValue(operand->var_indx[0]);
+                    ShaderBuilderAddValue(operand->indx);
+                    ShaderBuilderAddValue(operand->var_indx[1]);
+                    ShaderBuilderAddValue(operand->var_indx[2]);
+                    break;   
+                case SHADER_OPERAND_TYPE_SGREATTHAN:
+                    ShaderBuilderAddOp(SpvOpSGreaterThan, 5);
+                    ShaderBuilderAddValue(operand->var_indx[0]);
+                    ShaderBuilderAddValue(operand->indx);
+                    ShaderBuilderAddValue(operand->var_indx[1]);
+                    ShaderBuilderAddValue(operand->var_indx[2]);
+                    break;  
+                case SHADER_OPERAND_TYPE_FGREATTHAN:
+                    ShaderBuilderAddOp(SpvOpFOrdGreaterThan, 5);
                     ShaderBuilderAddValue(operand->var_indx[0]);
                     ShaderBuilderAddValue(operand->indx);
                     ShaderBuilderAddValue(operand->var_indx[1]);

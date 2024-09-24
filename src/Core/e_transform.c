@@ -8,7 +8,7 @@
 #include "Data/e_resource_data.h"
 #include "Data/e_resource_engine.h"
 
-extern ZEngine engine;
+extern TEngine engine;
 
 void Transform2DInit(Transform2D* transform){
 

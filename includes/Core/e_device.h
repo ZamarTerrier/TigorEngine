@@ -17,7 +17,7 @@ typedef struct{
     void* commandPool;
     void** commandBuffers;
 
-} ZDevice;
+} TDevice;
 
 bool checkDeviceExtensionSupport(void* device);
 

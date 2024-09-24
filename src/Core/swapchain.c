@@ -17,10 +17,10 @@
 #include "Data/e_resource_data.h"
 #include "Data/e_resource_engine.h"
 
-extern ZEngine engine;
+extern TEngine engine;
 
 void querySwapChainSupport(VkPhysicalDevice device, SwapChainSupportDetails* details) {
-    ZWindow *window = (ZWindow *)engine.window;
+    TWindow *window = (TWindow *)engine.window;
 
     vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, window->surface, (VkSurfaceCapabilitiesKHR  *)&details->capabilities);
 
@@ -78,9 +78,9 @@ EIExtent2D chooseSwapExtent(const EISurfaceCapabilitiesKHR capabilities) {
 }
 
 void SwapChainCreate() {
-    ZDevice *device = (ZDevice *)engine.device;
-    ZWindow *window = (ZWindow *)engine.window;
-    ZSwapChain *swapchain = (ZSwapChain *)engine.swapchain;
+    TDevice *device = (TDevice *)engine.device;
+    TWindow *window = (TWindow *)engine.window;
+    TSwapChain *swapchain = (TSwapChain *)engine.swapchain;
 
     SwapChainSupportDetails swapChainSupport;
 
@@ -148,7 +148,7 @@ void SwapChainCreate() {
 }
 
 void SwapChainCreateImageViews() {
-    ZSwapChain *swapchain = (ZSwapChain *)engine.swapchain;
+    TSwapChain *swapchain = (TSwapChain *)engine.swapchain;
 
     swapchain->swapChainImageViews = AllocateMemory(engine.imagesCount, sizeof(VkImageView));
 
@@ -160,8 +160,8 @@ void SwapChainCreateImageViews() {
 
 void RecreateSwapChain() {
 
-    ZWindow *window = (ZWindow *)engine.window;
-    ZDevice *device = (ZDevice *)engine.device;
+    TWindow *window = (TWindow *)engine.window;
+    TDevice *device = (TDevice *)engine.device;
 
     wManagerGetFramebufferSize(window->e_window, &engine.width, &engine.height);
 
@@ -205,8 +205,8 @@ void RecreateSwapChain() {
 
 void CleanupSwapChain() {
 
-    ZDevice *device = (ZDevice *)engine.device;
-    ZSwapChain *swapchain = (ZSwapChain *)engine.swapchain;
+    TDevice *device = (TDevice *)engine.device;
+    TSwapChain *swapchain = (TSwapChain *)engine.swapchain;
 
     vkFreeCommandBuffers(device->e_device, device->commandPool, engine.imagesCount, (const VkCommandBuffer *) device->commandBuffers);
     FreeMemory(device->commandBuffers);

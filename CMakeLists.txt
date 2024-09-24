@@ -9,7 +9,7 @@ SET(CMAKE_C_FLAGS "-std=c99")
 
 add_compile_definitions(_WIN_)
 
-project(ZamEngine LANGUAGES C)
+project(TigorEngine LANGUAGES C)
 
 find_package(Vulkan REQUIRED)
 
@@ -17,8 +17,8 @@ add_library(${PROJECT_NAME} STATIC)
 
 include_directories(libs includes)
 target_sources(${PROJECT_NAME} PRIVATE
-				src/ZamEngine.c
-				src/ZamGUI.c
+				src/TigorEngine.c
+				src/TigorGUI.c
 				src/Core/e_blue_print.c
 				src/Core/e_memory.c
 				src/Core/e_buffer.c
@@ -66,6 +66,7 @@ target_sources(${PROJECT_NAME} PRIVATE
 				src/Tools/e_math.c
 				src/Tools/e_shaders.c
 				src/Tools/e_tools.c
+				src/Tools/fbxLoader.c
 				src/Tools/glTFLoader.c
 				src/Tools/intersections2D.c
 				src/Tools/intersections3D.c
@@ -86,48 +87,49 @@ target_sources(${PROJECT_NAME} PRIVATE
 				src/wManager/x11_init.c
 				src/wManager/x11_monitor.c
 				src/wManager/x11_tools.c
-				src/wManager/x11_window.c)
+				src/wManager/x11_window.c
+				libs/ufbx.c)
 
 target_link_libraries(${PROJECT_NAME} Vulkan::Vulkan)
 
 enable_testing()
 add_executable(TestMemory tests/memory_test.c)
-target_link_libraries(TestMemory ${CMAKE_CURRENT_SOURCE_DIR}/Debug/libZamEngine.a Vulkan::Vulkan)
+target_link_libraries(TestMemory ${CMAKE_CURRENT_SOURCE_DIR}/Debug/libTigorEngine.a Vulkan::Vulkan)
 add_test(NAME Test1
 		COMMAND TestMemory)
 		
 add_executable(TestCreate tests/create_object_test.c)
-target_link_libraries(TestCreate ${CMAKE_CURRENT_SOURCE_DIR}/Debug/libZamEngine.a Vulkan::Vulkan)
+target_link_libraries(TestCreate ${CMAKE_CURRENT_SOURCE_DIR}/Debug/libTigorEngine.a Vulkan::Vulkan)
 add_test(NAME Test2
 		COMMAND TestCreate)
 		
 add_executable(TestShaderBuilder tests/shader_builder_test.c)
-target_link_libraries(TestShaderBuilder ${CMAKE_CURRENT_SOURCE_DIR}/Debug/libZamEngine.a Vulkan::Vulkan)
+target_link_libraries(TestShaderBuilder ${CMAKE_CURRENT_SOURCE_DIR}/Debug/libTigorEngine.a Vulkan::Vulkan)
 add_test(NAME Test3
 		COMMAND TestShaderBuilder)
 		
 add_executable(TestRender tests/render_objets_test.c)
-target_link_libraries(TestRender ${CMAKE_CURRENT_SOURCE_DIR}/Debug/libZamEngine.a Vulkan::Vulkan)
+target_link_libraries(TestRender ${CMAKE_CURRENT_SOURCE_DIR}/Debug/libTigorEngine.a Vulkan::Vulkan)
 add_test(NAME Test4
 		COMMAND TestRender)
 		
 add_executable(TestGUI tests/test_gui.c)
-target_link_libraries(TestGUI ${CMAKE_CURRENT_SOURCE_DIR}/Debug/libZamEngine.a Vulkan::Vulkan)
+target_link_libraries(TestGUI ${CMAKE_CURRENT_SOURCE_DIR}/Debug/libTigorEngine.a Vulkan::Vulkan)
 add_test(NAME Test5
 		COMMAND TestGUI)
 		
 add_executable(TestPath tests/file_path_test.c)
-target_link_libraries(TestPath ${CMAKE_CURRENT_SOURCE_DIR}/Debug/libZamEngine.a Vulkan::Vulkan)
+target_link_libraries(TestPath ${CMAKE_CURRENT_SOURCE_DIR}/Debug/libTigorEngine.a Vulkan::Vulkan)
 add_test(NAME Test6
 		COMMAND TestPath)
 
 add_executable(TestParticle tests/test_particles.c)
-target_link_libraries(TestParticle ${CMAKE_CURRENT_SOURCE_DIR}/Debug/libZamEngine.a Vulkan::Vulkan)
+target_link_libraries(TestParticle ${CMAKE_CURRENT_SOURCE_DIR}/Debug/libTigorEngine.a Vulkan::Vulkan)
 add_test(NAME Test7
 		COMMAND TestParticle)
 		
 add_executable(TestModel tests/test_model.c)
-target_link_libraries(TestModel ${CMAKE_CURRENT_SOURCE_DIR}/Debug/libZamEngine.a Vulkan::Vulkan)
+target_link_libraries(TestModel ${CMAKE_CURRENT_SOURCE_DIR}/Debug/libTigorEngine.a Vulkan::Vulkan)
 add_test(NAME Test8
 		COMMAND TestModel)
 		

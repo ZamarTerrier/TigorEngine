@@ -13,7 +13,7 @@
 
 #include "Data/e_resource_engine.h"
 
-extern ZEngine engine;
+extern TEngine engine;
 
 uint32_t BluePrintInit(Blueprints *blueprints)
 {
@@ -109,7 +109,7 @@ BluePrintDescriptor *BluePrintAddExistUniformStorage(Blueprints *blueprints, uin
     descriptor->image = NULL;
     descriptor->update = update_func;
     descriptor->indx_layer = layer_indx;
-    descriptor->flags = ENGINE_BLUE_PRINT_FLAG_LINKED_UNIFORM;
+    descriptor->flags = TIGOR_BLUE_PRINT_FLAG_LINKED_UNIFORM;
 
     blueprints->blue_print_packs[indx_pack].num_descriptors ++;
 
@@ -226,7 +226,7 @@ void BluePrintAddRenderImageArray(Blueprints *blueprints, uint32_t indx_pack, vo
     descriptor->descrType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
     descriptor->count = size;
     descriptor->stageflag = VK_SHADER_STAGE_FRAGMENT_BIT;
-    descriptor->flags = ENGINE_BLUE_PRINT_FLAG_LINKED_TEXTURE;
+    descriptor->flags = TIGOR_BLUE_PRINT_FLAG_LINKED_TEXTURE;
 
     Texture2D **textures = (Texture2D **)descriptor->textures;
 
@@ -236,7 +236,7 @@ void BluePrintAddRenderImageArray(Blueprints *blueprints, uint32_t indx_pack, vo
 
         for(int j=0;j < size; j++)
         {
-            if(renders[j]->flags & ENGINE_RENDER_FLAG_ONE_SHOT)
+            if(renders[j]->flags & TIGOR_RENDER_FLAG_ONE_SHOT)
             {
                 textures[i][j].image_view = renders[j]->frames[0].render_texture.image_view;
                 textures[i][j].sampler = renders[j]->frames[0].render_texture.sampler;
@@ -252,7 +252,7 @@ void BluePrintAddRenderImageArray(Blueprints *blueprints, uint32_t indx_pack, vo
 
 void BluePrintAddRenderImageVector(Blueprints *blueprints, uint32_t indx_pack, void *obj, uint32_t size)
 {
-    ZSwapChain *swapchain = (ZSwapChain *)engine.swapchain;
+    TSwapChain *swapchain = (TSwapChain *)engine.swapchain;
 
     RenderTexture **renders = obj;
 
@@ -263,7 +263,7 @@ void BluePrintAddRenderImageVector(Blueprints *blueprints, uint32_t indx_pack, v
     descriptor->descrType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
     descriptor->count = size;
     descriptor->stageflag = VK_SHADER_STAGE_FRAGMENT_BIT;
-    descriptor->flags = ENGINE_BLUE_PRINT_FLAG_LINKED_TEXTURE;
+    descriptor->flags = TIGOR_BLUE_PRINT_FLAG_LINKED_TEXTURE;
 
     Texture2D **textures = (Texture2D **)descriptor->textures;
 
@@ -273,15 +273,15 @@ void BluePrintAddRenderImageVector(Blueprints *blueprints, uint32_t indx_pack, v
 
         for(int j=0;j < size; j++)
         {
-            if(renders[j]->flags & ENGINE_RENDER_FLAG_ONE_SHOT)
+            if(renders[j]->flags & TIGOR_RENDER_FLAG_ONE_SHOT)
             {
-                textures[i][j].image_view = TextureCreateImageView(renders[j]->frames[0].render_texture.image, VK_IMAGE_VIEW_TYPE_2D_ARRAY, renders[j]->type == ENGINE_RENDER_TYPE_DEPTH ? findDepthFormat() : swapchain->swapChainImageFormat, renders[j]->type == ENGINE_RENDER_TYPE_DEPTH ? VK_IMAGE_ASPECT_DEPTH_BIT : VK_IMAGE_ASPECT_COLOR_BIT, 1);
+                textures[i][j].image_view = TextureCreateImageView(renders[j]->frames[0].render_texture.image, VK_IMAGE_VIEW_TYPE_2D_ARRAY, renders[j]->type == TIGOR_RENDER_TYPE_DEPTH ? findDepthFormat() : swapchain->swapChainImageFormat, renders[j]->type == TIGOR_RENDER_TYPE_DEPTH ? VK_IMAGE_ASPECT_DEPTH_BIT : VK_IMAGE_ASPECT_COLOR_BIT, 1);
                 textures[i][j].sampler = renders[j]->frames[0].render_texture.sampler;
             }else{
-                textures[i][j].image_view = TextureCreateImageView(renders[j]->frames[i].render_texture.image, VK_IMAGE_VIEW_TYPE_2D_ARRAY, renders[j]->type == ENGINE_RENDER_TYPE_DEPTH ? findDepthFormat() : swapchain->swapChainImageFormat, renders[j]->type == ENGINE_RENDER_TYPE_DEPTH ? VK_IMAGE_ASPECT_DEPTH_BIT : VK_IMAGE_ASPECT_COLOR_BIT, 1);
+                textures[i][j].image_view = TextureCreateImageView(renders[j]->frames[i].render_texture.image, VK_IMAGE_VIEW_TYPE_2D_ARRAY, renders[j]->type == TIGOR_RENDER_TYPE_DEPTH ? findDepthFormat() : swapchain->swapChainImageFormat, renders[j]->type == TIGOR_RENDER_TYPE_DEPTH ? VK_IMAGE_ASPECT_DEPTH_BIT : VK_IMAGE_ASPECT_COLOR_BIT, 1);
                 textures[i][j].sampler = renders[j]->frames[i].render_texture.sampler;
             }
-            textures[i][j].flags |= ENGINE_TEXTURE2D_FLAG_VIEW;
+            textures[i][j].flags |= TIGOR_TEXTURE2D_FLAG_VIEW;
         }
     }
 
@@ -306,7 +306,7 @@ void BluePrintAddRenderImageCube(Blueprints *blueprints, uint32_t indx_pack, uin
     {
         textures[i] = AllocateMemoryP(1, sizeof(Texture2D), blueprints);
 
-        if(render->flags & ENGINE_RENDER_FLAG_ONE_SHOT)
+        if(render->flags & TIGOR_RENDER_FLAG_ONE_SHOT)
         {
             textures[i][0].image_view = render->frames[0].shadowCubeMapFaceImageViews[indx_cube];
             textures[i][0].sampler = render->frames[0].render_texture.sampler;
@@ -336,7 +336,7 @@ void BluePrintAddRenderImage(Blueprints *blueprints, uint32_t indx_pack, void *o
 
     for(int i=0;i < engine.imagesCount;i++)
     {
-        if(render->flags & ENGINE_RENDER_FLAG_ONE_SHOT)
+        if(render->flags & TIGOR_RENDER_FLAG_ONE_SHOT)
         {
             descriptor->textures[i].image_view = render->frames[0].render_texture.image_view;
             descriptor->textures[i].sampler = render->frames[0].render_texture.sampler;
@@ -369,7 +369,7 @@ BluePrintDescriptor *BluePrintAddTextureC(Blueprints *blueprints, uint32_t indx_
     descriptor->descrType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
     descriptor->binding = binding;
     descriptor->stageflag = stage_bit;// VK_SHADER_STAGE_FRAGMENT_BIT;
-    descriptor->flags = ENGINE_BLUE_PRINT_FLAG_SINGLE_IMAGE;
+    descriptor->flags = TIGOR_BLUE_PRINT_FLAG_SINGLE_IMAGE;
 
     pack->num_descriptors ++;
 
@@ -393,7 +393,7 @@ void BluePrintSetTextureImage(Blueprints *blueprints, uint32_t indx_pack, Textur
     }
     
     if(descriptor != NULL){
-        descriptor->flags = ENGINE_BLUE_PRINT_FLAG_SINGLE_IMAGE | ENGINE_BLUE_PRINT_FLAG_LINKED_TEXTURE;
+        descriptor->flags = TIGOR_BLUE_PRINT_FLAG_SINGLE_IMAGE | TIGOR_BLUE_PRINT_FLAG_LINKED_TEXTURE;
         descriptor->textures = texture;
         descriptor->count = 1;
     }
@@ -424,7 +424,7 @@ void BluePrintSetTextureImageCreate(Blueprints *blueprints, uint32_t indx_pack, 
 
         if(image == NULL)
             TextureCreate((struct BluePrintDescriptor_T *)descriptor, VK_IMAGE_VIEW_TYPE_2D, NULL, 0);
-        else if(!(image->flags & ENGINE_TEXTURE_FLAG_SPECIFIC))
+        else if(!(image->flags & TIGOR_TEXTURE_FLAG_SPECIFIC))
         {
             if(descriptor->image->size > 0)
                 TextureCreate((struct BluePrintDescriptor_T *)descriptor, VK_IMAGE_VIEW_TYPE_2D, descriptor->image, 0);
@@ -433,17 +433,17 @@ void BluePrintSetTextureImageCreate(Blueprints *blueprints, uint32_t indx_pack, 
 
         }else
         {
-            if(image->flags & ENGINE_TEXTURE_FLAG_URGB)
+            if(image->flags & TIGOR_TEXTURE_FLAG_URGB)
                 TextureCreateSpecific((struct BluePrintDescriptor_T *)descriptor, VK_FORMAT_R8G8B8A8_UINT, image->imgWidth, image->imgHeight);
-            else if(image->flags & ENGINE_TEXTURE_FLAG_R16)
+            else if(image->flags & TIGOR_TEXTURE_FLAG_R16)
                 TextureCreateSpecific((struct BluePrintDescriptor_T *)descriptor, VK_FORMAT_R16_UNORM, image->imgWidth, image->imgHeight);
-            else if(image->flags & ENGINE_TEXTURE_FLAG_R16_UINT)
+            else if(image->flags & TIGOR_TEXTURE_FLAG_R16_UINT)
                 TextureCreateSpecific((struct BluePrintDescriptor_T *)descriptor, VK_FORMAT_R16_UINT, image->imgWidth, image->imgHeight);
-            else if(image->flags & ENGINE_TEXTURE_FLAG_R32)
+            else if(image->flags & TIGOR_TEXTURE_FLAG_R32)
                 TextureCreateSpecific((struct BluePrintDescriptor_T *)descriptor, VK_FORMAT_R32_SINT, image->imgWidth, image->imgHeight);
-            else if(image->flags & ENGINE_TEXTURE_FLAG_R32_UINT)
+            else if(image->flags & TIGOR_TEXTURE_FLAG_R32_UINT)
                 TextureCreateSpecific((struct BluePrintDescriptor_T *)descriptor, VK_FORMAT_R32_UINT, image->imgWidth, image->imgHeight);
-            else if(image->flags & ENGINE_TEXTURE_FLAG_SRGB)
+            else if(image->flags & TIGOR_TEXTURE_FLAG_SRGB)
                 TextureCreateSpecific((struct BluePrintDescriptor_T *)descriptor, VK_FORMAT_R8G8B8A8_SRGB, image->imgWidth, image->imgHeight);
             else
                 TextureCreateSpecific((struct BluePrintDescriptor_T *)descriptor, VK_FORMAT_R8G8B8A8_SINT, image->imgWidth, image->imgHeight);
@@ -478,7 +478,7 @@ BluePrintDescriptor *BluePrintAddTextureImage(Blueprints *blueprints, uint32_t i
         if(image->img_type == 0)
             image->img_type = VK_FORMAT_R8G8B8A8_SRGB;
 
-        if(!(image->flags & ENGINE_TEXTURE_FLAG_SPECIFIC))
+        if(!(image->flags & TIGOR_TEXTURE_FLAG_SPECIFIC))
         {
             if(descriptor->image->size > 0)
                 TextureCreate((struct BluePrintDescriptor_T *)descriptor, VK_IMAGE_VIEW_TYPE_2D, descriptor->image, 0);
@@ -487,17 +487,17 @@ BluePrintDescriptor *BluePrintAddTextureImage(Blueprints *blueprints, uint32_t i
 
         }else
         {
-            if(image->flags & ENGINE_TEXTURE_FLAG_URGB)
+            if(image->flags & TIGOR_TEXTURE_FLAG_URGB)
                 TextureCreateSpecific((struct BluePrintDescriptor_T *)descriptor, VK_FORMAT_R8G8B8A8_UINT, image->imgWidth, image->imgHeight);
-            else if(image->flags & ENGINE_TEXTURE_FLAG_R16)
+            else if(image->flags & TIGOR_TEXTURE_FLAG_R16)
                 TextureCreateSpecific((struct BluePrintDescriptor_T *)descriptor, VK_FORMAT_R16_UNORM, image->imgWidth, image->imgHeight);
-            else if(image->flags & ENGINE_TEXTURE_FLAG_R16_UINT)
+            else if(image->flags & TIGOR_TEXTURE_FLAG_R16_UINT)
                 TextureCreateSpecific((struct BluePrintDescriptor_T *)descriptor, VK_FORMAT_R16_UINT, image->imgWidth, image->imgHeight);
-            else if(image->flags & ENGINE_TEXTURE_FLAG_R32)
+            else if(image->flags & TIGOR_TEXTURE_FLAG_R32)
                 TextureCreateSpecific((struct BluePrintDescriptor_T *)descriptor, VK_FORMAT_R32_SINT, image->imgWidth, image->imgHeight);
-            else if(image->flags & ENGINE_TEXTURE_FLAG_R32_UINT)
+            else if(image->flags & TIGOR_TEXTURE_FLAG_R32_UINT)
                 TextureCreateSpecific((struct BluePrintDescriptor_T *)descriptor, VK_FORMAT_R32_UINT, image->imgWidth, image->imgHeight);
-            else if(image->flags & ENGINE_TEXTURE_FLAG_SRGB)
+            else if(image->flags & TIGOR_TEXTURE_FLAG_SRGB)
                 TextureCreateSpecific((struct BluePrintDescriptor_T *)descriptor, VK_FORMAT_R8G8B8A8_SRGB, image->imgWidth, image->imgHeight);
             else
                 TextureCreateSpecific((struct BluePrintDescriptor_T *)descriptor, VK_FORMAT_R8G8B8A8_SINT, image->imgWidth, image->imgHeight);
@@ -506,7 +506,7 @@ BluePrintDescriptor *BluePrintAddTextureImage(Blueprints *blueprints, uint32_t i
 
     descriptor->descrType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
     descriptor->stageflag = stage_bit;// VK_SHADER_STAGE_FRAGMENT_BIT;
-    descriptor->flags = ENGINE_BLUE_PRINT_FLAG_SINGLE_IMAGE;
+    descriptor->flags = TIGOR_BLUE_PRINT_FLAG_SINGLE_IMAGE;
 
     pack->num_descriptors ++;
 
@@ -538,7 +538,7 @@ void BluePrintAddTextureImageArray(Blueprints *blueprints, uint32_t indx_pack, G
         if(images[i].img_type == 0)
             images[i].img_type = VK_FORMAT_R8G8B8A8_SRGB;
 
-        if(!(images[i].flags & ENGINE_TEXTURE_FLAG_SPECIFIC))
+        if(!(images[i].flags & TIGOR_TEXTURE_FLAG_SPECIFIC))
         {
             if(descriptor->image->size > 0)
                 TextureCreate((struct BluePrintDescriptor_T *)descriptor, VK_IMAGE_VIEW_TYPE_2D, &images[i], 0);
@@ -547,7 +547,7 @@ void BluePrintAddTextureImageArray(Blueprints *blueprints, uint32_t indx_pack, G
 
         }else
         {
-            if(images[i].flags & ENGINE_TEXTURE_FLAG_URGB)
+            if(images[i].flags & TIGOR_TEXTURE_FLAG_URGB)
                 TextureCreateSpecific((struct BluePrintDescriptor_T *)descriptor, VK_FORMAT_R8G8B8A8_UINT, images[i].imgWidth, images[i].imgHeight);
             else
                 TextureCreateSpecific((struct BluePrintDescriptor_T *)descriptor, VK_FORMAT_R8G8B8A8_SINT, images[i].imgWidth, images[i].imgHeight);
@@ -556,7 +556,7 @@ void BluePrintAddTextureImageArray(Blueprints *blueprints, uint32_t indx_pack, G
 
     descriptor->descrType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
     descriptor->stageflag = VK_SHADER_STAGE_FRAGMENT_BIT;
-    descriptor->flags = ENGINE_BLUE_PRINT_FLAG_ARRAY_IMAGE | ENGINE_BLUE_PRINT_FLAG_SINGLE_IMAGE;
+    descriptor->flags = TIGOR_BLUE_PRINT_FLAG_ARRAY_IMAGE | TIGOR_BLUE_PRINT_FLAG_SINGLE_IMAGE;
 
     pack->num_descriptors ++;
 }
@@ -564,15 +564,15 @@ void BluePrintAddTextureImageArray(Blueprints *blueprints, uint32_t indx_pack, G
 
 void BluePrintClearTextures(BluePrintDescriptor *descriptor){
 
-    ZDevice *device = (ZDevice *)engine.device;
+    TDevice *device = (TDevice *)engine.device;
     
     for(int i=0;i < descriptor->num_textures;i++){        
         Texture2D *texture = (Texture2D *)&descriptor->textures[i];
 
-        if(texture->flags & ENGINE_TEXTURE2D_FLAG_GENERATED)
+        if(texture->flags & TIGOR_TEXTURE2D_FLAG_GENERATED)
         {
             ImageDestroyTexture(texture);
-        }else if(texture->flags & ENGINE_TEXTURE2D_FLAG_VIEW){
+        }else if(texture->flags & TIGOR_TEXTURE2D_FLAG_VIEW){
             vkDestroyImageView(device->e_device, texture->image_view, NULL);
         }
     }    
@@ -580,14 +580,14 @@ void BluePrintClearTextures(BluePrintDescriptor *descriptor){
 
 void BluePrintClearShaders(PipelineSetting *settings){
     for(int i=0;i < settings->num_stages;i++){
-        if(settings->stages[i].flags & ENGINE_SHADER_OBJECT_READED)
+        if(settings->stages[i].flags & TIGOR_SHADER_OBJECT_READED)
             FreeMemory(settings->stages[i].code_shader);
     }
 }
 
 void BluePrintClearAll(Blueprints *blueprints){
 
-    ZDevice *device = (ZDevice *)engine.device;
+    TDevice *device = (TDevice *)engine.device;
 
     for(int i=0;i < blueprints->num_blue_print_packs;i++)
     {
@@ -597,11 +597,11 @@ void BluePrintClearAll(Blueprints *blueprints){
 
             if(descriptor->descrType == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER || descriptor->descrType == VK_DESCRIPTOR_TYPE_STORAGE_IMAGE){
 
-                if(descriptor->flags & ENGINE_BLUE_PRINT_FLAG_LINKED_TEXTURE)
+                if(descriptor->flags & TIGOR_BLUE_PRINT_FLAG_LINKED_TEXTURE)
                     continue;
                 BluePrintClearTextures(descriptor);
             }else{
-                if(descriptor->flags & ENGINE_BLUE_PRINT_FLAG_LINKED_UNIFORM)
+                if(descriptor->flags & TIGOR_BLUE_PRINT_FLAG_LINKED_UNIFORM)
                     continue;
 
                 BuffersDestroyContainer(&descriptor->uniform);

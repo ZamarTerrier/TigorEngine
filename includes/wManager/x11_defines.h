@@ -236,11 +236,11 @@
         // Clipboard string (while the selection is owned)
         char*           clipboardString;
         // Key name string
-        char            keynames[ENGINE_KEY_LAST + 1][5];
+        char            keynames[TIGOR_KEY_LAST + 1][5];
         // X11 keycode to wManager key LUT
         short int       keycodes[256];
         // wManager key to X11 keycode LUT
-        short int       scancodes[ENGINE_KEY_LAST + 1];
+        short int       scancodes[TIGOR_KEY_LAST + 1];
         // Where to place the cursor when re-enabled
         double          restoreCursorPosX, restoreCursorPosY;
         // The window whose disabled cursor mode is active
@@ -301,7 +301,7 @@
         Atom            UTF8_STRING;
         Atom            COMPOUND_STRING;
         Atom            ATOM_PAIR;
-        Atom            ENGINE_SELECTION;
+        Atom            TIGOR_SELECTION;
 
 
         struct {

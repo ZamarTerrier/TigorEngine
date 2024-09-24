@@ -1,7 +1,7 @@
 #include "GUI/e_widget_range.h"
 
-#include "ZamGUI.h"
-#include "ZamEngine.h"
+#include "TigorGUI.h"
+#include "TigorEngine.h"
 
 
 #include "Tools/e_math.h"
@@ -14,7 +14,7 @@ int RangeWidgetPress(EWidget* widget, void* entry, void* args){
 
     double xpos, ypos;
 
-    ZEngineGetCursorPos(&xpos, &ypos);
+    TEngineGetCursorPos(&xpos, &ypos);
     range_mouse.x = xpos * 2;
     range_mouse.y = ypos * 2;
 
@@ -39,7 +39,7 @@ int RangeWidgetMove(EWidget* widget, void* entry, void* args){
 
     EWidgetRange *range = (EWidgetRange *)args;
 
-    ZEngineGetCursorPos(&xpos, &ypos);
+    TEngineGetCursorPos(&xpos, &ypos);
     te.x = xpos * 2;
     te.y = ypos * 2;
 
@@ -64,14 +64,14 @@ int RangeWidgetMove(EWidget* widget, void* entry, void* args){
 
     range->rangePos.x = te.x;
 
-    WidgetConfirmTrigger((EWidget *)range, ENGINE_WIDGET_TRIGGER_RANGE_CHANGE, &val);
+    WidgetConfirmTrigger((EWidget *)range, TIGOR_WIDGET_TRIGGER_RANGE_CHANGE, &val);
 
     return 0;
 }
 
 void RangeWidgetDraw(EWidgetRange *range){
 
-    if(range->widget.widget_flags & ENGINE_FLAG_WIDGET_VISIBLE){
+    if(range->widget.widget_flags & TIGOR_FLAG_WIDGET_VISIBLE){
         
         vec2 pos = v2_add(range->widget.position, range->widget.base);
 
@@ -93,7 +93,7 @@ void RangeWidgetInit(EWidgetRange *range, vec2 scale, float min, float max, EWid
 
     GameObjectSetDrawFunc((GameObject *)range, RangeWidgetDraw);
 
-    range->widget.type = ENGINE_WIDGET_TYPE_RANGE;
+    range->widget.type = TIGOR_WIDGET_TYPE_RANGE;
 
     WidgetInit((EWidget *)&range->range, &range->widget);
     WidgetSetScale((EWidget *)&range->range, 30, scale.y);
@@ -110,9 +110,9 @@ void RangeWidgetInit(EWidgetRange *range, vec2 scale, float min, float max, EWid
 
     WidgetSetColor((EWidget *)&range->range, range->selfColor);
 
-    WidgetConnect((EWidget *)&range->range, ENGINE_WIDGET_TRIGGER_MOUSE_PRESS, RangeWidgetPress, range);
-    WidgetConnect((EWidget *)&range->range, ENGINE_WIDGET_TRIGGER_MOUSE_MOVE, RangeWidgetMove, range);
-    WidgetConnect((EWidget *)&range->range, ENGINE_WIDGET_TRIGGER_MOUSE_RELEASE, RangeWidgetRelease, range);
+    WidgetConnect((EWidget *)&range->range, TIGOR_WIDGET_TRIGGER_MOUSE_PRESS, RangeWidgetPress, range);
+    WidgetConnect((EWidget *)&range->range, TIGOR_WIDGET_TRIGGER_MOUSE_MOVE, RangeWidgetMove, range);
+    WidgetConnect((EWidget *)&range->range, TIGOR_WIDGET_TRIGGER_MOUSE_RELEASE, RangeWidgetRelease, range);
 }
 
 void RangeWidgetSetValueDestin(EWidgetRange *range, float *val_dest)

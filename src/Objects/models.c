@@ -14,6 +14,7 @@
 #include "math.h"
 
 #include "Tools/e_math.h"
+#include "Tools/fbxLoader.h"
 #include "Tools/glTFLoader.h"
 #include "Tools/objLoader.h"
 #include "Tools/fbxLoader.h"
@@ -24,7 +25,7 @@
 
 typedef void (*Update_Model)(ModelObject3D* mo, uint32_t indx_node, BluePrintDescriptor *descriptor);
 
-extern ZEngine engine;
+extern TEngine engine;
 
 
 void ModelDefaultDraw(ModelObject3D* mo, void *command){
@@ -65,9 +66,9 @@ void ModelModelBufferUpdate(ModelObject3D* mo, uint32_t indx_node, void *data)
     memcpy(data, (char *)&mbo, sizeof(mbo));
 }
 
-void ModelUpdateModel(ModelObject3D *mo, GameObject3D *model){
+void ModelUpdateModel(ModelObject3D *mo, GameObject3D *model, uint32_t model_indx){
     
-    ZDevice *device = (ZDevice *)engine.device;
+    TDevice *device = (TDevice *)engine.device;
 
     for(int i=0; i < model->graphObj.gItems.num_shader_packs;i++)
     {
@@ -87,7 +88,7 @@ void ModelUpdateModel(ModelObject3D *mo, GameObject3D *model){
                     void *point;
                     vkMapMemory(device->e_device, descriptor->uniform.buffers[engine.imageIndex].memory, 0, descriptor->buffsize, 0, &point);
                     Update_Model update = descriptor->update;
-                    update(mo, i, point);
+                    update(mo, model_indx, point);
                     vkUnmapMemory(device->e_device, descriptor->uniform.buffers[engine.imageIndex].memory);
                 }
             }
@@ -104,7 +105,7 @@ void ModelDefaultUpdate(ModelObject3D *mo)
         {
             GameObject3D *model = &mo->nodes[i].models[j];
 
-            ModelUpdateModel(mo, model);
+            ModelUpdateModel(mo, model, i);
         }
     }
 }
@@ -132,6 +133,15 @@ void ModelRecreate(ModelObject3D* mo){
             GameObjectRecreate(model);
         }
     }
+}
+
+void ModelNextFrame(ModelObject3D *mo, double time, int num_animation){
+
+    if(mo->type == TIGOR_MODEL_TYPE_FBX)
+        Load3DFBXNextFrame(mo, time, num_animation);
+    else if(mo->type == TIGOR_MODEL_TYPE_GLTF)
+        Load3DglTFNextFrame(mo, time, num_animation);
+
 }
 
 //Не корректно
@@ -170,9 +180,9 @@ void ModelSetLightEnable(void *obj, bool enable)
     ModelObject3D *mo = (ModelObject3D *)obj;
 
     if(enable)
-        mo->self.flags |= ENGINE_GAME_OBJECT_FLAG_LIGHT;
+        mo->self.flags |= TIGOR_GAME_OBJECT_FLAG_LIGHT;
     else
-        mo->self.flags &= ~(ENGINE_GAME_OBJECT_FLAG_LIGHT);
+        mo->self.flags &= ~(TIGOR_GAME_OBJECT_FLAG_LIGHT);
 }
 
 void ModelSetSelCameraEnable(void *obj, bool enable)
@@ -180,9 +190,9 @@ void ModelSetSelCameraEnable(void *obj, bool enable)
     ModelObject3D *mo = (ModelObject3D *)obj;
 
     if(enable)
-        mo->self.flags |= ENGINE_GAME_OBJECT_FLAG_SELF_CAMERA;
+        mo->self.flags |= TIGOR_GAME_OBJECT_FLAG_SELF_CAMERA;
     else
-        mo->self.flags &= ~(ENGINE_GAME_OBJECT_FLAG_SELF_CAMERA);
+        mo->self.flags &= ~(TIGOR_GAME_OBJECT_FLAG_SELF_CAMERA);
 }
 
 void ModelPopulateVertex3D(GameObject3D *model)
@@ -213,7 +223,7 @@ void ModelDefautShader(GameObject3D *go){
     GameObject3DInitDefaultShader(go);
 
     uint32_t flags = BluePrintGetSettingsValue(&go->graphObj.blueprints, 0, 3);
-    BluePrintSetSettingsValue(&go->graphObj.blueprints, 0, 3, flags | ENGINE_PIPELINE_FLAG_FACE_CLOCKWISE);
+    BluePrintSetSettingsValue(&go->graphObj.blueprints, 0, 3, flags | TIGOR_PIPELINE_FLAG_FACE_CLOCKWISE);
 }
 
 void ModelDefaultInit(ModelObject3D *mo, GameObjectType type){
@@ -226,5 +236,5 @@ void ModelDefaultInit(ModelObject3D *mo, GameObjectType type){
         }
     }
 
-    mo->self.flags |= ENGINE_GAME_OBJECT_FLAG_INIT;
+    mo->self.flags |= TIGOR_GAME_OBJECT_FLAG_INIT;
 }

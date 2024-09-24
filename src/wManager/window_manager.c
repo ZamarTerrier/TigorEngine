@@ -10,12 +10,12 @@
 wManagerWindow _wMWindow;
 extern wManagerInfo _wMInfo;
 
-extern ZEngine engine;
+extern TEngine engine;
 
 #include "Data/e_resource_engine.h"
 
 // Internal key state used for sticky keys
-#define _ENGINE_STICK 3
+#define _TIGOR_STICK 3
 
 extern const char* _wManagerGetVulkanResultString(VkResult result);
 extern int wManagerVulkanInit();
@@ -45,8 +45,8 @@ void wManagerDefaultWindowHints(wManagerWindow *window)
     window->hints.window.autoIconify  = true;
     window->hints.window.centerCursor = true;
     window->hints.window.focusOnShow  = true;
-    window->hints.window.xpos         = ENGINE_ANY_POSITION;
-    window->hints.window.ypos         = ENGINE_ANY_POSITION;
+    window->hints.window.xpos         = TIGOR_ANY_POSITION;
+    window->hints.window.ypos         = TIGOR_ANY_POSITION;
 
     // The default is 24 bits of color, 24 bits of depth and 8 bits of stencil,
     // double buffered
@@ -60,12 +60,12 @@ void wManagerDefaultWindowHints(wManagerWindow *window)
     window->hints.framebuffer.doublebuffer = true;
 
     // The default is to select the highest available refresh rate
-    window->hints.refreshRate = ENGINE_DONT_CARE;
+    window->hints.refreshRate = TIGOR_DONT_CARE;
 
     // The default is to use full Retina resolution framebuffers
     window->hints.window.ns.retina = true;
 
-    window->cursorMode = ENGINE_CURSOR_NORMAL;
+    window->cursorMode = TIGOR_CURSOR_NORMAL;
 }
 
 double wManagerGetTime()
@@ -87,7 +87,7 @@ void wManagerSetTime(double time)
 }
 
 int wManagerInit(){
-    ZWindow *window = (ZWindow *)engine.window;
+    TWindow *window = (TWindow *)engine.window;
 
     window->e_window = calloc(1, sizeof(wManagerWindow));
 
@@ -152,12 +152,12 @@ void wManagerSetInputMode(wManagerWindow *window, uint32_t mode, uint32_t value)
 
        switch (mode)
        {
-           case ENGINE_CURSOR:
+           case TIGOR_CURSOR:
            {
-               if (value != ENGINE_CURSOR_NORMAL &&
-                   value != ENGINE_CURSOR_HIDDEN &&
-                   value != ENGINE_CURSOR_DISABLED &&
-                   value != ENGINE_CURSOR_CAPTURED)
+               if (value != TIGOR_CURSOR_NORMAL &&
+                   value != TIGOR_CURSOR_HIDDEN &&
+                   value != TIGOR_CURSOR_DISABLED &&
+                   value != TIGOR_CURSOR_CAPTURED)
                {
                    printf("Invalid cursor mode 0x%08X",
                                    value);
@@ -175,7 +175,7 @@ void wManagerSetInputMode(wManagerWindow *window, uint32_t mode, uint32_t value)
                return;
            }
 
-           case ENGINE_STICKY_KEYS:
+           case TIGOR_STICKY_KEYS:
            {
                value = value ? true : false;
                if (window->stickyKeys == value)
@@ -186,10 +186,10 @@ void wManagerSetInputMode(wManagerWindow *window, uint32_t mode, uint32_t value)
                    int i;
 
                    // Release all sticky keys
-                   for (i = 0;  i <= ENGINE_KEY_LAST;  i++)
+                   for (i = 0;  i <= TIGOR_KEY_LAST;  i++)
                    {
-                       if (window->keys[i] == _ENGINE_STICK)
-                           window->keys[i] = ENGINE_RELEASE;
+                       if (window->keys[i] == _TIGOR_STICK)
+                           window->keys[i] = TIGOR_RELEASE;
                    }
                }
 
@@ -197,7 +197,7 @@ void wManagerSetInputMode(wManagerWindow *window, uint32_t mode, uint32_t value)
                return;
            }
 
-           case ENGINE_STICKY_MOUSE_BUTTONS:
+           case TIGOR_STICKY_MOUSE_BUTTONS:
            {
                value = value ? true : false;
                if (window->stickyMouseButtons == value)
@@ -208,10 +208,10 @@ void wManagerSetInputMode(wManagerWindow *window, uint32_t mode, uint32_t value)
                    int i;
 
                    // Release all sticky mouse buttons
-                   for (i = 0;  i <= ENGINE_MOUSE_BUTTON_LAST;  i++)
+                   for (i = 0;  i <= TIGOR_MOUSE_BUTTON_LAST;  i++)
                    {
-                       if (window->mouseButtons[i] == _ENGINE_STICK)
-                           window->mouseButtons[i] = ENGINE_RELEASE;
+                       if (window->mouseButtons[i] == _TIGOR_STICK)
+                           window->mouseButtons[i] = TIGOR_RELEASE;
                    }
                }
 
@@ -219,13 +219,13 @@ void wManagerSetInputMode(wManagerWindow *window, uint32_t mode, uint32_t value)
                return;
            }
 
-           case ENGINE_LOCK_KEY_MODS:
+           case TIGOR_LOCK_KEY_MODS:
            {
                window->lockKeyMods = value ? true : false;
                return;
            }
 
-           case ENGINE_RAW_MOUSE_MOTION:
+           case TIGOR_RAW_MOUSE_MOTION:
            {
                value = value ? true : false;
                if (window->rawMouseMotion == value)
@@ -242,17 +242,17 @@ void wManagerSetInputMode(wManagerWindow *window, uint32_t mode, uint32_t value)
 
 int wManagerGetMouseButton(wManagerWindow *window, int button)
 {
-    if (button < ENGINE_MOUSE_BUTTON_1 || (button > ENGINE_MOUSE_BUTTON_LAST))
+    if (button < TIGOR_MOUSE_BUTTON_1 || (button > TIGOR_MOUSE_BUTTON_LAST))
     {
         printf("Invalid mouse button %i\n", button);
-        return ENGINE_RELEASE;
+        return TIGOR_RELEASE;
     }
 
-    if (window->mouseButtons[button] == _ENGINE_STICK)
+    if (window->mouseButtons[button] == _TIGOR_STICK)
     {
         // Sticky mode: release mouse button now
-        window->mouseButtons[button] = ENGINE_RELEASE;
-        return ENGINE_PRESS;
+        window->mouseButtons[button] = TIGOR_RELEASE;
+        return TIGOR_PRESS;
     }
 
     return (int) window->mouseButtons[button];
@@ -261,17 +261,17 @@ int wManagerGetMouseButton(wManagerWindow *window, int button)
 int wManagerGetKey(wManagerWindow *window, int key)
 {
 
-    if (key < ENGINE_KEY_SPACE || (key > ENGINE_KEY_LAST))
+    if (key < TIGOR_KEY_SPACE || (key > TIGOR_KEY_LAST))
     {
         printf("Invalid key %i\n", key);
-        return ENGINE_RELEASE;
+        return TIGOR_RELEASE;
     }
 
-    if (window->keys[key] == _ENGINE_STICK)
+    if (window->keys[key] == _TIGOR_STICK)
     {
         // Sticky mode: release key now
-        window->keys[key] = ENGINE_RELEASE;
-        return ENGINE_PRESS;
+        window->keys[key] = TIGOR_RELEASE;
+        return TIGOR_PRESS;
     }
 
     return (int) window->keys[key];
@@ -314,7 +314,7 @@ void wManagerWaitEvents()
 
 void wManagerTerminate()
 {
-    ZWindow *window = (ZWindow *)engine.window;
+    TWindow *window = (TWindow *)engine.window;
 
     free(window->e_window->WindowData);
     free(_wMWindow.WindowData);
@@ -341,100 +341,100 @@ void wManagerWindowHint(uint32_t hint, uint32_t value)
 
     switch (hint)
     {
-        case ENGINE_RED_BITS:
+        case TIGOR_RED_BITS:
             _wMWindow.hints.framebuffer.redBits = value;
             return;
-        case ENGINE_GREEN_BITS:
+        case TIGOR_GREEN_BITS:
             _wMWindow.hints.framebuffer.greenBits = value;
             return;
-        case ENGINE_BLUE_BITS:
+        case TIGOR_BLUE_BITS:
             _wMWindow.hints.framebuffer.blueBits = value;
             return;
-        case ENGINE_ALPHA_BITS:
+        case TIGOR_ALPHA_BITS:
             _wMWindow.hints.framebuffer.alphaBits = value;
             return;
-        case ENGINE_DEPTH_BITS:
+        case TIGOR_DEPTH_BITS:
             _wMWindow.hints.framebuffer.depthBits = value;
             return;
-        case ENGINE_STENCIL_BITS:
+        case TIGOR_STENCIL_BITS:
             _wMWindow.hints.framebuffer.stencilBits = value;
             return;
-        case ENGINE_ACCUM_RED_BITS:
+        case TIGOR_ACCUM_RED_BITS:
             _wMWindow.hints.framebuffer.accumRedBits = value;
             return;
-        case ENGINE_ACCUM_GREEN_BITS:
+        case TIGOR_ACCUM_GREEN_BITS:
             _wMWindow.hints.framebuffer.accumGreenBits = value;
             return;
-        case ENGINE_ACCUM_BLUE_BITS:
+        case TIGOR_ACCUM_BLUE_BITS:
             _wMWindow.hints.framebuffer.accumBlueBits = value;
             return;
-        case ENGINE_ACCUM_ALPHA_BITS:
+        case TIGOR_ACCUM_ALPHA_BITS:
             _wMWindow.hints.framebuffer.accumAlphaBits = value;
             return;
-        case ENGINE_AUX_BUFFERS:
+        case TIGOR_AUX_BUFFERS:
             _wMWindow.hints.framebuffer.auxBuffers = value;
             return;
-        case ENGINE_STEREO:
+        case TIGOR_STEREO:
             _wMWindow.hints.framebuffer.stereo = value ? true : false;
             return;
-        case ENGINE_DOUBLEBUFFER:
+        case TIGOR_DOUBLEBUFFER:
             _wMWindow.hints.framebuffer.doublebuffer = value ? true : false;
             return;
-        case ENGINE_TRANSPARENT_FRAMEBUFFER:
+        case TIGOR_TRANSPARENT_FRAMEBUFFER:
             _wMWindow.hints.framebuffer.transparent = value ? true : false;
             return;
-        case ENGINE_SAMPLES:
+        case TIGOR_SAMPLES:
             _wMWindow.hints.framebuffer.samples = value;
             return;
-        case ENGINE_SRGB_CAPABLE:
+        case TIGOR_SRGB_CAPABLE:
             _wMWindow.hints.framebuffer.sRGB = value ? true : false;
             return;
-        case ENGINE_RESIZABLE:
+        case TIGOR_RESIZABLE:
             _wMWindow.hints.window.resizable = value ? true : false;
             return;
-        case ENGINE_DECORATED:
+        case TIGOR_DECORATED:
             _wMWindow.hints.window.decorated = value ? true : false;
             return;
-        case ENGINE_FOCUSED:
+        case TIGOR_FOCUSED:
             _wMWindow.hints.window.focused = value ? true : false;
             return;
-        case ENGINE_AUTO_ICONIFY:
+        case TIGOR_AUTO_ICONIFY:
             _wMWindow.hints.window.autoIconify = value ? true : false;
             return;
-        case ENGINE_FLOATING:
+        case TIGOR_FLOATING:
             _wMWindow.hints.window.floating = value ? true : false;
             return;
-        case ENGINE_MAXIMIZED:
+        case TIGOR_MAXIMIZED:
             _wMWindow.hints.window.maximized = value ? true : false;
             return;
-        case ENGINE_VISIBLE:
+        case TIGOR_VISIBLE:
             _wMWindow.hints.window.visible = value ? true : false;
             return;
-        case ENGINE_POSITION_X:
+        case TIGOR_POSITION_X:
             _wMWindow.hints.window.xpos = value;
             return;
-        case ENGINE_POSITION_Y:
+        case TIGOR_POSITION_Y:
             _wMWindow.hints.window.ypos = value;
             return;
-        case ENGINE_COCOA_RETINA_FRAMEBUFFER:
+        case TIGOR_COCOA_RETINA_FRAMEBUFFER:
             _wMWindow.hints.window.ns.retina = value ? true : false;
             return;
-        case ENGINE_WIN32_KEYBOARD_MENU:
+        case TIGOR_WIN32_KEYBOARD_MENU:
             _wMWindow.hints.window.win32.keymenu = value ? true : false;
             return;
-        case ENGINE_SCALE_TO_MONITOR:
+        case TIGOR_SCALE_TO_MONITOR:
             _wMWindow.hints.window.scaleToMonitor = value ? true : false;
             return;
-        case ENGINE_CENTER_CURSOR:
+        case TIGOR_CENTER_CURSOR:
             _wMWindow.hints.window.centerCursor = value ? true : false;
             return;
-        case ENGINE_FOCUS_ON_SHOW:
+        case TIGOR_FOCUS_ON_SHOW:
             _wMWindow.hints.window.focusOnShow = value ? true : false;
             return;
-        case ENGINE_MOUSE_PASSTHROUGH:
+        case TIGOR_MOUSE_PASSTHROUGH:
             _wMWindow.hints.window.mousePassthrough = value ? true : false;
             return;
-        case ENGINE_REFRESH_RATE:
+        case TIGOR_REFRESH_RATE:
             _wMWindow.hints.refreshRate = value;
             return;
     }
@@ -503,9 +503,9 @@ int wManagerCreateWindowSurface(VkInstance instance, wManagerWindow *window, con
         return VK_ERROR_EXTENSION_NOT_PRESENT;
     }
 
-    if (window->context.client != ENGINE_NO_API)
+    if (window->context.client != TIGOR_NO_API)
     {
-        printf("Vulkan: Window surface creation requires the window to have the client API set to ENGINE_NO_API\n");
+        printf("Vulkan: Window surface creation requires the window to have the client API set to TIGOR_NO_API\n");
         return VK_ERROR_NATIVE_WINDOW_IN_USE_KHR;
     }
 

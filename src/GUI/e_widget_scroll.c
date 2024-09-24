@@ -1,7 +1,7 @@
 #include "GUI/e_widget_scroll.h"
 #include "GUI/e_widget_list.h"
 
-#include "ZamEngine.h"
+#include "TigorEngine.h"
 
 #include "Tools/e_math.h"
 
@@ -11,7 +11,7 @@ int ScrollWidgetPress(EWidgetScroll *widget, void* entry, void* args){
 
     double xpos, ypos;
 
-    ZEngineGetCursorPos(&xpos, &ypos);
+    TEngineGetCursorPos(&xpos, &ypos);
     scroll_mouse.x = xpos;
     scroll_mouse.y = ypos;
 
@@ -25,7 +25,7 @@ int ScrollWidgetMove(EWidget* widget, void* entry, EWidgetScroll* scroll){
     vec2 te, te2;
     double xpos, ypos;
 
-    ZEngineGetCursorPos(&xpos, &ypos);
+    TEngineGetCursorPos(&xpos, &ypos);
     te.x = xpos;
     te.y = ypos;
 
@@ -49,7 +49,7 @@ int ScrollWidgetMove(EWidget* widget, void* entry, EWidgetScroll* scroll){
 
     Transform2DSetPosition((struct GameObject2D_T *)widget, te.x, te.y);
 
-    WidgetConfirmTrigger((EWidget *)scroll, ENGINE_WIDGET_TRIGGER_SCROLL_CHANGE, &diff);
+    WidgetConfirmTrigger((EWidget *)scroll, TIGOR_WIDGET_TRIGGER_SCROLL_CHANGE, &diff);
 
     return 0;
 }
@@ -61,7 +61,7 @@ void ScrollWidgetInit(EWidgetScroll *scroll, uint32_t width, uint32_t height, Dr
         
     WidgetInit((EWidget *)scroll, parent);
 
-    scroll->widget.type = ENGINE_WIDGET_TYPE_SCROLL;
+    scroll->widget.type = TIGOR_WIDGET_TYPE_SCROLL;
 
     scroll->widget.color = (vec3){1.0f, 1.0f, 1.0f};
     Transform2DSetScale((struct GameObject2D_T *)scroll, width, height);
@@ -74,8 +74,8 @@ void ScrollWidgetInit(EWidgetScroll *scroll, uint32_t width, uint32_t height, Dr
     Transform2DSetScale((struct GameObject2D_T *)&scroll->scroll, 20, 20);
     Transform2DSetPosition((struct GameObject2D_T *)&scroll->scroll, width * 2 - 40, 0);
 
-    WidgetConnect((EWidget *)&scroll->scroll, ENGINE_WIDGET_TRIGGER_MOUSE_PRESS, (widget_callback)ScrollWidgetPress, scroll);
-    WidgetConnect((EWidget *)&scroll->scroll, ENGINE_WIDGET_TRIGGER_MOUSE_MOVE, (widget_callback)ScrollWidgetMove, scroll);
+    WidgetConnect((EWidget *)&scroll->scroll, TIGOR_WIDGET_TRIGGER_MOUSE_PRESS, (widget_callback)ScrollWidgetPress, scroll);
+    WidgetConnect((EWidget *)&scroll->scroll, TIGOR_WIDGET_TRIGGER_MOUSE_MOVE, (widget_callback)ScrollWidgetMove, scroll);
 }
 
 void ScrollWidgetUpdate(EWidgetScroll *scroll, void *list)
@@ -88,9 +88,9 @@ void ScrollWidgetUpdate(EWidgetScroll *scroll, void *list)
 
     if(razn < 1){
         scroll->scroll_size = mySize.y * razn;
-        scroll->scroll.widget_flags |= (ENGINE_FLAG_WIDGET_ACTIVE | ENGINE_FLAG_WIDGET_VISIBLE);
+        scroll->scroll.widget_flags |= (TIGOR_FLAG_WIDGET_ACTIVE | TIGOR_FLAG_WIDGET_VISIBLE);
     }else{
-        scroll->scroll.widget_flags &= ~(ENGINE_FLAG_WIDGET_ACTIVE | ENGINE_FLAG_WIDGET_VISIBLE);
+        scroll->scroll.widget_flags &= ~(TIGOR_FLAG_WIDGET_ACTIVE | TIGOR_FLAG_WIDGET_VISIBLE);
         scroll->scroll_size = mySize.y;
     }
 

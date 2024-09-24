@@ -9,7 +9,7 @@
 
 #include "Data/e_resource_engine.h"
 
-extern ZEngine engine;
+extern TEngine engine;
 
 uint32_t CreateDebugUtilsMessengerEXT(void* arg, const EdDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const EdAllocationCallbacks* pAllocator, void** messenger) {
 
@@ -79,7 +79,7 @@ void populateDebugMessengerCreateInfo(EdDebugUtilsMessengerCreateInfoEXT* create
 
 void setupDebugMessenger(){
 
-    ZWindow *window = (ZWindow *)engine.window;
+    TWindow *window = (TWindow *)engine.window;
 
     if(!enableValidationLayers) return;
 

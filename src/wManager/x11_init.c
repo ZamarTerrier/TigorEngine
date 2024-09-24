@@ -61,162 +61,162 @@ int translateKeySyms(const KeySym* keysyms, int width)
     {
         switch (keysyms[1])
         {
-            case XK_KP_0:           return ENGINE_KEY_KP_0;
-            case XK_KP_1:           return ENGINE_KEY_KP_1;
-            case XK_KP_2:           return ENGINE_KEY_KP_2;
-            case XK_KP_3:           return ENGINE_KEY_KP_3;
-            case XK_KP_4:           return ENGINE_KEY_KP_4;
-            case XK_KP_5:           return ENGINE_KEY_KP_5;
-            case XK_KP_6:           return ENGINE_KEY_KP_6;
-            case XK_KP_7:           return ENGINE_KEY_KP_7;
-            case XK_KP_8:           return ENGINE_KEY_KP_8;
-            case XK_KP_9:           return ENGINE_KEY_KP_9;
+            case XK_KP_0:           return TIGOR_KEY_KP_0;
+            case XK_KP_1:           return TIGOR_KEY_KP_1;
+            case XK_KP_2:           return TIGOR_KEY_KP_2;
+            case XK_KP_3:           return TIGOR_KEY_KP_3;
+            case XK_KP_4:           return TIGOR_KEY_KP_4;
+            case XK_KP_5:           return TIGOR_KEY_KP_5;
+            case XK_KP_6:           return TIGOR_KEY_KP_6;
+            case XK_KP_7:           return TIGOR_KEY_KP_7;
+            case XK_KP_8:           return TIGOR_KEY_KP_8;
+            case XK_KP_9:           return TIGOR_KEY_KP_9;
             case XK_KP_Separator:
-            case XK_KP_Decimal:     return ENGINE_KEY_KP_DECIMAL;
-            case XK_KP_Equal:       return ENGINE_KEY_KP_EQUAL;
-            case XK_KP_Enter:       return ENGINE_KEY_KP_ENTER;
+            case XK_KP_Decimal:     return TIGOR_KEY_KP_DECIMAL;
+            case XK_KP_Equal:       return TIGOR_KEY_KP_EQUAL;
+            case XK_KP_Enter:       return TIGOR_KEY_KP_ENTER;
             default:                break;
         }
     }
 
     switch (keysyms[0])
     {
-        case XK_Escape:         return ENGINE_KEY_ESCAPE;
-        case XK_Tab:            return ENGINE_KEY_TAB;
-        case XK_Shift_L:        return ENGINE_KEY_LEFT_SHIFT;
-        case XK_Shift_R:        return ENGINE_KEY_RIGHT_SHIFT;
-        case XK_Control_L:      return ENGINE_KEY_LEFT_CONTROL;
-        case XK_Control_R:      return ENGINE_KEY_RIGHT_CONTROL;
+        case XK_Escape:         return TIGOR_KEY_ESCAPE;
+        case XK_Tab:            return TIGOR_KEY_TAB;
+        case XK_Shift_L:        return TIGOR_KEY_LEFT_SHIFT;
+        case XK_Shift_R:        return TIGOR_KEY_RIGHT_SHIFT;
+        case XK_Control_L:      return TIGOR_KEY_LEFT_CONTROL;
+        case XK_Control_R:      return TIGOR_KEY_RIGHT_CONTROL;
         case XK_Meta_L:
-        case XK_Alt_L:          return ENGINE_KEY_LEFT_ALT;
+        case XK_Alt_L:          return TIGOR_KEY_LEFT_ALT;
         case XK_Mode_switch: // Mapped to Alt_R on many keyboards
         case XK_ISO_Level3_Shift: // AltGr on at least some machines
         case XK_Meta_R:
-        case XK_Alt_R:          return ENGINE_KEY_RIGHT_ALT;
-        case XK_Super_L:        return ENGINE_KEY_LEFT_SUPER;
-        case XK_Super_R:        return ENGINE_KEY_RIGHT_SUPER;
-        case XK_Menu:           return ENGINE_KEY_MENU;
-        case XK_Num_Lock:       return ENGINE_KEY_NUM_LOCK;
-        case XK_Caps_Lock:      return ENGINE_KEY_CAPS_LOCK;
-        case XK_Print:          return ENGINE_KEY_PRINT_SCREEN;
-        case XK_Scroll_Lock:    return ENGINE_KEY_SCROLL_LOCK;
-        case XK_Pause:          return ENGINE_KEY_PAUSE;
-        case XK_Delete:         return ENGINE_KEY_DELETE;
-        case XK_BackSpace:      return ENGINE_KEY_BACKSPACE;
-        case XK_Return:         return ENGINE_KEY_ENTER;
-        case XK_Home:           return ENGINE_KEY_HOME;
-        case XK_End:            return ENGINE_KEY_END;
-        case XK_Page_Up:        return ENGINE_KEY_PAGE_UP;
-        case XK_Page_Down:      return ENGINE_KEY_PAGE_DOWN;
-        case XK_Insert:         return ENGINE_KEY_INSERT;
-        case XK_Left:           return ENGINE_KEY_LEFT;
-        case XK_Right:          return ENGINE_KEY_RIGHT;
-        case XK_Down:           return ENGINE_KEY_DOWN;
-        case XK_Up:             return ENGINE_KEY_UP;
-        case XK_F1:             return ENGINE_KEY_F1;
-        case XK_F2:             return ENGINE_KEY_F2;
-        case XK_F3:             return ENGINE_KEY_F3;
-        case XK_F4:             return ENGINE_KEY_F4;
-        case XK_F5:             return ENGINE_KEY_F5;
-        case XK_F6:             return ENGINE_KEY_F6;
-        case XK_F7:             return ENGINE_KEY_F7;
-        case XK_F8:             return ENGINE_KEY_F8;
-        case XK_F9:             return ENGINE_KEY_F9;
-        case XK_F10:            return ENGINE_KEY_F10;
-        case XK_F11:            return ENGINE_KEY_F11;
-        case XK_F12:            return ENGINE_KEY_F12;
-        case XK_F13:            return ENGINE_KEY_F13;
-        case XK_F14:            return ENGINE_KEY_F14;
-        case XK_F15:            return ENGINE_KEY_F15;
-        case XK_F16:            return ENGINE_KEY_F16;
-        case XK_F17:            return ENGINE_KEY_F17;
-        case XK_F18:            return ENGINE_KEY_F18;
-        case XK_F19:            return ENGINE_KEY_F19;
-        case XK_F20:            return ENGINE_KEY_F20;
-        case XK_F21:            return ENGINE_KEY_F21;
-        case XK_F22:            return ENGINE_KEY_F22;
-        case XK_F23:            return ENGINE_KEY_F23;
-        case XK_F24:            return ENGINE_KEY_F24;
-        case XK_F25:            return ENGINE_KEY_F25;
+        case XK_Alt_R:          return TIGOR_KEY_RIGHT_ALT;
+        case XK_Super_L:        return TIGOR_KEY_LEFT_SUPER;
+        case XK_Super_R:        return TIGOR_KEY_RIGHT_SUPER;
+        case XK_Menu:           return TIGOR_KEY_MENU;
+        case XK_Num_Lock:       return TIGOR_KEY_NUM_LOCK;
+        case XK_Caps_Lock:      return TIGOR_KEY_CAPS_LOCK;
+        case XK_Print:          return TIGOR_KEY_PRINT_SCREEN;
+        case XK_Scroll_Lock:    return TIGOR_KEY_SCROLL_LOCK;
+        case XK_Pause:          return TIGOR_KEY_PAUSE;
+        case XK_Delete:         return TIGOR_KEY_DELETE;
+        case XK_BackSpace:      return TIGOR_KEY_BACKSPACE;
+        case XK_Return:         return TIGOR_KEY_ENTER;
+        case XK_Home:           return TIGOR_KEY_HOME;
+        case XK_End:            return TIGOR_KEY_END;
+        case XK_Page_Up:        return TIGOR_KEY_PAGE_UP;
+        case XK_Page_Down:      return TIGOR_KEY_PAGE_DOWN;
+        case XK_Insert:         return TIGOR_KEY_INSERT;
+        case XK_Left:           return TIGOR_KEY_LEFT;
+        case XK_Right:          return TIGOR_KEY_RIGHT;
+        case XK_Down:           return TIGOR_KEY_DOWN;
+        case XK_Up:             return TIGOR_KEY_UP;
+        case XK_F1:             return TIGOR_KEY_F1;
+        case XK_F2:             return TIGOR_KEY_F2;
+        case XK_F3:             return TIGOR_KEY_F3;
+        case XK_F4:             return TIGOR_KEY_F4;
+        case XK_F5:             return TIGOR_KEY_F5;
+        case XK_F6:             return TIGOR_KEY_F6;
+        case XK_F7:             return TIGOR_KEY_F7;
+        case XK_F8:             return TIGOR_KEY_F8;
+        case XK_F9:             return TIGOR_KEY_F9;
+        case XK_F10:            return TIGOR_KEY_F10;
+        case XK_F11:            return TIGOR_KEY_F11;
+        case XK_F12:            return TIGOR_KEY_F12;
+        case XK_F13:            return TIGOR_KEY_F13;
+        case XK_F14:            return TIGOR_KEY_F14;
+        case XK_F15:            return TIGOR_KEY_F15;
+        case XK_F16:            return TIGOR_KEY_F16;
+        case XK_F17:            return TIGOR_KEY_F17;
+        case XK_F18:            return TIGOR_KEY_F18;
+        case XK_F19:            return TIGOR_KEY_F19;
+        case XK_F20:            return TIGOR_KEY_F20;
+        case XK_F21:            return TIGOR_KEY_F21;
+        case XK_F22:            return TIGOR_KEY_F22;
+        case XK_F23:            return TIGOR_KEY_F23;
+        case XK_F24:            return TIGOR_KEY_F24;
+        case XK_F25:            return TIGOR_KEY_F25;
 
         // Numeric keypad
-        case XK_KP_Divide:      return ENGINE_KEY_KP_DIVIDE;
-        case XK_KP_Multiply:    return ENGINE_KEY_KP_MULTIPLY;
-        case XK_KP_Subtract:    return ENGINE_KEY_KP_SUBTRACT;
-        case XK_KP_Add:         return ENGINE_KEY_KP_ADD;
+        case XK_KP_Divide:      return TIGOR_KEY_KP_DIVIDE;
+        case XK_KP_Multiply:    return TIGOR_KEY_KP_MULTIPLY;
+        case XK_KP_Subtract:    return TIGOR_KEY_KP_SUBTRACT;
+        case XK_KP_Add:         return TIGOR_KEY_KP_ADD;
 
         // These should have been detected in secondary keysym test above!
-        case XK_KP_Insert:      return ENGINE_KEY_KP_0;
-        case XK_KP_End:         return ENGINE_KEY_KP_1;
-        case XK_KP_Down:        return ENGINE_KEY_KP_2;
-        case XK_KP_Page_Down:   return ENGINE_KEY_KP_3;
-        case XK_KP_Left:        return ENGINE_KEY_KP_4;
-        case XK_KP_Right:       return ENGINE_KEY_KP_6;
-        case XK_KP_Home:        return ENGINE_KEY_KP_7;
-        case XK_KP_Up:          return ENGINE_KEY_KP_8;
-        case XK_KP_Page_Up:     return ENGINE_KEY_KP_9;
-        case XK_KP_Delete:      return ENGINE_KEY_KP_DECIMAL;
-        case XK_KP_Equal:       return ENGINE_KEY_KP_EQUAL;
-        case XK_KP_Enter:       return ENGINE_KEY_KP_ENTER;
+        case XK_KP_Insert:      return TIGOR_KEY_KP_0;
+        case XK_KP_End:         return TIGOR_KEY_KP_1;
+        case XK_KP_Down:        return TIGOR_KEY_KP_2;
+        case XK_KP_Page_Down:   return TIGOR_KEY_KP_3;
+        case XK_KP_Left:        return TIGOR_KEY_KP_4;
+        case XK_KP_Right:       return TIGOR_KEY_KP_6;
+        case XK_KP_Home:        return TIGOR_KEY_KP_7;
+        case XK_KP_Up:          return TIGOR_KEY_KP_8;
+        case XK_KP_Page_Up:     return TIGOR_KEY_KP_9;
+        case XK_KP_Delete:      return TIGOR_KEY_KP_DECIMAL;
+        case XK_KP_Equal:       return TIGOR_KEY_KP_EQUAL;
+        case XK_KP_Enter:       return TIGOR_KEY_KP_ENTER;
 
         // Last resort: Check for printable keys (should not happen if the XKB
         // extension is available). This will give a layout dependent mapping
         // (which is wrong, and we may miss some keys, especially on non-US
         // keyboards), but it's better than nothing...
-        case XK_a:              return ENGINE_KEY_A;
-        case XK_b:              return ENGINE_KEY_B;
-        case XK_c:              return ENGINE_KEY_C;
-        case XK_d:              return ENGINE_KEY_D;
-        case XK_e:              return ENGINE_KEY_E;
-        case XK_f:              return ENGINE_KEY_F;
-        case XK_g:              return ENGINE_KEY_G;
-        case XK_h:              return ENGINE_KEY_H;
-        case XK_i:              return ENGINE_KEY_I;
-        case XK_j:              return ENGINE_KEY_J;
-        case XK_k:              return ENGINE_KEY_K;
-        case XK_l:              return ENGINE_KEY_L;
-        case XK_m:              return ENGINE_KEY_M;
-        case XK_n:              return ENGINE_KEY_N;
-        case XK_o:              return ENGINE_KEY_O;
-        case XK_p:              return ENGINE_KEY_P;
-        case XK_q:              return ENGINE_KEY_Q;
-        case XK_r:              return ENGINE_KEY_R;
-        case XK_s:              return ENGINE_KEY_S;
-        case XK_t:              return ENGINE_KEY_T;
-        case XK_u:              return ENGINE_KEY_U;
-        case XK_v:              return ENGINE_KEY_V;
-        case XK_w:              return ENGINE_KEY_W;
-        case XK_x:              return ENGINE_KEY_X;
-        case XK_y:              return ENGINE_KEY_Y;
-        case XK_z:              return ENGINE_KEY_Z;
-        case XK_1:              return ENGINE_KEY_1;
-        case XK_2:              return ENGINE_KEY_2;
-        case XK_3:              return ENGINE_KEY_3;
-        case XK_4:              return ENGINE_KEY_4;
-        case XK_5:              return ENGINE_KEY_5;
-        case XK_6:              return ENGINE_KEY_6;
-        case XK_7:              return ENGINE_KEY_7;
-        case XK_8:              return ENGINE_KEY_8;
-        case XK_9:              return ENGINE_KEY_9;
-        case XK_0:              return ENGINE_KEY_0;
-        case XK_space:          return ENGINE_KEY_SPACE;
-        case XK_minus:          return ENGINE_KEY_MINUS;
-        case XK_equal:          return ENGINE_KEY_EQUAL;
-        case XK_bracketleft:    return ENGINE_KEY_LEFT_BRACKET;
-        case XK_bracketright:   return ENGINE_KEY_RIGHT_BRACKET;
-        case XK_backslash:      return ENGINE_KEY_BACKSLASH;
-        case XK_semicolon:      return ENGINE_KEY_SEMICOLON;
-        case XK_apostrophe:     return ENGINE_KEY_APOSTROPHE;
-        case XK_grave:          return ENGINE_KEY_GRAVE_ACCENT;
-        case XK_comma:          return ENGINE_KEY_COMMA;
-        case XK_period:         return ENGINE_KEY_PERIOD;
-        case XK_slash:          return ENGINE_KEY_SLASH;
-        case XK_less:           return ENGINE_KEY_WORLD_1; // At least in some layouts...
+        case XK_a:              return TIGOR_KEY_A;
+        case XK_b:              return TIGOR_KEY_B;
+        case XK_c:              return TIGOR_KEY_C;
+        case XK_d:              return TIGOR_KEY_D;
+        case XK_e:              return TIGOR_KEY_E;
+        case XK_f:              return TIGOR_KEY_F;
+        case XK_g:              return TIGOR_KEY_G;
+        case XK_h:              return TIGOR_KEY_H;
+        case XK_i:              return TIGOR_KEY_I;
+        case XK_j:              return TIGOR_KEY_J;
+        case XK_k:              return TIGOR_KEY_K;
+        case XK_l:              return TIGOR_KEY_L;
+        case XK_m:              return TIGOR_KEY_M;
+        case XK_n:              return TIGOR_KEY_N;
+        case XK_o:              return TIGOR_KEY_O;
+        case XK_p:              return TIGOR_KEY_P;
+        case XK_q:              return TIGOR_KEY_Q;
+        case XK_r:              return TIGOR_KEY_R;
+        case XK_s:              return TIGOR_KEY_S;
+        case XK_t:              return TIGOR_KEY_T;
+        case XK_u:              return TIGOR_KEY_U;
+        case XK_v:              return TIGOR_KEY_V;
+        case XK_w:              return TIGOR_KEY_W;
+        case XK_x:              return TIGOR_KEY_X;
+        case XK_y:              return TIGOR_KEY_Y;
+        case XK_z:              return TIGOR_KEY_Z;
+        case XK_1:              return TIGOR_KEY_1;
+        case XK_2:              return TIGOR_KEY_2;
+        case XK_3:              return TIGOR_KEY_3;
+        case XK_4:              return TIGOR_KEY_4;
+        case XK_5:              return TIGOR_KEY_5;
+        case XK_6:              return TIGOR_KEY_6;
+        case XK_7:              return TIGOR_KEY_7;
+        case XK_8:              return TIGOR_KEY_8;
+        case XK_9:              return TIGOR_KEY_9;
+        case XK_0:              return TIGOR_KEY_0;
+        case XK_space:          return TIGOR_KEY_SPACE;
+        case XK_minus:          return TIGOR_KEY_MINUS;
+        case XK_equal:          return TIGOR_KEY_EQUAL;
+        case XK_bracketleft:    return TIGOR_KEY_LEFT_BRACKET;
+        case XK_bracketright:   return TIGOR_KEY_RIGHT_BRACKET;
+        case XK_backslash:      return TIGOR_KEY_BACKSLASH;
+        case XK_semicolon:      return TIGOR_KEY_SEMICOLON;
+        case XK_apostrophe:     return TIGOR_KEY_APOSTROPHE;
+        case XK_grave:          return TIGOR_KEY_GRAVE_ACCENT;
+        case XK_comma:          return TIGOR_KEY_COMMA;
+        case XK_period:         return TIGOR_KEY_PERIOD;
+        case XK_slash:          return TIGOR_KEY_SLASH;
+        case XK_less:           return TIGOR_KEY_WORLD_1; // At least in some layouts...
         default:                break;
     }
 
     // No matching translation was found
-    return ENGINE_KEY_UNKNOWN;
+    return TIGOR_KEY_UNKNOWN;
 }
 
 void createKeyTables(void *wData)
@@ -246,133 +246,133 @@ void createKeyTables(void *wData)
                 char* name;
             } keymap[] =
             {
-                { ENGINE_KEY_GRAVE_ACCENT, "TLDE" },
-                { ENGINE_KEY_1, "AE01" },
-                { ENGINE_KEY_2, "AE02" },
-                { ENGINE_KEY_3, "AE03" },
-                { ENGINE_KEY_4, "AE04" },
-                { ENGINE_KEY_5, "AE05" },
-                { ENGINE_KEY_6, "AE06" },
-                { ENGINE_KEY_7, "AE07" },
-                { ENGINE_KEY_8, "AE08" },
-                { ENGINE_KEY_9, "AE09" },
-                { ENGINE_KEY_0, "AE10" },
-                { ENGINE_KEY_MINUS, "AE11" },
-                { ENGINE_KEY_EQUAL, "AE12" },
-                { ENGINE_KEY_Q, "AD01" },
-                { ENGINE_KEY_W, "AD02" },
-                { ENGINE_KEY_E, "AD03" },
-                { ENGINE_KEY_R, "AD04" },
-                { ENGINE_KEY_T, "AD05" },
-                { ENGINE_KEY_Y, "AD06" },
-                { ENGINE_KEY_U, "AD07" },
-                { ENGINE_KEY_I, "AD08" },
-                { ENGINE_KEY_O, "AD09" },
-                { ENGINE_KEY_P, "AD10" },
-                { ENGINE_KEY_LEFT_BRACKET, "AD11" },
-                { ENGINE_KEY_RIGHT_BRACKET, "AD12" },
-                { ENGINE_KEY_A, "AC01" },
-                { ENGINE_KEY_S, "AC02" },
-                { ENGINE_KEY_D, "AC03" },
-                { ENGINE_KEY_F, "AC04" },
-                { ENGINE_KEY_G, "AC05" },
-                { ENGINE_KEY_H, "AC06" },
-                { ENGINE_KEY_J, "AC07" },
-                { ENGINE_KEY_K, "AC08" },
-                { ENGINE_KEY_L, "AC09" },
-                { ENGINE_KEY_SEMICOLON, "AC10" },
-                { ENGINE_KEY_APOSTROPHE, "AC11" },
-                { ENGINE_KEY_Z, "AB01" },
-                { ENGINE_KEY_X, "AB02" },
-                { ENGINE_KEY_C, "AB03" },
-                { ENGINE_KEY_V, "AB04" },
-                { ENGINE_KEY_B, "AB05" },
-                { ENGINE_KEY_N, "AB06" },
-                { ENGINE_KEY_M, "AB07" },
-                { ENGINE_KEY_COMMA, "AB08" },
-                { ENGINE_KEY_PERIOD, "AB09" },
-                { ENGINE_KEY_SLASH, "AB10" },
-                { ENGINE_KEY_BACKSLASH, "BKSL" },
-                { ENGINE_KEY_WORLD_1, "LSGT" },
-                { ENGINE_KEY_SPACE, "SPCE" },
-                { ENGINE_KEY_ESCAPE, "ESC" },
-                { ENGINE_KEY_ENTER, "RTRN" },
-                { ENGINE_KEY_TAB, "TAB" },
-                { ENGINE_KEY_BACKSPACE, "BKSP" },
-                { ENGINE_KEY_INSERT, "INS" },
-                { ENGINE_KEY_DELETE, "DELE" },
-                { ENGINE_KEY_RIGHT, "RGHT" },
-                { ENGINE_KEY_LEFT, "LEFT" },
-                { ENGINE_KEY_DOWN, "DOWN" },
-                { ENGINE_KEY_UP, "UP" },
-                { ENGINE_KEY_PAGE_UP, "PGUP" },
-                { ENGINE_KEY_PAGE_DOWN, "PGDN" },
-                { ENGINE_KEY_HOME, "HOME" },
-                { ENGINE_KEY_END, "END" },
-                { ENGINE_KEY_CAPS_LOCK, "CAPS" },
-                { ENGINE_KEY_SCROLL_LOCK, "SCLK" },
-                { ENGINE_KEY_NUM_LOCK, "NMLK" },
-                { ENGINE_KEY_PRINT_SCREEN, "PRSC" },
-                { ENGINE_KEY_PAUSE, "PAUS" },
-                { ENGINE_KEY_F1, "FK01" },
-                { ENGINE_KEY_F2, "FK02" },
-                { ENGINE_KEY_F3, "FK03" },
-                { ENGINE_KEY_F4, "FK04" },
-                { ENGINE_KEY_F5, "FK05" },
-                { ENGINE_KEY_F6, "FK06" },
-                { ENGINE_KEY_F7, "FK07" },
-                { ENGINE_KEY_F8, "FK08" },
-                { ENGINE_KEY_F9, "FK09" },
-                { ENGINE_KEY_F10, "FK10" },
-                { ENGINE_KEY_F11, "FK11" },
-                { ENGINE_KEY_F12, "FK12" },
-                { ENGINE_KEY_F13, "FK13" },
-                { ENGINE_KEY_F14, "FK14" },
-                { ENGINE_KEY_F15, "FK15" },
-                { ENGINE_KEY_F16, "FK16" },
-                { ENGINE_KEY_F17, "FK17" },
-                { ENGINE_KEY_F18, "FK18" },
-                { ENGINE_KEY_F19, "FK19" },
-                { ENGINE_KEY_F20, "FK20" },
-                { ENGINE_KEY_F21, "FK21" },
-                { ENGINE_KEY_F22, "FK22" },
-                { ENGINE_KEY_F23, "FK23" },
-                { ENGINE_KEY_F24, "FK24" },
-                { ENGINE_KEY_F25, "FK25" },
-                { ENGINE_KEY_KP_0, "KP0" },
-                { ENGINE_KEY_KP_1, "KP1" },
-                { ENGINE_KEY_KP_2, "KP2" },
-                { ENGINE_KEY_KP_3, "KP3" },
-                { ENGINE_KEY_KP_4, "KP4" },
-                { ENGINE_KEY_KP_5, "KP5" },
-                { ENGINE_KEY_KP_6, "KP6" },
-                { ENGINE_KEY_KP_7, "KP7" },
-                { ENGINE_KEY_KP_8, "KP8" },
-                { ENGINE_KEY_KP_9, "KP9" },
-                { ENGINE_KEY_KP_DECIMAL, "KPDL" },
-                { ENGINE_KEY_KP_DIVIDE, "KPDV" },
-                { ENGINE_KEY_KP_MULTIPLY, "KPMU" },
-                { ENGINE_KEY_KP_SUBTRACT, "KPSU" },
-                { ENGINE_KEY_KP_ADD, "KPAD" },
-                { ENGINE_KEY_KP_ENTER, "KPEN" },
-                { ENGINE_KEY_KP_EQUAL, "KPEQ" },
-                { ENGINE_KEY_LEFT_SHIFT, "LFSH" },
-                { ENGINE_KEY_LEFT_CONTROL, "LCTL" },
-                { ENGINE_KEY_LEFT_ALT, "LALT" },
-                { ENGINE_KEY_LEFT_SUPER, "LWIN" },
-                { ENGINE_KEY_RIGHT_SHIFT, "RTSH" },
-                { ENGINE_KEY_RIGHT_CONTROL, "RCTL" },
-                { ENGINE_KEY_RIGHT_ALT, "RALT" },
-                { ENGINE_KEY_RIGHT_ALT, "LVL3" },
-                { ENGINE_KEY_RIGHT_ALT, "MDSW" },
-                { ENGINE_KEY_RIGHT_SUPER, "RWIN" },
-                { ENGINE_KEY_MENU, "MENU" }
+                { TIGOR_KEY_GRAVE_ACCENT, "TLDE" },
+                { TIGOR_KEY_1, "AE01" },
+                { TIGOR_KEY_2, "AE02" },
+                { TIGOR_KEY_3, "AE03" },
+                { TIGOR_KEY_4, "AE04" },
+                { TIGOR_KEY_5, "AE05" },
+                { TIGOR_KEY_6, "AE06" },
+                { TIGOR_KEY_7, "AE07" },
+                { TIGOR_KEY_8, "AE08" },
+                { TIGOR_KEY_9, "AE09" },
+                { TIGOR_KEY_0, "AE10" },
+                { TIGOR_KEY_MINUS, "AE11" },
+                { TIGOR_KEY_EQUAL, "AE12" },
+                { TIGOR_KEY_Q, "AD01" },
+                { TIGOR_KEY_W, "AD02" },
+                { TIGOR_KEY_E, "AD03" },
+                { TIGOR_KEY_R, "AD04" },
+                { TIGOR_KEY_T, "AD05" },
+                { TIGOR_KEY_Y, "AD06" },
+                { TIGOR_KEY_U, "AD07" },
+                { TIGOR_KEY_I, "AD08" },
+                { TIGOR_KEY_O, "AD09" },
+                { TIGOR_KEY_P, "AD10" },
+                { TIGOR_KEY_LEFT_BRACKET, "AD11" },
+                { TIGOR_KEY_RIGHT_BRACKET, "AD12" },
+                { TIGOR_KEY_A, "AC01" },
+                { TIGOR_KEY_S, "AC02" },
+                { TIGOR_KEY_D, "AC03" },
+                { TIGOR_KEY_F, "AC04" },
+                { TIGOR_KEY_G, "AC05" },
+                { TIGOR_KEY_H, "AC06" },
+                { TIGOR_KEY_J, "AC07" },
+                { TIGOR_KEY_K, "AC08" },
+                { TIGOR_KEY_L, "AC09" },
+                { TIGOR_KEY_SEMICOLON, "AC10" },
+                { TIGOR_KEY_APOSTROPHE, "AC11" },
+                { TIGOR_KEY_Z, "AB01" },
+                { TIGOR_KEY_X, "AB02" },
+                { TIGOR_KEY_C, "AB03" },
+                { TIGOR_KEY_V, "AB04" },
+                { TIGOR_KEY_B, "AB05" },
+                { TIGOR_KEY_N, "AB06" },
+                { TIGOR_KEY_M, "AB07" },
+                { TIGOR_KEY_COMMA, "AB08" },
+                { TIGOR_KEY_PERIOD, "AB09" },
+                { TIGOR_KEY_SLASH, "AB10" },
+                { TIGOR_KEY_BACKSLASH, "BKSL" },
+                { TIGOR_KEY_WORLD_1, "LSGT" },
+                { TIGOR_KEY_SPACE, "SPCE" },
+                { TIGOR_KEY_ESCAPE, "ESC" },
+                { TIGOR_KEY_ENTER, "RTRN" },
+                { TIGOR_KEY_TAB, "TAB" },
+                { TIGOR_KEY_BACKSPACE, "BKSP" },
+                { TIGOR_KEY_INSERT, "INS" },
+                { TIGOR_KEY_DELETE, "DELE" },
+                { TIGOR_KEY_RIGHT, "RGHT" },
+                { TIGOR_KEY_LEFT, "LEFT" },
+                { TIGOR_KEY_DOWN, "DOWN" },
+                { TIGOR_KEY_UP, "UP" },
+                { TIGOR_KEY_PAGE_UP, "PGUP" },
+                { TIGOR_KEY_PAGE_DOWN, "PGDN" },
+                { TIGOR_KEY_HOME, "HOME" },
+                { TIGOR_KEY_END, "END" },
+                { TIGOR_KEY_CAPS_LOCK, "CAPS" },
+                { TIGOR_KEY_SCROLL_LOCK, "SCLK" },
+                { TIGOR_KEY_NUM_LOCK, "NMLK" },
+                { TIGOR_KEY_PRINT_SCREEN, "PRSC" },
+                { TIGOR_KEY_PAUSE, "PAUS" },
+                { TIGOR_KEY_F1, "FK01" },
+                { TIGOR_KEY_F2, "FK02" },
+                { TIGOR_KEY_F3, "FK03" },
+                { TIGOR_KEY_F4, "FK04" },
+                { TIGOR_KEY_F5, "FK05" },
+                { TIGOR_KEY_F6, "FK06" },
+                { TIGOR_KEY_F7, "FK07" },
+                { TIGOR_KEY_F8, "FK08" },
+                { TIGOR_KEY_F9, "FK09" },
+                { TIGOR_KEY_F10, "FK10" },
+                { TIGOR_KEY_F11, "FK11" },
+                { TIGOR_KEY_F12, "FK12" },
+                { TIGOR_KEY_F13, "FK13" },
+                { TIGOR_KEY_F14, "FK14" },
+                { TIGOR_KEY_F15, "FK15" },
+                { TIGOR_KEY_F16, "FK16" },
+                { TIGOR_KEY_F17, "FK17" },
+                { TIGOR_KEY_F18, "FK18" },
+                { TIGOR_KEY_F19, "FK19" },
+                { TIGOR_KEY_F20, "FK20" },
+                { TIGOR_KEY_F21, "FK21" },
+                { TIGOR_KEY_F22, "FK22" },
+                { TIGOR_KEY_F23, "FK23" },
+                { TIGOR_KEY_F24, "FK24" },
+                { TIGOR_KEY_F25, "FK25" },
+                { TIGOR_KEY_KP_0, "KP0" },
+                { TIGOR_KEY_KP_1, "KP1" },
+                { TIGOR_KEY_KP_2, "KP2" },
+                { TIGOR_KEY_KP_3, "KP3" },
+                { TIGOR_KEY_KP_4, "KP4" },
+                { TIGOR_KEY_KP_5, "KP5" },
+                { TIGOR_KEY_KP_6, "KP6" },
+                { TIGOR_KEY_KP_7, "KP7" },
+                { TIGOR_KEY_KP_8, "KP8" },
+                { TIGOR_KEY_KP_9, "KP9" },
+                { TIGOR_KEY_KP_DECIMAL, "KPDL" },
+                { TIGOR_KEY_KP_DIVIDE, "KPDV" },
+                { TIGOR_KEY_KP_MULTIPLY, "KPMU" },
+                { TIGOR_KEY_KP_SUBTRACT, "KPSU" },
+                { TIGOR_KEY_KP_ADD, "KPAD" },
+                { TIGOR_KEY_KP_ENTER, "KPEN" },
+                { TIGOR_KEY_KP_EQUAL, "KPEQ" },
+                { TIGOR_KEY_LEFT_SHIFT, "LFSH" },
+                { TIGOR_KEY_LEFT_CONTROL, "LCTL" },
+                { TIGOR_KEY_LEFT_ALT, "LALT" },
+                { TIGOR_KEY_LEFT_SUPER, "LWIN" },
+                { TIGOR_KEY_RIGHT_SHIFT, "RTSH" },
+                { TIGOR_KEY_RIGHT_CONTROL, "RCTL" },
+                { TIGOR_KEY_RIGHT_ALT, "RALT" },
+                { TIGOR_KEY_RIGHT_ALT, "LVL3" },
+                { TIGOR_KEY_RIGHT_ALT, "MDSW" },
+                { TIGOR_KEY_RIGHT_SUPER, "RWIN" },
+                { TIGOR_KEY_MENU, "MENU" }
             };
 
             // Find the X11 key code -> wManager key code mapping
             for (int scancode = scancodeMin;  scancode <= scancodeMax;  scancode++)
             {
-                int key = ENGINE_KEY_UNKNOWN;
+                int key = TIGOR_KEY_UNKNOWN;
 
                 // Map the key name to a wManager key code. Note: We use the US
                 // keyboard layout. Because function keys aren't mapped correctly
@@ -392,7 +392,7 @@ void createKeyTables(void *wData)
                 // Fall back to key aliases in case the key name did not match
                 for (int i = 0;  i < desc->names->num_key_aliases;  i++)
                 {
-                    if (key != ENGINE_KEY_UNKNOWN)
+                    if (key != TIGOR_KEY_UNKNOWN)
                         break;
 
                     if (strncmp(desc->names->key_aliases[i].real,
@@ -885,7 +885,7 @@ static int32_t initExtensions(void)
     wX11->ATOM_PAIR = XInternAtom(wX11->display, "ATOM_PAIR", False);
 
     // Custom selection property atom
-    wX11->ENGINE_SELECTION =
+    wX11->TIGOR_SELECTION =
         XInternAtom(wX11->display, "wManager_SELECTION", False);
 
     // ICCCM standard clipboard atoms
@@ -1500,7 +1500,7 @@ uint32_t _wManagerConnectX11(_wManagerPlatform* platform){
             .getKeyScancode = _wManagerGetKeyScancodeX11,
             .setClipboardString = NULL,//_wManagerSetClipboardStringX11,
             .getClipboardString = NULL,//_wManagerGetClipboardStringX11,
-    /*#if defined(ENGINE_BUILD_LINUX_JOYSTICK)
+    /*#if defined(TIGOR_BUILD_LINUX_JOYSTICK)
             .initJoysticks = _wManagerInitJoysticksLinux,
             .terminateJoysticks = _wManagerTerminateJoysticksLinux,
             .pollJoystick = _wManagerPollJoystickLinux,

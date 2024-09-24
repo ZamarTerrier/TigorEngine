@@ -17,7 +17,7 @@ typedef struct{
 
     wManagerWindow *e_window;
 
-} ZWindow;
+} TWindow;
 
 bool checkValidationLayerSupport();
 

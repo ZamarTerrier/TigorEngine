@@ -1,5 +1,5 @@
-#include <ZamEngine.h>
-#include <ZamGUI.h>
+#include <TigorEngine.h>
+#include <TigorGUI.h>
 
 #include <Core/engine.h>
 #include <Core/e_camera.h>
@@ -37,9 +37,9 @@ void GetValue(EWidget *widget, float *value, void *arg){
 
 int main(){
 
-    ZEngineInitSystem(800, 600, "Test");
+    TEngineInitSystem(800, 600, "Test");
 
-    ZEngineSetFont("res\\RobotoBlack.ttf");
+    TEngineSetFont("res\\RobotoBlack.ttf");
 
     Camera2DInit(&cam2D);
     Camera3DInit(&cam3D);
@@ -55,9 +55,9 @@ int main(){
     char buffer[256];
 
     uint32_t curr = 0;
-    while (!ZEngineWindowIsClosed())
+    while (!TEngineWindowIsClosed())
     {
-        ZEnginePoolEvents();
+        TEnginePoolEvents();
         
         sprintf(buffer, "Value is %f", source);
 
@@ -67,12 +67,12 @@ int main(){
 
         rot +=0.001f;
 
-        ZEngineRender();
+        TEngineRender();
     }
         
     EngineDeviceWaitIdle();
     
-    ZEngineCleanUp();
+    TEngineCleanUp();
 
     return 0;
 }

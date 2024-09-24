@@ -269,6 +269,8 @@ void Load3DObjModel(ModelObject3D * mo, char *filepath, DrawParam *dParam){
       return;
   }
 
+  mo->type = TIGOR_MODEL_TYPE_OBJ;
+
   Transform3DInit(&mo->transform);
 
   GameObjectSetInitFunc((GameObject *)mo, (void *)ModelDefaultInit);
@@ -293,7 +295,7 @@ void Load3DObjModel(ModelObject3D * mo, char *filepath, DrawParam *dParam){
 
   GameObject3D *model = &mo->nodes[0].models[0];
   
-  GameObject3DInit(model, ENGINE_GAME_OBJECT_TYPE_3D);
+  GameObject3DInit(model, TIGOR_GAME_OBJECT_TYPE_3D);
   
   GameObjectSetShaderInitFunc(model, ModelDefautShader);
 

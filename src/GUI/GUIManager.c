@@ -8,8 +8,8 @@
 
 #include "stb_truetype.h"
 
-#include "ZamGUI.h"
-#include "ZamEngine.h"
+#include "TigorGUI.h"
+#include "TigorEngine.h"
 
 #include "Core/e_device.h"
 #include "Core/pipeline.h"
@@ -48,7 +48,7 @@ double GUIRsqrt(double x)          { return 1.0 / sqrt(x); }
 
 GUIManager gui;
 
-extern ZEngine engine;
+extern TEngine engine;
 
 int GUIFontResizer = 7;
 
@@ -274,12 +274,12 @@ void PathEllipticalArcTo(const vec2 center, const vec2 radius, float rot, float 
 GUIObj *GUIManagerAddObject(){
 
     if(gui.draw_list == NULL)
-        gui.draw_list = AllocateMemory(1, sizeof(ChildStack));
+        gui.draw_list = calloc(1, sizeof(ChildStack));
 
-    GUIObj *object = AllocateMemory(1, sizeof(GUIObj));
+    GUIObj *object = calloc(1, sizeof(GUIObj));
 
     if(gui.draw_list->node == NULL){
-        gui.draw_list->next = AllocateMemory(1, sizeof(ChildStack));
+        gui.draw_list->next = calloc(1, sizeof(ChildStack));
         gui.draw_list->node = object;
     }
     else{
@@ -291,7 +291,7 @@ GUIObj *GUIManagerAddObject(){
             child = child->next;
         }
 
-        child->next = AllocateMemory(1, sizeof(ChildStack));
+        child->next = calloc(1, sizeof(ChildStack));
         child->node = object;
     }
 
@@ -339,7 +339,7 @@ void GUIManagerGetVertexCount(uint32_t *vertCount, uint32_t *indxCount){
 
 void GUIManagerCopyVertex(uint32_t vCount, uint32_t iCount){
 
-    ZDevice *device = (ZDevice *)engine.device;
+    TDevice *device = (TDevice *)engine.device;
 
     ChildStack *child = gui.draw_list;
     
@@ -374,8 +374,8 @@ void GUIManagerCopyVertex(uint32_t vCount, uint32_t iCount){
 }
 
 void GUIManagerObjDestroy(GUIObj *obj){
-    FreeMemory(obj->indeces);
-    FreeMemory(obj->points);
+    free(obj->indeces);
+    free(obj->points);
 }
 
 void GUIManagerClear(){
@@ -393,13 +393,13 @@ void GUIManagerClear(){
         
         if(child->node != NULL){
             GUIManagerObjDestroy(child->node);
-            FreeMemory(child->node);
+            free(child->node);
         }
 
         before = child;  
         child = child->next;
 
-        FreeMemory(before);
+        free(before);
         before = NULL;
     }
     
@@ -410,7 +410,7 @@ void GUIManagerClear(){
 
 void GUIManagerInitFont(){
     
-    ZDevice *device = (ZDevice *)engine.device;
+    TDevice *device = (TDevice *)engine.device;
     
     gui.font.info = (stbtt_fontinfo *) AllocateMemory(1, sizeof(stbtt_fontinfo));
     gui.font.cdata = (stbtt_bakedchar *) AllocateMemory(1106, sizeof(stbtt_fontinfo));
@@ -455,7 +455,7 @@ void GUIManagerInitFont(){
 
     BufferObject stagingBuffer;
 
-    BuffersCreate(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &stagingBuffer, ENGINE_BUFFER_ALLOCATE_STAGING);
+    BuffersCreate(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &stagingBuffer, TIGOR_BUFFER_ALLOCATE_STAGING);
 
     void* data;
     vkMapMemory(device->e_device, stagingBuffer.memory, 0, bufferSize, 0, &data);
@@ -466,7 +466,7 @@ void GUIManagerInitFont(){
 
     Texture2D *texture = gui.font.texture;
 
-    texture->flags |= ENGINE_TEXTURE2D_IS_FONT;
+    texture->flags |= TIGOR_TEXTURE2D_IS_FONT;
 
     TextureCreateImage(gui.font.fontWidth, gui.font.fontHeight, 1,VK_FORMAT_R8_UNORM, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 0, texture);
 
@@ -490,7 +490,7 @@ void GUIManagerAddTexture(){
     descriptor->count = 1;
     descriptor->stageflag = VK_SHADER_STAGE_FRAGMENT_BIT;
     descriptor->image = NULL;
-    descriptor->flags = ENGINE_BLUE_PRINT_FLAG_SINGLE_IMAGE | ENGINE_BLUE_PRINT_FLAG_LINKED_TEXTURE;
+    descriptor->flags = TIGOR_BLUE_PRINT_FLAG_SINGLE_IMAGE | TIGOR_BLUE_PRINT_FLAG_LINKED_TEXTURE;
     descriptor->textures = gui.font.texture;
 
 }
@@ -513,11 +513,11 @@ void GUIManagerInit(){
 
     memset(&gui, 0, sizeof(GUIManager));
     
-    GameObject2DInit((GameObject2D *)&gui, ENGINE_GAME_OBJECT_TYPE_2D); 
+    GameObject2DInit((GameObject2D *)&gui, TIGOR_GAME_OBJECT_TYPE_2D); 
 
     memcpy(gui.go.name, "GUI", 3);
 
-    gui.first_widget = AllocateMemory(1, sizeof(ChildStack));
+    gui.first_widget = calloc(1, sizeof(ChildStack));
 
     gui.font.fontWidth = 512;
     gui.font.fontHeight = 512;
@@ -550,15 +550,15 @@ void GUIManagerInit(){
     BluePrintSetTextureImage(&gui.go.graphObj.blueprints, num_pack, gui.font.texture, 0);
     
     uint32_t flags = BluePrintGetSettingsValue(&gui.go.graphObj.blueprints, num_pack, 3);
-    BluePrintSetSettingsValue(&gui.go.graphObj.blueprints, num_pack, 3, flags | ENGINE_PIPELINE_FLAG_FACE_CLOCKWISE);
+    BluePrintSetSettingsValue(&gui.go.graphObj.blueprints, num_pack, 3, flags | TIGOR_PIPELINE_FLAG_FACE_CLOCKWISE);
 
-    gui.go.self.flags |= ENGINE_GAME_OBJECT_FLAG_SHADED;
+    gui.go.self.flags |= TIGOR_GAME_OBJECT_FLAG_SHADED;
     ////---------------------------------------------------------
 
     gui._FringeScale = 1.0f;
 
-    BuffersCreate(sizeof(Vertex2D) * MAX_VERTEX_SIZE, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, &gui.vertBuffer, ENGINE_BUFFER_ALLOCATE_VERTEX);
-    BuffersCreate(sizeof(uint32_t) * MAX_INDEX_SIZE, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, &gui.indxBuffer, ENGINE_BUFFER_ALLOCATE_INDEX);
+    BuffersCreate(sizeof(Vertex2D) * MAX_VERTEX_SIZE, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, &gui.vertBuffer, TIGOR_BUFFER_ALLOCATE_VERTEX);
+    BuffersCreate(sizeof(uint32_t) * MAX_INDEX_SIZE, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, &gui.indxBuffer, TIGOR_BUFFER_ALLOCATE_INDEX);
 
     GameObject2DInitDraw((GameObject2D *)&gui);
 }
@@ -566,15 +566,15 @@ void GUIManagerInit(){
 void GUIManagerDrawPrimRect(vec2 a, vec2 c, vec3 color){
 
     if(gui.draw_list == NULL)
-        gui.draw_list = AllocateMemory(1, sizeof(ChildStack));
+        gui.draw_list = calloc(1, sizeof(ChildStack));
 
     a = v2_sub(a, vec2_f(engine.width, engine.height));
     c = v2_sub(c, vec2_f(engine.width, engine.height));
 
     GUIObj *rect = GUIManagerAddObject();
 
-    rect->indeces = AllocateMemory(6, sizeof(uint32_t));
-    rect->points = AllocateMemory(4, sizeof(Vertex2D));
+    rect->indeces = calloc(6, sizeof(uint32_t));
+    rect->points = calloc(4, sizeof(Vertex2D));
 
     if(a.x != 0)
         a.x /= engine.width;
@@ -613,12 +613,12 @@ void GUIManagerDrawRect(vec2 a, vec2 c, vec3 color){
 
     double xpos, ypos;
 
-    ZEngineGetCursorPos(&xpos, &ypos);
+    TEngineGetCursorPos(&xpos, &ypos);
 
     xpos *= 2;
     ypos *= 2;
 
-    if(a.x < xpos && c.x > xpos && a.y < ypos && c.y > ypos && ZEngineGetMousePress(ENGINE_MOUSE_BUTTON_1) && !gui.sellected){
+    if(a.x < xpos && c.x > xpos && a.y < ypos && c.y > ypos && TEngineGetMousePress(TIGOR_MOUSE_BUTTON_1) && !gui.sellected){
         color = v3_subs(color, 0.1);
         gui.sellected =true;
     }
@@ -656,14 +656,14 @@ void GUISetText(float xpos, float ypos, vec3 color, float font_size, uint32_t *t
     float y = 0.0f;
     
     if(gui.draw_list == NULL)
-        gui.draw_list = AllocateMemory(1, sizeof(ChildStack));
+        gui.draw_list = calloc(1, sizeof(ChildStack));
         
     GUIObj *rect = GUIManagerAddObject();
 
     uint32_t *tempI = text;
 
-    rect->points = AllocateMemory(len * 4, sizeof(Vertex2D));
-    rect->indeces = AllocateMemory(len * 6, sizeof(uint32_t));
+    rect->points = calloc(len * 4, sizeof(Vertex2D));
+    rect->indeces = calloc(len * 6, sizeof(uint32_t));
     
     float mulX = font_size / engine.width / GUIFontResizer;
     float mulY = font_size / engine.height / GUIFontResizer;
@@ -735,7 +735,7 @@ void AddConvexPolyFilled(const vec2 *points, const int points_count, vec3 col)
     const vec2 uv = TexUvWhitePixel;
     
     if(gui.draw_list == NULL)
-        gui.draw_list = AllocateMemory(1, sizeof(ChildStack));
+        gui.draw_list = calloc(1, sizeof(ChildStack));
         
     GUIObj *rect = GUIManagerAddObject();
 
@@ -804,8 +804,8 @@ void AddConvexPolyFilled(const vec2 *points, const int points_count, vec3 col)
         const int vtx_count = points_count;
         
         
-        rect->indeces = AllocateMemory(idx_count, sizeof(uint32_t));
-        rect->points = AllocateMemory(vtx_count, sizeof(Vertex2D));
+        rect->indeces = calloc(idx_count, sizeof(uint32_t));
+        rect->points = calloc(vtx_count, sizeof(Vertex2D));
 
         for (int i = 0; i < vtx_count; i++)
         {
@@ -839,12 +839,12 @@ void GUIManagerAddPolyline(const vec2* points, int points_count, vec3 color, Dra
 
     
     if(gui.draw_list == NULL)
-        gui.draw_list = AllocateMemory(1, sizeof(ChildStack));
+        gui.draw_list = calloc(1, sizeof(ChildStack));
         
     GUIObj *rect = GUIManagerAddObject();
 
-    rect->indeces = AllocateMemory(count * 6, sizeof(uint32_t));
-    rect->points = AllocateMemory(count * 4, sizeof(Vertex2D));
+    rect->indeces = calloc(count * 6, sizeof(uint32_t));
+    rect->points = calloc(count * 4, sizeof(Vertex2D));
 
     uint32_t v_iter = 0;
     uint32_t i_iter = 0;
@@ -1189,7 +1189,7 @@ void PathStroke(vec3 color, uint32_t flags, float thickness) {
 }
 
 int GUIManagerIsInit(){
-    return gui.go.self.flags & ENGINE_GAME_OBJECT_FLAG_INIT;
+    return gui.go.self.flags & TIGOR_GAME_OBJECT_FLAG_INIT;
 }
 
 void GUIManagerDraw(){
@@ -1209,7 +1209,7 @@ void GUIManagerDraw(){
         widget = child->node;
 
         if(widget != NULL){
-            if(widget->widget_flags & ENGINE_FLAG_WIDGET_VISIBLE && widget->type != ENGINE_WIDGET_TYPE_IMAGE){
+            if(widget->widget_flags & TIGOR_FLAG_WIDGET_VISIBLE && widget->type != TIGOR_WIDGET_TYPE_IMAGE){
                 GameObjectDraw((GameObject *)widget);
             }
         }
@@ -1217,7 +1217,7 @@ void GUIManagerDraw(){
         child = child->next;
     }
     
-    ZDevice *device = (ZDevice *)engine.device;
+    TDevice *device = (TDevice *)engine.device;
     
     ShaderPack *shader_pack = &gui.go.graphObj.gItems.shader_packs[0];
     
@@ -1236,7 +1236,7 @@ void GUIManagerDraw(){
 
             PipelineSetting *settings = &pack->setting;
 
-            if(settings->flags & ENGINE_PIPELINE_FLAG_DYNAMIC_VIEW){
+            if(settings->flags & TIGOR_PIPELINE_FLAG_DYNAMIC_VIEW){
                 vkCmdSetViewport(command, 0, 1, (const VkViewport *)&settings->viewport);
                 vkCmdSetScissor(command, 0, 1, (const VkRect2D *)&settings->scissor);
             }
@@ -1265,7 +1265,7 @@ void GUIManagerDraw(){
         widget = child->node;
 
         if(widget != NULL){
-            if(widget->widget_flags & ENGINE_FLAG_WIDGET_VISIBLE && widget->type == ENGINE_WIDGET_TYPE_IMAGE){
+            if(widget->widget_flags & TIGOR_FLAG_WIDGET_VISIBLE && widget->type == TIGOR_WIDGET_TYPE_IMAGE){
                 GameObjectDraw((GameObject *)widget);
             }
         }
@@ -1295,7 +1295,7 @@ void GUIManagerDestroy(){
         last = child;
         child = child->next;
 
-        FreeMemory(last);
+        free(last);
 
     }
 
@@ -1310,7 +1310,7 @@ void GUIManagerDestroy(){
     GameObject2DDestroy((GameObject2D *)&gui); 
     
     if(gui.draw_list != NULL){
-        FreeMemory(gui.draw_list);
+        free(gui.draw_list);
         gui.draw_list = NULL;
     }
 }

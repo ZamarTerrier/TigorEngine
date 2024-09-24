@@ -7,7 +7,7 @@
     #include "wManager/input_manager.h"
     #include "wManager/win_defines.h"
 
-extern ZEngine engine;
+extern TEngine engine;
 
 extern wManagerWindow _wMWindow;
 extern wManagerInfo _wMInfo;
@@ -121,19 +121,19 @@ void _wManagerInputWindowFocus(wManagerWindow* window, int32_t focused)
     {
         int key, button;
 
-        for (key = 0;  key <= ENGINE_KEY_LAST;  key++)
+        for (key = 0;  key <= TIGOR_KEY_LAST;  key++)
         {
-            if (window->keys[key] == ENGINE_PRESS)
+            if (window->keys[key] == TIGOR_PRESS)
             {
                 const int scancode = ((wManagerWin *)_wMWindow.WindowData)->scancodes[key];
-                _wManagerInputKey(window, key, scancode, ENGINE_RELEASE, 0);
+                _wManagerInputKey(window, key, scancode, TIGOR_RELEASE, 0);
             }
         }
 
-        for (button = 0;  button <= ENGINE_MOUSE_BUTTON_LAST;  button++)
+        for (button = 0;  button <= TIGOR_MOUSE_BUTTON_LAST;  button++)
         {
-            if (window->mouseButtons[button] == ENGINE_PRESS)
-                _wManagerInputMouseClick(window, button, ENGINE_RELEASE, 0);
+            if (window->mouseButtons[button] == TIGOR_PRESS)
+                _wManagerInputMouseClick(window, button, TIGOR_RELEASE, 0);
         }
     }
 }
@@ -151,7 +151,7 @@ void maximizeWindowManually(wManagerWindow* window)
 
     rect = mi.rcWork;
 
-    if (window->maxwidth != ENGINE_DONT_CARE && window->maxheight != ENGINE_DONT_CARE)
+    if (window->maxwidth != TIGOR_DONT_CARE && window->maxheight != TIGOR_DONT_CARE)
     {
         rect.right = _wManager_min(rect.right, rect.left + window->maxwidth);
         rect.bottom = _wManager_min(rect.bottom, rect.top + window->maxheight);
@@ -325,8 +325,8 @@ void updateWindowStyles(const wManagerWindow* window)
 //
 void updateCursorImage(wManagerWindow *window)
 {
-    if (window->cursorMode == ENGINE_CURSOR_NORMAL ||
-        window->cursorMode == ENGINE_CURSOR_CAPTURED)
+    if (window->cursorMode == TIGOR_CURSOR_NORMAL ||
+        window->cursorMode == TIGOR_CURSOR_CAPTURED)
     {
         /*if (window->cursor)
             SetCursor(window->cursor->win32.handle);
@@ -432,7 +432,7 @@ const char* _wManagerGetScancodeNameWin32(int scancode)
     }
 
     const int key = ((wManagerWin* )_wMWindow.WindowData)->keycodes[scancode];
-    if (key == ENGINE_KEY_UNKNOWN)
+    if (key == TIGOR_KEY_UNKNOWN)
         return NULL;
 
     return ((wManagerWin* )_wMWindow.WindowData)->keynames[key];
@@ -506,7 +506,7 @@ const char* _wManagerGetClipboardStringWin32(void)
 
         if (tries == 3)
         {
-            _wManagerInputErrorWin32(ENGINE_PLATFORM_ERROR,
+            _wManagerInputErrorWin32(TIGOR_PLATFORM_ERROR,
                                  "Win32: Failed to open clipboard");
             return NULL;
         }
@@ -577,8 +577,8 @@ void _wManagerSetWindowSizeLimitsWin32(wManagerWindow* window,
 {
     RECT area;
 
-    if ((minwidth == ENGINE_DONT_CARE || minheight == ENGINE_DONT_CARE) &&
-        (maxwidth == ENGINE_DONT_CARE || maxheight == ENGINE_DONT_CARE))
+    if ((minwidth == TIGOR_DONT_CARE || minheight == TIGOR_DONT_CARE) &&
+        (maxwidth == TIGOR_DONT_CARE || maxheight == TIGOR_DONT_CARE))
     {
         return;
     }
@@ -594,7 +594,7 @@ void _wManagerSetWindowAspectRatioWin32(wManagerWindow* window, int numer, int d
 {
     RECT area;
 
-    if (numer == ENGINE_DONT_CARE || denom == ENGINE_DONT_CARE)
+    if (numer == TIGOR_DONT_CARE || denom == TIGOR_DONT_CARE)
         return;
 
     GetWindowRect(((wManagerWin *)window->WindowData)->handle, &area);
@@ -685,7 +685,7 @@ void _wManagerSetCursorModeWin32(wManagerWindow* window, int mode)
 {
     if (_wManagerWindowFocusedWin32(window))
     {
-        if (mode == ENGINE_CURSOR_DISABLED)
+        if (mode == TIGOR_CURSOR_DISABLED)
         {
             _wManagerGetCursorPosWin32(window,
                                    &((wManagerWin *)_wMWindow.WindowData)->restoreCursorPosX,
@@ -700,12 +700,12 @@ void _wManagerSetCursorModeWin32(wManagerWindow* window, int mode)
                 disableRawMouseMotion(window);
         }
 
-        if (mode == ENGINE_CURSOR_DISABLED || mode == ENGINE_CURSOR_CAPTURED)
+        if (mode == TIGOR_CURSOR_DISABLED || mode == TIGOR_CURSOR_CAPTURED)
             captureCursor(window);
         else
             releaseCursor(window);
 
-        if (mode == ENGINE_CURSOR_DISABLED)
+        if (mode == TIGOR_CURSOR_DISABLED)
             ((wManagerWin *)_wMWindow.WindowData)->disabledCursorWindow = window;
         else if (((wManagerWin *)_wMWindow.WindowData)->disabledCursorWindow == window)
         {
@@ -759,7 +759,7 @@ extern void _wManagerInputWindowPos(wManagerWindow* window, int x, int y);
 extern void _wManagerUpdateKeyNamesWin32(void);
 
 LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
-    ZWindow *e_window = (ZWindow *)engine.window;
+    TWindow *e_window = (TWindow *)engine.window;
 
     wManagerWindow* window = e_window->e_window;
 
@@ -789,9 +789,9 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
             //       completed or cancelled
             if (lParam == 0 && _wMWindow.frameAction)
             {
-                if (window->cursorMode == ENGINE_CURSOR_DISABLED)
+                if (window->cursorMode == TIGOR_CURSOR_DISABLED)
                     disableCursor(window);
-                else if (window->cursorMode == ENGINE_CURSOR_CAPTURED)
+                else if (window->cursorMode == TIGOR_CURSOR_CAPTURED)
                     captureCursor(window);
 
                 _wMWindow.frameAction = false;
@@ -809,9 +809,9 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
             if (window->frameAction)
                 break;
 
-            if (window->cursorMode == ENGINE_CURSOR_DISABLED)
+            if (window->cursorMode == TIGOR_CURSOR_DISABLED)
                 disableCursor(window);
-            else if (window->cursorMode == ENGINE_CURSOR_CAPTURED)
+            else if (window->cursorMode == TIGOR_CURSOR_CAPTURED)
                 captureCursor(window);
 
             return 0;
@@ -819,9 +819,9 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
 
         case WM_KILLFOCUS:
         {
-            if (window->cursorMode == ENGINE_CURSOR_DISABLED)
+            if (window->cursorMode == TIGOR_CURSOR_DISABLED)
                 enableCursor(window);
-            else if (window->cursorMode == ENGINE_CURSOR_CAPTURED)
+            else if (window->cursorMode == TIGOR_CURSOR_CAPTURED)
                 releaseCursor(window);
 
             //if (_wMWindow->monitor && window->hints.window.autoIconify)
@@ -923,7 +923,7 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
         case WM_SYSKEYUP:
         {
             int key, scancode;
-            const int action = (HIWORD(lParam) & KF_UP) ? ENGINE_RELEASE : ENGINE_PRESS;
+            const int action = (HIWORD(lParam) & KF_UP) ? TIGOR_RELEASE : TIGOR_PRESS;
             const int mods = getKeyMods();
 
             scancode = (HIWORD(lParam) & (KF_EXTENDED | 0xff));
@@ -954,7 +954,7 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                 if (HIWORD(lParam) & KF_EXTENDED)
                 {
                     // Right side keys have the extended key bit set
-                    key = ENGINE_KEY_RIGHT_CONTROL;
+                    key = TIGOR_KEY_RIGHT_CONTROL;
                 }
                 else
                 {
@@ -983,7 +983,7 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                     }
 
                     // This is a regular Left Ctrl message
-                    key = ENGINE_KEY_LEFT_CONTROL;
+                    key = TIGOR_KEY_LEFT_CONTROL;
                 }
             }
             else if (wParam == VK_PROCESSKEY)
@@ -993,19 +993,19 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                 break;
             }
 
-            if (action == ENGINE_RELEASE && wParam == VK_SHIFT)
+            if (action == TIGOR_RELEASE && wParam == VK_SHIFT)
             {
                 // HACK: Release both Shift keys on Shift up event, as when both
                 //       are pressed the first release does not emit any event
                 // NOTE: The other half of this is in _wMInfoPollEventsWin32
-                _wManagerInputKey(window, ENGINE_KEY_LEFT_SHIFT, scancode, action, mods);
-                _wManagerInputKey(window, ENGINE_KEY_RIGHT_SHIFT, scancode, action, mods);
+                _wManagerInputKey(window, TIGOR_KEY_LEFT_SHIFT, scancode, action, mods);
+                _wManagerInputKey(window, TIGOR_KEY_RIGHT_SHIFT, scancode, action, mods);
             }
             else if (wParam == VK_SNAPSHOT)
             {
                 // HACK: Key down is not reported for the Print Screen key
-                _wManagerInputKey(window, key, scancode, ENGINE_PRESS, mods);
-                _wManagerInputKey(window, key, scancode, ENGINE_RELEASE, mods);
+                _wManagerInputKey(window, key, scancode, TIGOR_PRESS, mods);
+                _wManagerInputKey(window, key, scancode, TIGOR_RELEASE, mods);
             }
             else
                 _wManagerInputKey(window, key, scancode, action, mods);
@@ -1025,42 +1025,42 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
            int i, button, action;
 
            if (uMsg == WM_LBUTTONDOWN || uMsg == WM_LBUTTONUP)
-               button = ENGINE_MOUSE_BUTTON_LEFT;
+               button = TIGOR_MOUSE_BUTTON_LEFT;
            else if (uMsg == WM_RBUTTONDOWN || uMsg == WM_RBUTTONUP)
-               button = ENGINE_MOUSE_BUTTON_RIGHT;
+               button = TIGOR_MOUSE_BUTTON_RIGHT;
            else if (uMsg == WM_MBUTTONDOWN || uMsg == WM_MBUTTONUP)
-               button = ENGINE_MOUSE_BUTTON_MIDDLE;
+               button = TIGOR_MOUSE_BUTTON_MIDDLE;
            else if (GET_XBUTTON_WPARAM(wParam) == XBUTTON1)
-               button = ENGINE_MOUSE_BUTTON_4;
+               button = TIGOR_MOUSE_BUTTON_4;
            else
-               button = ENGINE_MOUSE_BUTTON_5;
+               button = TIGOR_MOUSE_BUTTON_5;
 
            if (uMsg == WM_LBUTTONDOWN || uMsg == WM_RBUTTONDOWN ||
                uMsg == WM_MBUTTONDOWN || uMsg == WM_XBUTTONDOWN)
            {
-               action = ENGINE_PRESS;
+               action = TIGOR_PRESS;
            }
            else
-               action = ENGINE_RELEASE;
+               action = TIGOR_RELEASE;
 
-           for (i = 0;  i <= ENGINE_MOUSE_BUTTON_LAST;  i++)
+           for (i = 0;  i <= TIGOR_MOUSE_BUTTON_LAST;  i++)
            {
-               if (window->mouseButtons[i] == ENGINE_PRESS)
+               if (window->mouseButtons[i] == TIGOR_PRESS)
                    break;
            }
 
-           if (i > ENGINE_MOUSE_BUTTON_LAST)
+           if (i > TIGOR_MOUSE_BUTTON_LAST)
                SetCapture(hWnd);
 
            _wManagerInputMouseClick(window, button, action, getKeyMods());
 
-           for (i = 0;  i <= ENGINE_MOUSE_BUTTON_LAST;  i++)
+           for (i = 0;  i <= TIGOR_MOUSE_BUTTON_LAST;  i++)
            {
-               if (window->mouseButtons[i] == ENGINE_PRESS)
+               if (window->mouseButtons[i] == TIGOR_PRESS)
                    break;
            }
 
-           if (i > ENGINE_MOUSE_BUTTON_LAST)
+           if (i > TIGOR_MOUSE_BUTTON_LAST)
                ReleaseCapture();
 
            if (uMsg == WM_XBUTTONDOWN || uMsg == WM_XBUTTONUP)
@@ -1087,7 +1087,7 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                 _wManagerInputCursorEnter(window, true);
             }
 
-            if (window->cursorMode == ENGINE_CURSOR_DISABLED)
+            if (window->cursorMode == TIGOR_CURSOR_DISABLED)
             {
                 const int dx = x - ((wManagerWin* )window->WindowData)->lastCursorPosX;
                 const int dy = y - ((wManagerWin* )window->WindowData)->lastCursorPosY;
@@ -1200,9 +1200,9 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
 
            // HACK: Enable the cursor while the user is moving or
            //       resizing the window or using the window menu
-           if (window->cursorMode == ENGINE_CURSOR_DISABLED)
+           if (window->cursorMode == TIGOR_CURSOR_DISABLED)
                enableCursor(window);
-           else if (window->cursorMode == ENGINE_CURSOR_CAPTURED)
+           else if (window->cursorMode == TIGOR_CURSOR_CAPTURED)
                releaseCursor(window);
 
            break;
@@ -1216,9 +1216,9 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
 
            // HACK: Disable the cursor once the user is done moving or
            //       resizing the window or using the menu
-           if (window->cursorMode == ENGINE_CURSOR_DISABLED)
+           if (window->cursorMode == TIGOR_CURSOR_DISABLED)
                disableCursor(window);
-           else if (window->cursorMode == ENGINE_CURSOR_CAPTURED)
+           else if (window->cursorMode == TIGOR_CURSOR_CAPTURED)
                captureCursor(window);
 
            break;
@@ -1281,8 +1281,8 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
 
         // case WM_SIZING:
         // {
-        //    if (window->numer == ENGINE_DONT_CARE ||
-        //        window->denom == ENGINE_DONT_CARE)
+        //    if (window->numer == TIGOR_DONT_CARE ||
+        //        window->denom == TIGOR_DONT_CARE)
         //    {
         //        break;
         //    }
@@ -1377,7 +1377,7 @@ int createNativeWindow(wManagerWindow* window,
     wc.lpfnWndProc   = WindowProc;
     wc.hInstance     = ((wManagerWin *)_wMWindow.WindowData)->instance;
     wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
-    wc.lpszClassName = L"ZEngine";
+    wc.lpszClassName = L"TEngine";
     wc.hIcon         = LoadIcon(NULL, IDI_APPLICATION);
     wc.hbrBackground = GetSysColorBrush(COLOR_3DFACE);
 
@@ -1423,7 +1423,7 @@ int createNativeWindow(wManagerWindow* window,
 
            AdjustWindowRectEx(&rect, style, FALSE, exStyle);
 
-           if (wndconfig->xpos == ENGINE_ANY_POSITION && wndconfig->ypos == ENGINE_ANY_POSITION)
+           if (wndconfig->xpos == TIGOR_ANY_POSITION && wndconfig->ypos == TIGOR_ANY_POSITION)
            {
                frameX = CW_USEDEFAULT;
                frameY = CW_USEDEFAULT;
@@ -1461,7 +1461,7 @@ int createNativeWindow(wManagerWindow* window,
            return false;
        }
 
-       SetPropW(((wManagerWin *)window->WindowData)->handle, L"ZEngine", window);
+       SetPropW(((wManagerWin *)window->WindowData)->handle, L"TEngine", window);
 
        window->scaleToMonitor = wndconfig->scaleToMonitor;
        window->keymenu = wndconfig->win32.keymenu;
@@ -1634,7 +1634,7 @@ void _wManagerDestroyWindowWin32(wManagerWindow* window)
 
     if (((wManagerWin *)window->WindowData)->handle)
     {
-        RemovePropW(((wManagerWin *)window->WindowData)->handle, L"ZEngine");
+        RemovePropW(((wManagerWin *)window->WindowData)->handle, L"TEngine");
         DestroyWindow(((wManagerWin *)window->WindowData)->handle);
         ((wManagerWin *)window->WindowData)->handle = NULL;
     }
@@ -1670,8 +1670,8 @@ void _wManagerSetWindowIconWin32(wManagerWindow* window, int count, void* images
                                                   GetSystemMetrics(SM_CXSMICON),
                                                   GetSystemMetrics(SM_CYSMICON));
 
-        bigIcon = createIcon(bigImage, 0, 0, ENGINE_TRUE);
-        smallIcon = createIcon(smallImage, 0, 0, ENGINE_TRUE);
+        bigIcon = createIcon(bigImage, 0, 0, TIGOR_TRUE);
+        smallIcon = createIcon(smallImage, 0, 0, TIGOR_TRUE);
     }
     else
     {
@@ -1776,7 +1776,7 @@ VkResult _wManagerCreateWindowSurfaceWin32(VkInstance instance,
 }
 
 void _wManagerPollEventsWin32(){
-    ZWindow *e_window = (ZWindow *)engine.window;
+    TWindow *e_window = (TWindow *)engine.window;
     
     MSG msg;
     HWND handle;
@@ -1814,16 +1814,16 @@ void _wManagerPollEventsWin32(){
     handle = GetActiveWindow();
     if (handle)
     {
-        window = GetPropW(handle, L"ZEngine");
+        window = GetPropW(handle, L"TEngine");
         if (window)
         {
             int i;
             const int keys[4][2] =
             {
-                { VK_LSHIFT, ENGINE_KEY_LEFT_SHIFT },
-                { VK_RSHIFT, ENGINE_KEY_RIGHT_SHIFT },
-                { VK_LWIN, ENGINE_KEY_LEFT_SUPER },
-                { VK_RWIN, ENGINE_KEY_RIGHT_SUPER }
+                { VK_LSHIFT, TIGOR_KEY_LEFT_SHIFT },
+                { VK_RSHIFT, TIGOR_KEY_RIGHT_SHIFT },
+                { VK_LWIN, TIGOR_KEY_LEFT_SUPER },
+                { VK_RWIN, TIGOR_KEY_RIGHT_SUPER }
             };
 
             for (i = 0;  i < 4;  i++)
@@ -1834,10 +1834,10 @@ void _wManagerPollEventsWin32(){
 
                 if ((GetKeyState(vk) & 0x8000))
                     continue;
-                if (window->keys[key] != ENGINE_PRESS)
+                if (window->keys[key] != TIGOR_PRESS)
                     continue;
 
-                _wManagerInputKey(window, key, scancode, ENGINE_RELEASE, getKeyMods());
+                _wManagerInputKey(window, key, scancode, TIGOR_RELEASE, getKeyMods());
             }
         }
     }

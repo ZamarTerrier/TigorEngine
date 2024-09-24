@@ -18,9 +18,9 @@
 #define MWM_HINTS_DECORATIONS   2
 #define MWM_DECOR_ALL           1
 
-#define _ENGINE_XDND_VERSION 5
+#define _TIGOR_XDND_VERSION 5
 
-#define ENGINE_INVALID_CODEPOINT 0xffffffffu
+#define TIGOR_INVALID_CODEPOINT 0xffffffffu
 
 extern wManagerWindow _wMWindow;
 extern wManagerInfo _wMInfo;
@@ -119,7 +119,7 @@ void _wManagerSetCursorModeX11(wManagerWindow* window, int mode)
 
     if (_wManagerWindowFocusedX11(window))
     {
-        if (mode == ENGINE_CURSOR_DISABLED)
+        if (mode == TIGOR_CURSOR_DISABLED)
         {
             window->platform.getCursorPos(window,
                                  &wX11->restoreCursorPosX,
@@ -134,12 +134,12 @@ void _wManagerSetCursorModeX11(wManagerWindow* window, int mode)
                 disableRawMouseMotion(window);
         }
 
-        if (mode == ENGINE_CURSOR_DISABLED || mode == ENGINE_CURSOR_CAPTURED)
+        if (mode == TIGOR_CURSOR_DISABLED || mode == TIGOR_CURSOR_CAPTURED)
             captureCursor(window);
         else
             releaseCursor();
 
-        if (mode == ENGINE_CURSOR_DISABLED)
+        if (mode == TIGOR_CURSOR_DISABLED)
             wX11->disabledCursorWindow = window;
         else if (wX11->disabledCursorWindow == window)
         {
@@ -235,7 +235,7 @@ uint32_t _wManagerKeySym2Unicode(unsigned int keysym)
     }
 
     // No matching Unicode value found
-    return ENGINE_INVALID_CODEPOINT;
+    return TIGOR_INVALID_CODEPOINT;
 }
 
 int _wManagerGetKeyScancodeX11(int key)
@@ -259,7 +259,7 @@ const char* _wManagerGetScancodeNameX11(int scancode)
     }
 
     const int key = wX11->keycodes[scancode];
-    if (key == ENGINE_KEY_UNKNOWN)
+    if (key == TIGOR_KEY_UNKNOWN)
         return NULL;
 
     const KeySym keysym = XkbKeycodeToKeysym(wX11->display,
@@ -268,7 +268,7 @@ const char* _wManagerGetScancodeNameX11(int scancode)
         return NULL;
 
     const uint32_t codepoint = _wManagerKeySym2Unicode(keysym);
-    if (codepoint == ENGINE_INVALID_CODEPOINT)
+    if (codepoint == TIGOR_INVALID_CODEPOINT)
         return NULL;
 
     const size_t count = _wManagerEncodeUTF8(wX11->keynames[key], codepoint);
@@ -524,24 +524,24 @@ void updateNormalHints(wManagerWindow* window, int width, int height)
     {
         if (window->resizable)
         {
-            if (window->minwidth != ENGINE_DONT_CARE &&
-                window->minheight != ENGINE_DONT_CARE)
+            if (window->minwidth != TIGOR_DONT_CARE &&
+                window->minheight != TIGOR_DONT_CARE)
             {
                 hints->flags |= PMinSize;
                 hints->min_width = window->minwidth;
                 hints->min_height = window->minheight;
             }
 
-            if (window->maxwidth != ENGINE_DONT_CARE &&
-                window->maxheight != ENGINE_DONT_CARE)
+            if (window->maxwidth != TIGOR_DONT_CARE &&
+                window->maxheight != TIGOR_DONT_CARE)
             {
                 hints->flags |= PMaxSize;
                 hints->max_width = window->maxwidth;
                 hints->max_height = window->maxheight;
             }
 
-            if (window->numer != ENGINE_DONT_CARE &&
-                window->denom != ENGINE_DONT_CARE)
+            if (window->numer != TIGOR_DONT_CARE &&
+                window->denom != TIGOR_DONT_CARE)
             {
                 hints->flags |= PAspect;
                 hints->min_aspect.x = hints->max_aspect.x = window->numer;
@@ -1280,19 +1280,19 @@ void _wManagerInputWindowFocus(wManagerWindow* window, int32_t focused)
     {
         int key, button;
 
-        for (key = 0;  key <= ENGINE_KEY_LAST;  key++)
+        for (key = 0;  key <= TIGOR_KEY_LAST;  key++)
         {
-            if (window->keys[key] == ENGINE_PRESS)
+            if (window->keys[key] == TIGOR_PRESS)
             {
                 const int scancode = ((wManagerX11 *)_wMWindow.WindowData)->scancodes[key];
-                _wManagerInputKey(window, key, scancode, ENGINE_RELEASE, 0);
+                _wManagerInputKey(window, key, scancode, TIGOR_RELEASE, 0);
             }
         }
 
-        for (button = 0;  button <= ENGINE_MOUSE_BUTTON_LAST;  button++)
+        for (button = 0;  button <= TIGOR_MOUSE_BUTTON_LAST;  button++)
         {
-            if (window->mouseButtons[button] == ENGINE_PRESS)
-                _wManagerInputMouseClick(window, button, ENGINE_RELEASE, 0);
+            if (window->mouseButtons[button] == TIGOR_PRESS)
+                _wManagerInputMouseClick(window, button, TIGOR_RELEASE, 0);
         }
     }
 }
@@ -1314,17 +1314,17 @@ static int translateState(int state)
     int mods = 0;
 
     if (state & ShiftMask)
-        mods |= ENGINE_MOD_SHIFT;
+        mods |= TIGOR_MOD_SHIFT;
     if (state & ControlMask)
-        mods |= ENGINE_MOD_CONTROL;
+        mods |= TIGOR_MOD_CONTROL;
     if (state & Mod1Mask)
-        mods |= ENGINE_MOD_ALT;
+        mods |= TIGOR_MOD_ALT;
     if (state & Mod4Mask)
-        mods |= ENGINE_MOD_SUPER;
+        mods |= TIGOR_MOD_SUPER;
     if (state & LockMask)
-        mods |= ENGINE_MOD_CAPS_LOCK;
+        mods |= TIGOR_MOD_CAPS_LOCK;
     if (state & Mod2Mask)
-        mods |= ENGINE_MOD_NUM_LOCK;
+        mods |= TIGOR_MOD_NUM_LOCK;
 
     return mods;
 }
@@ -1335,7 +1335,7 @@ static int translateKey(int scancode)
 {
     // Use the pre-filled LUT (see createKeyTables() in x11_init.c)
     if (scancode < 0 || (scancode > 255))
-        return ENGINE_KEY_UNKNOWN;
+        return TIGOR_KEY_UNKNOWN;
 
     return ((wManagerX11 *)_wMWindow.WindowData)->keycodes[scancode];
 }
@@ -1612,7 +1612,7 @@ static void processEvent(XEvent *event)
         {
             const int key = translateKey(keycode);
             const int mods = translateState(event->xkey.state);
-            const int plain = !(mods & (ENGINE_MOD_CONTROL | ENGINE_MOD_ALT));
+            const int plain = !(mods & (TIGOR_MOD_CONTROL | TIGOR_MOD_ALT));
 
             if (((wManagerX11 *)window->WindowData)->ic)
             {
@@ -1627,7 +1627,7 @@ static void processEvent(XEvent *event)
                 if (diff == event->xkey.time || (diff > 0 && diff < ((Time)1 << 31)))
                 {
                     if (keycode)
-                        _wManagerInputKey(window, key, keycode, ENGINE_PRESS, mods);
+                        _wManagerInputKey(window, key, keycode, TIGOR_PRESS, mods);
 
                     ((wManagerX11 *)window->WindowData)->keyPressTimes[keycode] = event->xkey.time;
                 }
@@ -1670,10 +1670,10 @@ static void processEvent(XEvent *event)
                 KeySym keysym;
                 XLookupString(&event->xkey, NULL, 0, &keysym, NULL);
 
-                _wManagerInputKey(window, key, keycode, ENGINE_PRESS, mods);
+                _wManagerInputKey(window, key, keycode, TIGOR_PRESS, mods);
 
                 const uint32_t codepoint = _wManagerKeySym2Unicode(keysym);
-                if (codepoint != ENGINE_INVALID_CODEPOINT)
+                if (codepoint != TIGOR_INVALID_CODEPOINT)
                     _wManagerInputChar(window, codepoint, mods, plain);
             }
 
@@ -1717,7 +1717,7 @@ static void processEvent(XEvent *event)
                 }
             }
 
-            _wManagerInputKey(window, key, keycode, ENGINE_RELEASE, mods);
+            _wManagerInputKey(window, key, keycode, TIGOR_RELEASE, mods);
             return;
         }
 
@@ -1726,11 +1726,11 @@ static void processEvent(XEvent *event)
             const int mods = translateState(event->xbutton.state);
 
             if (event->xbutton.button == Button1)
-                _wManagerInputMouseClick(window, ENGINE_MOUSE_BUTTON_LEFT, ENGINE_PRESS, mods);
+                _wManagerInputMouseClick(window, TIGOR_MOUSE_BUTTON_LEFT, TIGOR_PRESS, mods);
             else if (event->xbutton.button == Button2)
-                _wManagerInputMouseClick(window, ENGINE_MOUSE_BUTTON_MIDDLE, ENGINE_PRESS, mods);
+                _wManagerInputMouseClick(window, TIGOR_MOUSE_BUTTON_MIDDLE, TIGOR_PRESS, mods);
             else if (event->xbutton.button == Button3)
-                _wManagerInputMouseClick(window, ENGINE_MOUSE_BUTTON_RIGHT, ENGINE_PRESS, mods);
+                _wManagerInputMouseClick(window, TIGOR_MOUSE_BUTTON_RIGHT, TIGOR_PRESS, mods);
 
             // Modern X provides scroll events as mouse button presses
             else if (event->xbutton.button == Button4)
@@ -1748,7 +1748,7 @@ static void processEvent(XEvent *event)
                 // We subtract 4 to fill the gap left by scroll input above
                 _wManagerInputMouseClick(window,
                                      event->xbutton.button - Button1 - 4,
-                                     ENGINE_PRESS,
+                                     TIGOR_PRESS,
                                      mods);
             }
 
@@ -1762,22 +1762,22 @@ static void processEvent(XEvent *event)
             if (event->xbutton.button == Button1)
             {
                 _wManagerInputMouseClick(window,
-                                     ENGINE_MOUSE_BUTTON_LEFT,
-                                     ENGINE_RELEASE,
+                                     TIGOR_MOUSE_BUTTON_LEFT,
+                                     TIGOR_RELEASE,
                                      mods);
             }
             else if (event->xbutton.button == Button2)
             {
                 _wManagerInputMouseClick(window,
-                                     ENGINE_MOUSE_BUTTON_MIDDLE,
-                                     ENGINE_RELEASE,
+                                     TIGOR_MOUSE_BUTTON_MIDDLE,
+                                     TIGOR_RELEASE,
                                      mods);
             }
             else if (event->xbutton.button == Button3)
             {
                 _wManagerInputMouseClick(window,
-                                     ENGINE_MOUSE_BUTTON_RIGHT,
-                                     ENGINE_RELEASE,
+                                     TIGOR_MOUSE_BUTTON_RIGHT,
+                                     TIGOR_RELEASE,
                                      mods);
             }
             else if (event->xbutton.button > Button7)
@@ -1786,7 +1786,7 @@ static void processEvent(XEvent *event)
                 // We subtract 4 to fill the gap left by scroll input above
                 _wManagerInputMouseClick(window,
                                      event->xbutton.button - Button1 - 4,
-                                     ENGINE_RELEASE,
+                                     TIGOR_RELEASE,
                                      mods);
             }
 
@@ -1801,7 +1801,7 @@ static void processEvent(XEvent *event)
 
             // HACK: This is a workaround for WMs (KWM, Fluxbox) that otherwise
             //       ignore the defined cursor for hidden cursor mode
-            if (window->cursorMode == ENGINE_CURSOR_HIDDEN)
+            if (window->cursorMode == TIGOR_CURSOR_HIDDEN)
                 updateCursorImage(window);
 
             _wManagerInputCursorEnter(window, true);
@@ -1828,7 +1828,7 @@ static void processEvent(XEvent *event)
             {
                 // The cursor was moved by something other than wManager
 
-                if (window->cursorMode == ENGINE_CURSOR_DISABLED)
+                if (window->cursorMode == TIGOR_CURSOR_DISABLED)
                 {
                     if (wX11->disabledCursorWindow != window)
                         return;
@@ -1949,7 +1949,7 @@ static void processEvent(XEvent *event)
                 wX11->xdnd.version = event->xclient.data.l[1] >> 24;
                 wX11->xdnd.format  = None;
 
-                if (wX11->xdnd.version > _ENGINE_XDND_VERSION)
+                if (wX11->xdnd.version > _TIGOR_XDND_VERSION)
                     return;
 
                 if (list)
@@ -1982,7 +1982,7 @@ static void processEvent(XEvent *event)
                 // The drag operation has finished by dropping on the window
                 Time time = CurrentTime;
 
-                if (wX11->xdnd.version > _ENGINE_XDND_VERSION)
+                if (wX11->xdnd.version > _TIGOR_XDND_VERSION)
                     return;
 
                 if (wX11->xdnd.format)
@@ -2021,7 +2021,7 @@ static void processEvent(XEvent *event)
                 Window dummy;
                 int xpos, ypos;
 
-                if (wX11->xdnd.version > _ENGINE_XDND_VERSION)
+                if (wX11->xdnd.version > _TIGOR_XDND_VERSION)
                     return;
 
                 XTranslateCoordinates(wX11->display,
@@ -2113,9 +2113,9 @@ static void processEvent(XEvent *event)
                 return;
             }
 
-            if (window->cursorMode == ENGINE_CURSOR_DISABLED)
+            if (window->cursorMode == TIGOR_CURSOR_DISABLED)
                 disableCursor(window);
-            else if (window->cursorMode == ENGINE_CURSOR_CAPTURED)
+            else if (window->cursorMode == TIGOR_CURSOR_CAPTURED)
                 captureCursor(window);
 
             if (((wManagerX11 *)window->WindowData)->ic)
@@ -2135,9 +2135,9 @@ static void processEvent(XEvent *event)
                 return;
             }
 
-            if (window->cursorMode == ENGINE_CURSOR_DISABLED)
+            if (window->cursorMode == TIGOR_CURSOR_DISABLED)
                 enableCursor(window);
-            else if (window->cursorMode == ENGINE_CURSOR_CAPTURED)
+            else if (window->cursorMode == TIGOR_CURSOR_CAPTURED)
                 releaseCursor();
 
             if (((wManagerX11 *)window->WindowData)->ic)
@@ -2207,7 +2207,7 @@ void _wManagerPollEventsX11(void)
 
     wManagerX11 *wX11 = _wMWindow.WindowData;
 
-#if defined(ENGINE_BUILD_LINUX_JOYSTICK)
+#if defined(TIGOR_BUILD_LINUX_JOYSTICK)
     if (_wManager.joysticksInitialized)
         _wManagerDetectJoystickConnectionLinux();
 #endif
@@ -2258,7 +2258,7 @@ uint32_t waitForAnyEvent(double* timeout)
         { wX11->emptyEventPipe[0], POLLIN }
     };
 
-#if defined(ENGINE_BUILD_LINUX_JOYSTICK)
+#if defined(TIGOR_BUILD_LINUX_JOYSTICK)
     if (_wManager.joysticksInitialized)
         fds[count++] = (struct pollfd) { _wManager.linjs.inotify, POLLIN };
 #endif
@@ -2391,7 +2391,7 @@ uint32_t createNativeWindow(wManagerWindow* window,
 
     int xpos = 0, ypos = 0;
 
-    if (wndconfig->xpos != ENGINE_ANY_POSITION && wndconfig->ypos != ENGINE_ANY_POSITION)
+    if (wndconfig->xpos != TIGOR_ANY_POSITION && wndconfig->ypos != TIGOR_ANY_POSITION)
     {
         xpos = wndconfig->xpos;
         ypos = wndconfig->ypos;
@@ -2536,7 +2536,7 @@ uint32_t createNativeWindow(wManagerWindow* window,
 
         // HACK: Explicitly setting PPosition to any value causes some WMs, notably
         //       Compiz and Metacity, to honor the position of unmapped windows
-        if (wndconfig->xpos != ENGINE_ANY_POSITION && wndconfig->ypos != ENGINE_ANY_POSITION)
+        if (wndconfig->xpos != TIGOR_ANY_POSITION && wndconfig->ypos != TIGOR_ANY_POSITION)
         {
             hints->flags |= PPosition;
             hints->x = 0;
@@ -2582,7 +2582,7 @@ uint32_t createNativeWindow(wManagerWindow* window,
 
     // Announce support for Xdnd (drag and drop)
     {
-        const Atom version = _ENGINE_XDND_VERSION;
+        const Atom version = _TIGOR_XDND_VERSION;
         XChangeProperty(wX11->display, x11->handle,
                         wX11->XdndAware, XA_ATOM, 32,
                         PropModeReplace, (unsigned char*) &version, 1);
@@ -2610,23 +2610,23 @@ uint32_t _wManagerCreateWindowX11(wManagerWindow* window,
     Visual* visual = NULL;
     int depth;
 
-    /*if (ctxconfig->client != ENGINE_NO_API)
+    /*if (ctxconfig->client != TIGOR_NO_API)
     {
-        if (ctxconfig->source == ENGINE_NATIVE_CONTEXT_API)
+        if (ctxconfig->source == TIGOR_NATIVE_CONTEXT_API)
         {
             if (!_wManagerInitGLX())
                 return false;
             if (!_wManagerChooseVisualGLX(wndconfig, ctxconfig, fbconfig, &visual, &depth))
                 return false;
         }
-        else if (ctxconfig->source == ENGINE_EGL_CONTEXT_API)
+        else if (ctxconfig->source == TIGOR_EGL_CONTEXT_API)
         {
             if (!_wManagerInitEGL())
                 return false;
             if (!_wManagerChooseVisualEGL(wndconfig, ctxconfig, fbconfig, &visual, &depth))
                 return false;
         }
-        else if (ctxconfig->source == ENGINE_OSMESA_CONTEXT_API)
+        else if (ctxconfig->source == TIGOR_OSMESA_CONTEXT_API)
         {
             if (!_wManagerInitOSMesa())
                 return false;
@@ -2642,19 +2642,19 @@ uint32_t _wManagerCreateWindowX11(wManagerWindow* window,
     if (!createNativeWindow(window, wndconfig, visual, depth))
         return false;
 
-    /*if (ctxconfig->client != ENGINE_NO_API)
+    /*if (ctxconfig->client != TIGOR_NO_API)
     {
-        if (ctxconfig->source == ENGINE_NATIVE_CONTEXT_API)
+        if (ctxconfig->source == TIGOR_NATIVE_CONTEXT_API)
         {
             if (!_wManagerCreateContextGLX(window, ctxconfig, fbconfig))
                 return false;
         }
-        else if (ctxconfig->source == ENGINE_EGL_CONTEXT_API)
+        else if (ctxconfig->source == TIGOR_EGL_CONTEXT_API)
         {
             if (!_wManagerCreateContextEGL(window, ctxconfig, fbconfig))
                 return false;
         }
-        else if (ctxconfig->source == ENGINE_OSMESA_CONTEXT_API)
+        else if (ctxconfig->source == TIGOR_OSMESA_CONTEXT_API)
         {
             if (!_wManagerCreateContextOSMesa(window, ctxconfig, fbconfig))
                 return false;

@@ -1,5 +1,5 @@
-#include <ZamEngine.h>
-#include <ZamGUI.h>
+#include <TigorEngine.h>
+#include <TigorGUI.h>
 
 #include <Core/e_camera.h>
 
@@ -17,9 +17,9 @@ ParticleObject3D part3D;
 
 int main(){
 
-    ZEngineInitSystem(800, 600, "Test");
+    TEngineInitSystem(800, 600, "Test");
 
-    ZEngineSetFont("res\\RobotoBlack.ttf");
+    TEngineSetFont("res\\RobotoBlack.ttf");
 
     Camera2DInit(&cam2D);
     Camera3DInit(&cam3D);
@@ -36,11 +36,11 @@ int main(){
     Transform3DSetPosition(&part3D, 0, 0, -10);
 
     float ticker = 0;
-    while (!ZEngineWindowIsClosed())
+    while (!TEngineWindowIsClosed())
     {
-        ZEnginePoolEvents();
+        TEnginePoolEvents();
 
-        //Camera3DMovementUpdate(0.1);
+        Camera3DMovementUpdate(0.1);
 
         ticker +=0.1f;
 
@@ -50,10 +50,10 @@ int main(){
             ticker =0;
         }
         
-        ZEngineDraw(&particles);
-        //ZEngineDraw(&part3D);
+        TEngineDraw(&particles);
+        TEngineDraw(&part3D);
 
-        ZEngineRender();
+        TEngineRender();
     }
         
 
@@ -62,7 +62,7 @@ int main(){
 
     EngineDeviceWaitIdle();
     
-    ZEngineCleanUp();
+    TEngineCleanUp();
 
     return 0;
 }

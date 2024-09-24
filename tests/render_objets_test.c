@@ -1,4 +1,4 @@
-#include <ZamEngine.h>
+#include <TigorEngine.h>
 
 #include <Core/engine.h>
 #include <Core/e_camera.h>
@@ -14,7 +14,7 @@ Camera3D cam3D;
 
 int main(){
 
-    ZEngineInitSystem(800, 600, "Test");
+    TEngineInitSystem(800, 600, "Test");
 
     Camera2DInit(&cam2D);
     Camera3DInit(&cam3D);
@@ -27,22 +27,22 @@ int main(){
 
     ToolsAddStrings(dParam.diffuse, 256, "D:\\Projects\\Test\\res\\", "texture.jpg");
 
-    PrimitiveObjectInit(&po, &dParam, ENGINE_PRIMITIVE3D_CUBE, NULL);
+    PrimitiveObjectInit(&po, &dParam, TIGOR_PRIMITIVE3D_CUBE, NULL);
 
-    while (!ZEngineWindowIsClosed())
+    while (!TEngineWindowIsClosed())
     {
-        ZEnginePoolEvents();
+        TEnginePoolEvents();
 
-        ZEngineDraw(&po);
+        TEngineDraw(&po);
 
-        ZEngineRender();
+        TEngineRender();
     }
     
     GameObjectDestroy((GameObject *)&po);
     
     EngineDeviceWaitIdle();
     
-    ZEngineCleanUp();
+    TEngineCleanUp();
 
     return 0;
 }

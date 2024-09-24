@@ -1,12 +1,12 @@
 #include "GUI/e_widget_button.h"
 
-#include "ZamGUI.h"
+#include "TigorGUI.h"
 
 #include "Tools/e_math.h"
 
-#include "ZamEngine.h"
+#include "TigorEngine.h"
 
-extern ZEngine engine;
+extern TEngine engine;
 
 int ButtonWidgetPress(EWidget *widget, void* entry, void *arg){
     EWidgetButton *button = (EWidgetButton *)widget;
@@ -22,14 +22,14 @@ int ButtonWidgetRelease(EWidget *widget, void* entry, void *arg){
     
     WidgetSetColor(&button->widget, button->selfColor);
 
-    WidgetConfirmTrigger(widget, ENGINE_WIDGET_TRIGGER_BUTTON_PRESS, NULL);
+    WidgetConfirmTrigger(widget, TIGOR_WIDGET_TRIGGER_BUTTON_PRESS, NULL);
 
     return 0;
 }
 
 void ButtonWidgetDraw(EWidgetButton *button){
             
-    if(button->widget.widget_flags & ENGINE_FLAG_WIDGET_VISIBLE){   
+    if(button->widget.widget_flags & TIGOR_FLAG_WIDGET_VISIBLE){   
 
         vec2 pos = v2_add(button->widget.position, button->widget.base);
 
@@ -50,7 +50,7 @@ void ButtonWidgetInit(EWidgetButton *button, vec2 scale, const char *text, EWidg
 
     GameObjectSetDrawFunc((GameObject *)button, (void *)ButtonWidgetDraw);
 
-    button->widget.type = ENGINE_WIDGET_TYPE_BUTTON;
+    button->widget.type = TIGOR_WIDGET_TYPE_BUTTON;
     button->widget.rounding = 10.0f;    
 
     button->selfColor = (vec3){ 1, 1, 1};
@@ -61,8 +61,8 @@ void ButtonWidgetInit(EWidgetButton *button, vec2 scale, const char *text, EWidg
     WidgetSetColor((EWidget *)&button->widget, button->selfColor);
     WidgetSetScale((EWidget *)button, scale.x, scale.y);
 
-    WidgetConnect(&button->widget, ENGINE_WIDGET_TRIGGER_MOUSE_PRESS, ButtonWidgetPress, NULL);
-    WidgetConnect(&button->widget, ENGINE_WIDGET_TRIGGER_MOUSE_RELEASE, ButtonWidgetRelease, NULL);
+    WidgetConnect(&button->widget, TIGOR_WIDGET_TRIGGER_MOUSE_PRESS, ButtonWidgetPress, NULL);
+    WidgetConnect(&button->widget, TIGOR_WIDGET_TRIGGER_MOUSE_RELEASE, ButtonWidgetRelease, NULL);
 
 }
 

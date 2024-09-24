@@ -14,7 +14,7 @@
 #include "Data/e_resource_engine.h"
 #include "Data/e_resource_descriptors.h"
 
-extern ZEngine engine;
+extern TEngine engine;
 
 void PipelineSettingSetShader(PipelineSetting *setting, ShaderObject *shader, uint32_t type)
 {
@@ -95,7 +95,7 @@ void PipelineDestroyStack(void *pipeline)
     if(pipeline == NULL)
         return;
 
-    ZDevice *device = (ZDevice *)engine.device;
+    TDevice *device = (TDevice *)engine.device;
 
     PipelineStack *stack = NULL;
 
@@ -131,7 +131,7 @@ void PipelineDestroyStack(void *pipeline)
 
 void PipelineSettingSetDefault(void *arg){
 
-    ZSwapChain *swapchain = (ZSwapChain *)engine.swapchain;
+    TSwapChain *swapchain = (TSwapChain *)engine.swapchain;
 
     PipelineSetting *setting = arg;
 
@@ -148,14 +148,14 @@ void PipelineSettingSetDefault(void *arg){
     setting->viewport.height = (float) swapchain->swapChainExtent.height;
     setting->viewport.minDepth = 0.0f;
     setting->viewport.maxDepth = 1.0f;
-    setting->flags = ENGINE_PIPELINE_FLAG_DYNAMIC_VIEW | ENGINE_PIPELINE_FLAG_DRAW_INDEXED | ENGINE_PIPELINE_FLAG_BIAS |\
-                     ENGINE_PIPELINE_FLAG_ALPHA | ENGINE_PIPELINE_FLAG_FRAGMENT_SHADER | ENGINE_PIPELINE_FLAG_VERTEX_SHADER;
+    setting->flags = TIGOR_PIPELINE_FLAG_DYNAMIC_VIEW | TIGOR_PIPELINE_FLAG_DRAW_INDEXED | TIGOR_PIPELINE_FLAG_BIAS |\
+                     TIGOR_PIPELINE_FLAG_ALPHA | TIGOR_PIPELINE_FLAG_FRAGMENT_SHADER | TIGOR_PIPELINE_FLAG_VERTEX_SHADER;
     setting->cull_mode = VK_CULL_MODE_BACK_BIT;
 }
 
 void PipelineMakePipeline(GraphicsObject *graphObj, uint32_t indx_pack)
 {
-    ZDevice *device = (ZDevice *)engine.device;
+    TDevice *device = (TDevice *)engine.device;
 
     BluePrintPack *pack = &graphObj->blueprints.blue_print_packs[indx_pack];
     PipelineSetting *setting = &graphObj->blueprints.blue_print_packs[indx_pack].setting;
@@ -210,14 +210,14 @@ void PipelineMakePipeline(GraphicsObject *graphObj, uint32_t indx_pack)
     rasterizer.polygonMode = setting->poligonMode;
     rasterizer.lineWidth = 1.0f;
     rasterizer.cullMode = setting->cull_mode;
-    rasterizer.frontFace = setting->flags & ENGINE_PIPELINE_FLAG_FACE_CLOCKWISE ? VK_FRONT_FACE_CLOCKWISE : VK_FRONT_FACE_COUNTER_CLOCKWISE;
-    rasterizer.depthBiasEnable = setting->flags & ENGINE_PIPELINE_FLAG_BIAS ? VK_TRUE : VK_FALSE;
+    rasterizer.frontFace = setting->flags & TIGOR_PIPELINE_FLAG_FACE_CLOCKWISE ? VK_FRONT_FACE_CLOCKWISE : VK_FRONT_FACE_COUNTER_CLOCKWISE;
+    rasterizer.depthBiasEnable = setting->flags & TIGOR_PIPELINE_FLAG_BIAS ? VK_TRUE : VK_FALSE;
     //-----------------
     //Колор блендинг
     VkPipelineColorBlendAttachmentState colorBlendAttachment = {};
     colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
 
-    if((render->type != ENGINE_RENDER_TYPE_DEPTH && !(render->flags & ENGINE_RENDER_FLAG_DEPTH)) || (setting->flags & ENGINE_PIPELINE_FLAG_ALPHA))
+    if((render->type != TIGOR_RENDER_TYPE_DEPTH && !(render->flags & TIGOR_RENDER_FLAG_DEPTH)) || (setting->flags & TIGOR_PIPELINE_FLAG_ALPHA))
     {
         colorBlendAttachment.blendEnable = VK_TRUE;
         colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
@@ -235,7 +235,7 @@ void PipelineMakePipeline(GraphicsObject *graphObj, uint32_t indx_pack)
     colorBlending.attachmentCount = 1;
     colorBlending.pAttachments = &colorBlendAttachment;
 
-    if(render->type == ENGINE_RENDER_TYPE_DEPTH || (render->flags & ENGINE_RENDER_FLAG_DEPTH))
+    if(render->type == TIGOR_RENDER_TYPE_DEPTH || (render->flags & TIGOR_RENDER_FLAG_DEPTH))
     {
         colorBlending.logicOp = VK_LOGIC_OP_COPY;
         colorBlending.blendConstants[0] = 0.0f;
@@ -279,7 +279,7 @@ void PipelineMakePipeline(GraphicsObject *graphObj, uint32_t indx_pack)
     viewportState.viewportCount = 1;
     viewportState.scissorCount = 1;
 
-    if(setting->flags & ENGINE_PIPELINE_FLAG_DYNAMIC_VIEW)
+    if(setting->flags & TIGOR_PIPELINE_FLAG_DYNAMIC_VIEW)
     {
         VkDynamicState dynamicStates[] = {
             VK_DYNAMIC_STATE_VIEWPORT,
@@ -343,7 +343,7 @@ void PipelineMakePipeline(GraphicsObject *graphObj, uint32_t indx_pack)
     VkGraphicsPipelineCreateInfo pipelineInfo = {};
 
     VkPipelineTessellationStateCreateInfo *tessellationState;
-    if(setting->flags & (ENGINE_PIPELINE_FLAG_TESSELLATION_CONTROL_SHADER | ENGINE_PIPELINE_FLAG_TESSELLATION_EVALUATION_SHADER))
+    if(setting->flags & (TIGOR_PIPELINE_FLAG_TESSELLATION_CONTROL_SHADER | TIGOR_PIPELINE_FLAG_TESSELLATION_EVALUATION_SHADER))
     {
         tessellationState = AllocateMemory( 1, sizeof(VkPipelineTessellationStateCreateInfo));
         tessellationState->sType = VK_STRUCTURE_TYPE_PIPELINE_TESSELLATION_STATE_CREATE_INFO;
@@ -362,7 +362,7 @@ void PipelineMakePipeline(GraphicsObject *graphObj, uint32_t indx_pack)
     pipelineInfo.pMultisampleState = &multisampling;
     pipelineInfo.pColorBlendState = &colorBlending;
 
-    if(setting->flags & ENGINE_PIPELINE_FLAG_DYNAMIC_VIEW)
+    if(setting->flags & TIGOR_PIPELINE_FLAG_DYNAMIC_VIEW)
         pipelineInfo.pDynamicState = &dynamicState;
 
     pipelineInfo.layout = pipeline->layout;
@@ -376,7 +376,7 @@ void PipelineMakePipeline(GraphicsObject *graphObj, uint32_t indx_pack)
         exit(1);
     }
 
-    if(setting->flags & (ENGINE_PIPELINE_FLAG_TESSELLATION_CONTROL_SHADER | ENGINE_PIPELINE_FLAG_TESSELLATION_EVALUATION_SHADER))
+    if(setting->flags & (TIGOR_PIPELINE_FLAG_TESSELLATION_CONTROL_SHADER | TIGOR_PIPELINE_FLAG_TESSELLATION_EVALUATION_SHADER))
         FreeMemory(tessellationState);
 
     //-----------------------

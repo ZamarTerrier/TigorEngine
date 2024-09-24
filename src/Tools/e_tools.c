@@ -14,7 +14,7 @@
 #include "Data/e_resource_data.h"
 #include "Data/e_resource_engine.h"
 
-extern ZEngine engine;
+extern TEngine engine;
 
 int p[512] = {
     151, 160, 137, 91, 90, 15, 131, 13, 201, 95, 96, 53, 194, 233, 7, 225, 140, 36, 103, 30, 69, 142,
@@ -49,7 +49,7 @@ int p[512] = {
 const double epsilon = 2.718281828182818281828;
 
 void* beginSingleTimeCommands() {
-    ZDevice *device = (ZDevice *)engine.device;
+    TDevice *device = (TDevice *)engine.device;
 
     VkCommandBufferAllocateInfo allocInfo;
     memset(&allocInfo, 0, sizeof(VkCommandBufferAllocateInfo));
@@ -72,7 +72,7 @@ void* beginSingleTimeCommands() {
 }
 
 void endSingleTimeCommands(void* commandBuffer) {
-    ZDevice *device = (ZDevice *)engine.device;
+    TDevice *device = (TDevice *)engine.device;
 
     vkEndCommandBuffer(commandBuffer);
 
@@ -92,7 +92,7 @@ bool isComplete(QueueFamilyIndices self) {
 }
 
 QueueFamilyIndices findQueueFamilies(void* arg) {
-    ZWindow *window = (ZWindow *)engine.window;
+    TWindow *window = (TWindow *)engine.window;
 
     VkPhysicalDevice device = (VkPhysicalDevice)arg;
 
@@ -169,7 +169,7 @@ ShaderObject readFile(const char* filename) {
 }
 
 void* createShaderModule(ShaderObject shdr) {
-    ZDevice *device = (ZDevice *)engine.device;
+    TDevice *device = (TDevice *)engine.device;
 
     VkShaderModuleCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
@@ -1148,7 +1148,7 @@ bool hasStencilComponent(uint32_t format) {
 }
 
 uint32_t findSupportedFormat(const uint32_t* candidates, size_t countCandidates, uint32_t tiling, uint32_t features) {
-    ZDevice *device = (ZDevice *)engine.device;
+    TDevice *device = (TDevice *)engine.device;
 
     for (int i=0;i < countCandidates;i++) {
         VkFormatProperties props;
@@ -1171,7 +1171,7 @@ uint32_t findDepthFormat() {
 }
 
 void ToolsCreateDepthResources() {
-    ZSwapChain *swapchain = (ZSwapChain *)engine.swapchain;
+    TSwapChain *swapchain = (TSwapChain *)engine.swapchain;
 
     VkFormat depthFormat = findDepthFormat();
 

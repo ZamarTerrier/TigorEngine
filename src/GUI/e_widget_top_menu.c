@@ -3,17 +3,17 @@
 
 #include "Data/e_resource_data.h"
 
-extern ZEngine engine;
+extern TEngine engine;
 
 int TopMenuWidgetFocus(EWidget *widget, void *entry, void *args)
 {
     EWidget *menu= widget;
 
-    if(menu->type != ENGINE_WIDGET_TYPE_MENU)
+    if(menu->type != TIGOR_WIDGET_TYPE_MENU)
     {
         menu = menu->parent;
 
-        while(menu->type != ENGINE_WIDGET_TYPE_MENU)
+        while(menu->type != TIGOR_WIDGET_TYPE_MENU)
         {
             menu = menu->parent;
 
@@ -30,8 +30,8 @@ int TopMenuWidgetFocus(EWidget *widget, void *entry, void *args)
 
         temp_w = child->node;
 
-        if(temp_w->type == ENGINE_WIDGET_TYPE_LIST)
-            temp_w->widget_flags &= ~(ENGINE_FLAG_WIDGET_VISIBLE);
+        if(temp_w->type == TIGOR_WIDGET_TYPE_LIST)
+            temp_w->widget_flags &= ~(TIGOR_FLAG_WIDGET_VISIBLE);
 
         child = WidgetFindChild(menu, iter);
 
@@ -45,7 +45,7 @@ int ToggleMenu(EWidget *widget, void *entry, EWidgetList *list)
 {
     EWidget *menu = widget->parent;
 
-    while(menu->type != ENGINE_WIDGET_TYPE_MENU)
+    while(menu->type != TIGOR_WIDGET_TYPE_MENU)
     {
         menu = menu->parent;
 
@@ -61,18 +61,18 @@ int ToggleMenu(EWidget *widget, void *entry, EWidgetList *list)
 
         temp_w = child->node;
 
-        if(temp_w->type == ENGINE_WIDGET_TYPE_LIST && temp_w != list)
-            temp_w->widget_flags &= ~(ENGINE_FLAG_WIDGET_VISIBLE);
+        if(temp_w->type == TIGOR_WIDGET_TYPE_LIST && temp_w != list)
+            temp_w->widget_flags &= ~(TIGOR_FLAG_WIDGET_VISIBLE);
 
         child = WidgetFindChild(menu, iter);
 
         iter ++;
     }
 
-    /*if(!(list->widget.widget_flags & ENGINE_FLAG_WIDGET_VISIBLE))
-        list->widget.widget_flags |= ENGINE_FLAG_WIDGET_VISIBLE;
+    /*if(!(list->widget.widget_flags & TIGOR_FLAG_WIDGET_VISIBLE))
+        list->widget.widget_flags |= TIGOR_FLAG_WIDGET_VISIBLE;
     else
-        list->widget.widget_flags &= ~(ENGINE_FLAG_WIDGET_VISIBLE);*/
+        list->widget.widget_flags &= ~(TIGOR_FLAG_WIDGET_VISIBLE);*/
 
     return 0;
 }
@@ -81,7 +81,7 @@ int MenuPressItem(EWidget *widget, int id, void *arg)
 {
     EWidget *menu = widget->parent;
 
-    while(menu->type != ENGINE_WIDGET_TYPE_MENU)
+    while(menu->type != TIGOR_WIDGET_TYPE_MENU)
     {
         menu = menu->parent;
 
@@ -97,8 +97,8 @@ int MenuPressItem(EWidget *widget, int id, void *arg)
 
         temp_w = child->node;
 
-        if(temp_w->type == ENGINE_WIDGET_TYPE_LIST)
-            temp_w->widget_flags &= ~(ENGINE_FLAG_WIDGET_VISIBLE);
+        if(temp_w->type == TIGOR_WIDGET_TYPE_LIST)
+            temp_w->widget_flags &= ~(TIGOR_FLAG_WIDGET_VISIBLE);
 
         child = WidgetFindChild(menu, iter);
 
@@ -109,7 +109,7 @@ int MenuPressItem(EWidget *widget, int id, void *arg)
     data.num_menu = WidgetFindIdChild(widget) - 1;
     data.elem_id = id;
 
-    WidgetConfirmTrigger(menu, ENGINE_WIDGET_TRIGGER_MENU_PRESS_ITEM, &data);
+    WidgetConfirmTrigger(menu, TIGOR_WIDGET_TRIGGER_MENU_PRESS_ITEM, &data);
 
     return 0;
 }
@@ -140,7 +140,7 @@ void TopMenuWidgetInit(EWidgetTopMenu *top_menu, DrawParam *dParam,EWidgetWindow
         
     WidgetInit(&top_menu->widget, (EWidget *)window);
 
-    top_menu->widget.type = ENGINE_WIDGET_TYPE_MENU;
+    top_menu->widget.type = TIGOR_WIDGET_TYPE_MENU;
 
     WidgetInit(&top_menu->top, &top_menu->widget);
     top_menu->widget.transparent = 0.0f;
@@ -151,7 +151,7 @@ void TopMenuWidgetInit(EWidgetTopMenu *top_menu, DrawParam *dParam,EWidgetWindow
 
     TopMenuWidgetResize(top_menu);
 
-    WidgetConnect(&top_menu->widget, ENGINE_WIDGET_TRIGGER_WIDGET_FOCUS, TopMenuWidgetFocus, NULL);
+    WidgetConnect(&top_menu->widget, TIGOR_WIDGET_TRIGGER_WIDGET_FOCUS, TopMenuWidgetFocus, NULL);
 
     top_menu->render = dParam->render;
 }
@@ -196,13 +196,13 @@ EWidget *TopMenuWidgetAddItem(EWidgetTopMenu *top_menu, int num_menu, char *name
 
     vec2 pos = Transform2DGetPosition((struct GameObject2D_T *)top_menu->list[top_menu->num_elems - 1].button);
     Transform2DSetPosition((struct GameObject2D_T *)l_menu, pos.x, 40);
-    //l_menu->widget.widget_flags &= ~(ENGINE_FLAG_WIDGET_VISIBLE);
+    //l_menu->widget.widget_flags &= ~(TIGOR_FLAG_WIDGET_VISIBLE);
     top_menu->list[num_menu].list = l_menu;
 
     //button = ListWidgetAddItem(top_menu->list[num_menu].list, name, dParam);
 
-    WidgetConnect((EWidget *)top_menu->list[top_menu->num_elems - 1].list, ENGINE_WIDGET_TRIGGER_LIST_PRESS_ITEM, (widget_callback)MenuPressItem, NULL);
-    WidgetConnect((EWidget *)top_menu->list[top_menu->num_elems - 1].button, ENGINE_WIDGET_TRIGGER_BUTTON_PRESS, (widget_callback)ToggleMenu, (void *)top_menu->list[top_menu->num_elems - 1].list);
+    WidgetConnect((EWidget *)top_menu->list[top_menu->num_elems - 1].list, TIGOR_WIDGET_TRIGGER_LIST_PRESS_ITEM, (widget_callback)MenuPressItem, NULL);
+    WidgetConnect((EWidget *)top_menu->list[top_menu->num_elems - 1].button, TIGOR_WIDGET_TRIGGER_BUTTON_PRESS, (widget_callback)ToggleMenu, (void *)top_menu->list[top_menu->num_elems - 1].list);
 
     return (EWidget *)top_menu->list[num_menu].list;
 }

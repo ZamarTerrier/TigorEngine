@@ -84,8 +84,8 @@ void updateCursorImage(wManagerWindow* window)
     wManagerX11 *wX11 = _wMWindow.WindowData;
     wManagerX11 *x11 = window->WindowData;
 
-    if (window->cursorMode == ENGINE_CURSOR_NORMAL ||
-        window->cursorMode == ENGINE_CURSOR_CAPTURED)
+    if (window->cursorMode == TIGOR_CURSOR_NORMAL ||
+        window->cursorMode == TIGOR_CURSOR_CAPTURED)
     {
         /*if (window->cursor)
         {

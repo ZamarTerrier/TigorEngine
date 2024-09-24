@@ -5,7 +5,7 @@
 
 #include "Data/e_resource_data.h"
 
-extern ZEngine engine;
+extern TEngine engine;
 
 int IntersectRayCircle(InterRay2DParam *ray, InterCircleParam *circle, float *t, vec2 *q)
 {

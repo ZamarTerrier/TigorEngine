@@ -35,12 +35,15 @@ typedef struct fbx_anim {
     size_t num_frames;
 
     engine_fbx_node_anim *nodes;
+    uint32_t num_nodes;
     engine_fbx_blend_channel_anim *blend_channels;
+    uint32_t num_blend_channels;
 } engine_fbx_anim;
 
 
 typedef struct{
     int32_t parent_index;
+    int32_t self_index;
 
     mat4 geometry_to_node;
     mat4 node_to_parent;
@@ -68,9 +71,12 @@ typedef struct{
 
     engine_fbx_blend_channel *blend_channels;
     size_t num_blend_channels;
+    
+    join_mat_struct joint_mats[MAX_BONES];
+    uint32_t num_join_mats;
 } FBXStruct;
 
-void Load3DFBXNextFrame(ModelObject3D *mo);
+void Load3DFBXNextFrame(ModelObject3D *mo, double time, int num_animation);
 void Load3DFBXModel(ModelObject3D * mo, char *filepath, DrawParam *dParam);
 
 #ifdef __cplusplus

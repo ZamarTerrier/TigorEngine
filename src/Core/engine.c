@@ -30,15 +30,15 @@
 #include "Data/e_resource_data.h"
 #include "Data/e_resource_engine.h"
 
-extern ZEngine engine;
+extern TEngine engine;
 
 void EngineCreateSilent(){
 
-    memset(&engine, 0, sizeof(ZEngine));  
+    memset(&engine, 0, sizeof(TEngine));  
     
-    engine.window = AllocateMemoryP(1, sizeof(ZWindow), &engine);
-    engine.device = AllocateMemoryP(1, sizeof(ZDevice), &engine);
-    engine.swapchain = AllocateMemoryP(1, sizeof(ZSwapChain), &engine);
+    engine.window = AllocateMemoryP(1, sizeof(TWindow), &engine);
+    engine.device = AllocateMemoryP(1, sizeof(TDevice), &engine);
+    engine.swapchain = AllocateMemoryP(1, sizeof(TSwapChain), &engine);
     
     engine.cache.alloc_buffers_memory_head = calloc(1, sizeof(ChildStack));
     engine.cache.alloc_descriptor_head = calloc(1, sizeof(ChildStack));
@@ -67,22 +67,14 @@ void EngineInitVulkan(){
 }
 
 void EngineDeviceWaitIdle(){
-    ZDevice *device = (ZDevice *)engine.device;
+    TDevice *device = (TDevice *)engine.device;
 
     vkDeviceWaitIdle(device->e_device);
 }
 
-int EngineGetKeyPress(int Key){
-    ZWindow *window = (ZWindow *)engine.window;
-
-    int res = wManagerGetKey(window->e_window, Key);
-
-    return res;
-}
-
 void EngineCreateSyncobjects() {
 
-    ZDevice *device = (ZDevice *)engine.device;
+    TDevice *device = (TDevice *)engine.device;
 
     engine.Sync.imageAvailableSemaphores = (VkSemaphore *)AllocateMemoryP(engine.MAX_FRAMES_IN_FLIGHT, sizeof(VkSemaphore), &engine);
     engine.Sync.renderFinishedSemaphores = (VkSemaphore *)AllocateMemoryP(engine.MAX_FRAMES_IN_FLIGHT, sizeof(VkSemaphore), &engine);

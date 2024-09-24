@@ -25,7 +25,7 @@
 #define VERTEX_BUFFER_BIND_ID 0
 #define INSTANCE_BUFFER_BIND_ID 1
 
-extern ZEngine engine;
+extern TEngine engine;
 
 void GameObject3DDescriptorModelUpdate(GameObject3D* go, void *data)
 {
@@ -48,7 +48,7 @@ void GameObject3DDescriptorModelUpdate(GameObject3D* go, void *data)
 
 void GameObject3DDefaultUpdate(GameObject3D* go) {
 
-    ZDevice *device = (ZDevice *)engine.device;
+    TDevice *device = (TDevice *)engine.device;
 
     for(int i=0; i < go->graphObj.gItems.num_shader_packs;i++)
     {
@@ -78,7 +78,7 @@ void GameObject3DDefaultUpdate(GameObject3D* go) {
 
 void GameObject3DDefaultDraw(GameObject3D* go){
     
-    ZDevice *device = (ZDevice *)engine.device;
+    TDevice *device = (TDevice *)engine.device;
 
     VkCommandBuffer command = device->commandBuffers[engine.imageIndex];
 
@@ -92,7 +92,7 @@ void GameObject3DDefaultDraw(GameObject3D* go){
 
             ShaderPack *pack = &go->graphObj.gItems.shader_packs[i];
 
-            /*if(render->type == ENGINE_RENDER_TYPE_CUBEMAP){
+            /*if(render->type == TIGOR_RENDER_TYPE_CUBEMAP){
 
                 mat4 res = MakeLookRender(render->currFrame, blue_pack->descriptors[j].indx_layer);
 
@@ -109,7 +109,7 @@ void GameObject3DDefaultDraw(GameObject3D* go){
 
             vkCmdBindPipeline(command, VK_PIPELINE_BIND_POINT_GRAPHICS, pack->pipeline.pipeline);
 
-            if(settings->flags & ENGINE_PIPELINE_FLAG_DYNAMIC_VIEW){
+            if(settings->flags & TIGOR_PIPELINE_FLAG_DYNAMIC_VIEW){
                 vkCmdSetViewport(command, 0, 1, (const VkViewport *)&settings->viewport);
                 vkCmdSetScissor(command, 0, 1, (const VkRect2D *)&settings->scissor);
             }
@@ -134,7 +134,7 @@ void GameObject3DDefaultDraw(GameObject3D* go){
             if(num_instances == 0)
                 continue;
 
-            if(settings->flags & ENGINE_PIPELINE_FLAG_DRAW_INDEXED && go->graphObj.shapes[settings->vert_indx].iParam.indexesSize > 0){
+            if(settings->flags & TIGOR_PIPELINE_FLAG_DRAW_INDEXED && go->graphObj.shapes[settings->vert_indx].iParam.indexesSize > 0){
                 vkCmdBindIndexBuffer(command, go->graphObj.shapes[settings->vert_indx].iParam.buffer.buffer, 0, VK_INDEX_TYPE_UINT32);
                 vkCmdDrawIndexed(command, go->graphObj.shapes[settings->vert_indx].iParam.indexesSize, num_instances, 0, 0, 0);
             }else
@@ -189,9 +189,9 @@ void GameObject3DSetShader(GameObject3D *go, char *vert_path, char *frag_path){
     uint32_t num_pack = BluePrintInit(&go->graphObj.blueprints);
 
     ShaderObject vert_code = readFile(full_path_vert);
-    vert_code.flags |= ENGINE_SHADER_OBJECT_READED;
+    vert_code.flags |= TIGOR_SHADER_OBJECT_READED;
     ShaderObject frag_code = readFile(full_path_frag);
-    frag_code.flags |= ENGINE_SHADER_OBJECT_READED;
+    frag_code.flags |= TIGOR_SHADER_OBJECT_READED;
     
     GraphicsObjectSetShaderWithUniform(&go->graphObj, &vert_code, num_pack);
     GraphicsObjectSetShaderWithUniform(&go->graphObj, &frag_code, num_pack);
@@ -200,7 +200,7 @@ void GameObject3DSetShader(GameObject3D *go, char *vert_path, char *frag_path){
     FreeMemory(full_path_vert);
     FreeMemory(full_path_frag);    
 
-    go->self.flags |= ENGINE_GAME_OBJECT_FLAG_SHADED;
+    go->self.flags |= TIGOR_GAME_OBJECT_FLAG_SHADED;
 }
 
 void GameObject3DSetShaderSimple(GameObject3D *go, char *vert_path, char *frag_path){
@@ -229,9 +229,9 @@ void GameObject3DSetShaderSimple(GameObject3D *go, char *vert_path, char *frag_p
     uint32_t num_pack = BluePrintInit(&go->graphObj.blueprints);
 
     ShaderObject vert_code = readFile(full_path_vert);
-    vert_code.flags |= ENGINE_SHADER_OBJECT_READED;
+    vert_code.flags |= TIGOR_SHADER_OBJECT_READED;
     ShaderObject frag_code = readFile(full_path_frag);
-    frag_code.flags |= ENGINE_SHADER_OBJECT_READED;
+    frag_code.flags |= TIGOR_SHADER_OBJECT_READED;
     
     GraphicsObjectSetShader(&go->graphObj, &vert_code, num_pack, VK_SHADER_STAGE_VERTEX_BIT);
     GraphicsObjectSetShader(&go->graphObj, &frag_code, num_pack, VK_SHADER_STAGE_FRAGMENT_BIT);
@@ -240,13 +240,13 @@ void GameObject3DSetShaderSimple(GameObject3D *go, char *vert_path, char *frag_p
     FreeMemory(full_path_vert);
     FreeMemory(full_path_frag);    
 
-    go->self.flags |= ENGINE_GAME_OBJECT_FLAG_SHADED;
+    go->self.flags |= TIGOR_GAME_OBJECT_FLAG_SHADED;
 }
 
 
 void GameObject3DInitDefaultShader(GameObject3D *go){    
     
-    if(go->self.flags & ENGINE_GAME_OBJECT_FLAG_SHADED)
+    if(go->self.flags & TIGOR_GAME_OBJECT_FLAG_SHADED)
         return;
 
     uint32_t num_pack = BluePrintInit(&go->graphObj.blueprints);
@@ -272,19 +272,19 @@ void GameObject3DInitDefaultShader(GameObject3D *go){
     GameObject3DSetDescriptorUpdate(go, num_pack, 0, (UpdateDescriptor)GameObject3DDescriptorModelUpdate);
     GameObject3DSetDescriptorTextureCreate(go, num_pack, 1, go->num_images > 0 ? &go->images[0] : NULL);
     
-    go->self.flags |= ENGINE_GAME_OBJECT_FLAG_SHADED;
+    go->self.flags |= TIGOR_GAME_OBJECT_FLAG_SHADED;
 }
 
 void GameObject3DInitDraw(GameObject3D *go){
 
-    if(!(go->self.flags & ENGINE_GAME_OBJECT_FLAG_SHADED))
+    if(!(go->self.flags & TIGOR_GAME_OBJECT_FLAG_SHADED))
         return;
 
     GraphicsObjectCreateDrawItems(&go->graphObj);
 
     PipelineCreateGraphics(&go->graphObj);
     
-    go->self.flags |= ENGINE_GAME_OBJECT_FLAG_INIT;
+    go->self.flags |= TIGOR_GAME_OBJECT_FLAG_INIT;
 }
 
 void GameObject3DInitDefault(GameObject3D *go){
@@ -292,62 +292,6 @@ void GameObject3DInitDefault(GameObject3D *go){
     GameObjectShaderInit(go);
 
     GameObject3DInitDraw(go);
-}
-
-void GameObject3DAddShadowDescriptor(GameObject3D *go, uint32_t type, void *render, uint32_t layer_indx)
-{
-    /*uint32_t nums = go->graphObj.blueprints.num_blue_print_packs;
-    go->graphObj.blueprints.blue_print_packs[nums].render_point = render;
-
-    if(type == ENGINE_LIGHT_TYPE_DIRECTIONAL)
-        BluePrintAddUniformObject(&go->graphObj.blueprints, nums, sizeof(ModelBuffer3D), VK_SHADER_STAGE_VERTEX_BIT, (void *)GameObject3DDirLightModelUpdate, layer_indx);
-    else
-        BluePrintAddUniformObject(&go->graphObj.blueprints, nums, sizeof(ModelBuffer3D), VK_SHADER_STAGE_VERTEX_BIT, (void *)GameObject3DSpotLightModelUpdate, layer_indx);
-
-    PipelineSetting setting;
-
-    PipelineSettingSetDefault(&go->graphObj, &setting);
-
-    PipelineSettingSetShader(&setting, &_binary_shaders_depth_vert_spv_start, (size_t)(&_binary_shaders_depth_vert_spv_size), VK_SHADER_STAGE_VERTEX_BIT);
-    PipelineSettingSetShader(&setting, &_binary_shaders_depth_frag_spv_start, (size_t)(&_binary_shaders_depth_frag_spv_size), VK_SHADER_STAGE_FRAGMENT_BIT);
-
-    setting.flags &= ~(ENGINE_PIPELINE_FLAG_DYNAMIC_VIEW);
-    //setting.flags |= ENGINE_PIPELINE_FLAG_BIAS;
-    setting.vert_indx = 0;
-    setting.cull_mode = VK_CULL_MODE_FRONT_BIT;
-
-    GameObject3DAddSettingPipeline(go, nums, &setting);
-
-    go->graphObj.blueprints.num_blue_print_packs ++;*/
-}
-
-void GameObject3DAddOmiShadow(GameObject3D *go, void *render, uint32_t layer_indx)
-{
-    /*uint32_t num = go->graphObj.blueprints.num_blue_print_packs;
-    go->graphObj.blueprints.blue_print_packs[num].render_point = render;
-
-
-    BluePrintAddUniformObject(&go->graphObj.blueprints, num, sizeof(ModelBuffer3D), VK_SHADER_STAGE_VERTEX_BIT, (void *)GameObject3DOmniLightModelUpdate, layer_indx);
-    BluePrintAddUniformObject(&go->graphObj.blueprints, num, sizeof(LightPosBuff), VK_SHADER_STAGE_VERTEX_BIT, (void *)GameObject3DLightPosUpdate, layer_indx);
-
-    BluePrintAddPushConstant(&go->graphObj.blueprints, num, sizeof(mat4), VK_SHADER_STAGE_VERTEX_BIT, 0);
-
-    PipelineSetting setting;
-
-    PipelineSettingSetDefault(&go->graphObj, &setting);
-
-    PipelineSettingSetShader(&setting, &_binary_shaders_depth_vert_omni_spv_start, (size_t)(&_binary_shaders_depth_vert_omni_spv_size), VK_SHADER_STAGE_VERTEX_BIT);
-    PipelineSettingSetShader(&setting, &_binary_shaders_depth_frag_omni_spv_start, (size_t)(&_binary_shaders_depth_frag_omni_spv_size), VK_SHADER_STAGE_FRAGMENT_BIT);
-
-    setting.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-    setting.flags &= ~(ENGINE_PIPELINE_FLAG_DYNAMIC_VIEW);
-    //setting.flags &= ~(ENGINE_PIPELINE_FLAG_ALPHA);
-    setting.vert_indx = 0;
-    setting.cull_mode = VK_CULL_MODE_NONE;
-
-    GameObject3DAddSettingPipeline(go, num, &setting);
-
-    go->graphObj.blueprints.num_blue_print_packs ++;*/
 }
 
 void GameObject3DClean(GameObject3D* go){
@@ -407,7 +351,7 @@ void GameObject3DDestroy(GameObject3D* go){
     FreeMemory(go->self.vert);
     FreeMemory(go->self.frag);
     
-    go->self.flags &= ~(ENGINE_GAME_OBJECT_FLAG_INIT);
+    go->self.flags &= ~(TIGOR_GAME_OBJECT_FLAG_INIT);
 }
 
 int GameObject3DInitTextures(GameObject3D *go, DrawParam *dParam)
@@ -516,14 +460,14 @@ void GameObject3DInit(GameObject3D *go, GameObjectType type){
     go->num_instances = 0;
 
     switch(type){
-        case ENGINE_GAME_OBJECT_TYPE_3D:
-            GraphicsObjectInit(&go->graphObj, ENGINE_VERTEX_TYPE_3D_OBJECT);
+        case TIGOR_GAME_OBJECT_TYPE_3D:
+            GraphicsObjectInit(&go->graphObj, TIGOR_VERTEX_TYPE_3D_OBJECT);
             break;
-        case ENGINE_GAME_OBJECT_TYPE_PARTICLE_3D:
-            GraphicsObjectInit(&go->graphObj, ENGINE_VERTEX_TYPE_3D_PARTICLE);
+        case TIGOR_GAME_OBJECT_TYPE_PARTICLE_3D:
+            GraphicsObjectInit(&go->graphObj, TIGOR_VERTEX_TYPE_3D_PARTICLE);
             break;
-        case ENGINE_GAME_OBJECT_TYPE_MODEL_GLTF:
-            GraphicsObjectInit(&go->graphObj, ENGINE_VERTEX_TYPE_MODEL_OBJECT);
+        case TIGOR_GAME_OBJECT_TYPE_MODEL:
+            GraphicsObjectInit(&go->graphObj, TIGOR_VERTEX_TYPE_MODEL_OBJECT);
             break;
     }
 
@@ -578,26 +522,26 @@ void GameObject3DInitInstances(GameObject3D *go){
     VkDeviceSize bufferSize;
 
     uint16_t num_verts = go->graphObj.shapes[0].vParam.num_verts;
-    GraphicsObjectInit(&go->graphObj, ENGINE_VERTEX_TYPE_3D_INSTANCE);
+    GraphicsObjectInit(&go->graphObj, TIGOR_VERTEX_TYPE_3D_INSTANCE);
 
     num_verts = go->graphObj.shapes[0].vParam.num_verts;
     memset(go->instances, 0, sizeof(VertexInstance3D) * MAX_INSTANCES);
 
     bufferSize = sizeof(VertexInstance3D) * MAX_INSTANCES;
 
-    BuffersCreate(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &go->buffer, ENGINE_BUFFER_ALLOCATE_VERTEX);
+    BuffersCreate(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &go->buffer, TIGOR_BUFFER_ALLOCATE_VERTEX);
 
 }
 
 void GameObject3DUpdateInstances(GameObject3D *go){
-    ZDevice *device = (ZDevice *)engine.device;
+    TDevice *device = (TDevice *)engine.device;
 
     BufferObject stagingBuffer;
     VkDeviceSize bufferSize;
 
     bufferSize = sizeof(VertexInstance3D) * MAX_INSTANCES;
 
-    BuffersCreate(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &stagingBuffer, ENGINE_BUFFER_ALLOCATE_STAGING);
+    BuffersCreate(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &stagingBuffer, TIGOR_BUFFER_ALLOCATE_STAGING);
 
     //Изменение памяти
     void* data;
@@ -617,7 +561,7 @@ void GameObject3DUpdateInstances(GameObject3D *go){
 void GameObject3DEnableLight(GameObject3D *go, bool enable)
 {
     if(enable)
-        go->self.flags |= ENGINE_GAME_OBJECT_FLAG_LIGHT;
+        go->self.flags |= TIGOR_GAME_OBJECT_FLAG_LIGHT;
     else
-        go->self.flags &= ~(ENGINE_GAME_OBJECT_FLAG_LIGHT);
+        go->self.flags &= ~(TIGOR_GAME_OBJECT_FLAG_LIGHT);
 }
