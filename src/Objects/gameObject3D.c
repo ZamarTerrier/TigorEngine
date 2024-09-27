@@ -163,6 +163,10 @@ void GameObject3DSetDescriptorTextureCreate(GameObject3D* go, uint32_t shader_in
     BluePrintSetTextureImageCreate(&go->graphObj.blueprints, shader_indx, image, bind_index);
 }
 
+void GameObject3DSetDescriptorTextureArrayCreate(GameObject3D* go, uint32_t shader_indx, uint32_t bind_index, GameObjectImage *image, uint32_t size){
+    BluePrintAddTextureImageArrayCreate(&go->graphObj.blueprints, shader_indx, image, size, bind_index);
+}
+
 void GameObject3DSetShader(GameObject3D *go, char *vert_path, char *frag_path){
     
     char *currPath = DirectGetCurrectFilePath();
@@ -254,7 +258,7 @@ void GameObject3DInitDefaultShader(GameObject3D *go){
     ShaderBuilder *vert = go->self.vert;
     ShaderBuilder *frag = go->self.frag;
 
-    ShadersMakeDefault3DShader(vert, frag, go->num_images > 0);
+    ShadersMakeDefault3DShader(vert, frag, go->num_diffuses > 0);
 
     ShaderObject vert_shader, frag_shader;
     memset(&vert_shader, 0, sizeof(ShaderObject));
@@ -270,7 +274,9 @@ void GameObject3DInitDefaultShader(GameObject3D *go){
     GraphicsObjectSetShaderWithUniform(&go->graphObj, &frag_shader, num_pack);
     
     GameObject3DSetDescriptorUpdate(go, num_pack, 0, (UpdateDescriptor)GameObject3DDescriptorModelUpdate);
-    GameObject3DSetDescriptorTextureCreate(go, num_pack, 1, go->num_images > 0 ? &go->images[0] : NULL);
+    
+    if(go->num_diffuses > 0)
+        GameObject3DSetDescriptorTextureCreate(go, num_pack, 1,  go->diffuses);
     
     go->self.flags |= TIGOR_GAME_OBJECT_FLAG_SHADED;
 }
@@ -326,15 +332,35 @@ void GameObject3DDestroy(GameObject3D* go){
     
     GraphicsObjectDestroy(&go->graphObj);
 
-    for(int i=0;i < go->num_images;i++)
+    for(int i=0;i < go->num_diffuses;i++)
     {
-        FreeMemory(go->images[i].path);
+        FreeMemory(go->diffuses[i].path);
 
-        if(go->images[i].size > 0)
-            FreeMemory(go->images[i].buffer);
+        if(go->diffuses[i].size > 0)
+            FreeMemory(go->diffuses[i].buffer);
     }
 
-    FreeMemory(go->images);
+    FreeMemory(go->diffuses);
+    
+    for(int i=0;i < go->num_normals;i++)
+    {
+        FreeMemory(go->normals[i].path);
+
+        if(go->normals[i].size > 0)
+            FreeMemory(go->normals[i].buffer);
+    }
+
+    FreeMemory(go->normals);
+    
+    for(int i=0;i < go->num_speculars;i++)
+    {
+        FreeMemory(go->speculars[i].path);
+
+        if(go->speculars[i].size > 0)
+            FreeMemory(go->speculars[i].buffer);
+    }
+
+    FreeMemory(go->speculars);
 
     for(int i=0; i < go->graphObj.num_shapes; i++)
     {
@@ -356,12 +382,9 @@ void GameObject3DDestroy(GameObject3D* go){
 
 int GameObject3DInitTextures(GameObject3D *go, DrawParam *dParam)
 {
-    go->images = AllocateMemoryP(3, sizeof(GameObjectImage), go);
-
     if(dParam == NULL)
         return 0;
 
-    int iter = 0;
     
     char *currPath = DirectGetCurrectFilePath();
     int len = strlen(currPath);
@@ -370,6 +393,7 @@ int GameObject3DInitTextures(GameObject3D *go, DrawParam *dParam)
     if(dParam->diffuse != NULL){
         if(strlen(dParam->diffuse) != 0)
         {
+
             char *full_path = ToolsMakeString(currPath, dParam->diffuse);
 
             if(!DirectIsFileExist(full_path)){
@@ -378,13 +402,14 @@ int GameObject3DInitTextures(GameObject3D *go, DrawParam *dParam)
                 return 0;
             }
 
+            go->diffuses = AllocateMemory(1, sizeof(GameObjectImage));
+
             len = strlen(full_path);
-            go->images[iter].path = AllocateMemoryP(len + 1, sizeof(char), go);
-            memcpy(go->images[iter].path, full_path, len);
-            go->images[iter].path[len] = '\0';
+            go->diffuses[0].path = AllocateMemoryP(len + 1, sizeof(char), go);
+            memcpy(go->diffuses[0].path, full_path, len);
+            go->diffuses[0].path[len] = '\0';
             //go->image->buffer = ToolsLoadImageFromFile(&go->image->size, dParam.filePath);
-            go->num_images ++;
-            iter++;
+            go->num_diffuses ++;
 
             FreeMemory(full_path);
         }
@@ -401,13 +426,14 @@ int GameObject3DInitTextures(GameObject3D *go, DrawParam *dParam)
                 return 0;
             }
 
+            go->normals = AllocateMemory(1, sizeof(GameObjectImage));
+
             len = strlen(full_path);
-            go->images[iter].path = AllocateMemoryP(len + 1, sizeof(char), go);
-            memcpy(go->images[iter].path, full_path, len);
-            go->images[iter].path[len] = '\0';
+            go->normals[0].path = AllocateMemoryP(len + 1, sizeof(char), go);
+            memcpy(go->normals[0].path, full_path, len);
+            go->normals[0].path[len] = '\0';
             //go->image->buffer = ToolsLoadImageFromFile(&go->image->size, dParam.filePath);
-            go->num_images ++;
-            iter++;
+            go->num_normals ++;
             
             FreeMemory(full_path);
         }
@@ -424,14 +450,15 @@ int GameObject3DInitTextures(GameObject3D *go, DrawParam *dParam)
                 FreeMemory(currPath);
                 return 0;
             }
+            
+            go->speculars = AllocateMemory(1, sizeof(GameObjectImage));
 
             len = strlen(full_path);
-            go->images[iter].path = AllocateMemoryP(len + 1, sizeof(char), go);
-            memcpy(go->images[iter].path, full_path, len);
-            go->images[iter].path[len] = '\0';
+            go->speculars[0].path = AllocateMemoryP(len + 1, sizeof(char), go);
+            memcpy(go->speculars[0].path, full_path, len);
+            go->speculars[0].path[len] = '\0';
             //go->image->buffer = ToolsLoadImageFromFile(&go->image->size, dParam.filePath);
-            go->num_images ++;
-            iter++;
+            go->num_speculars ++;
             
             FreeMemory(full_path);
         }

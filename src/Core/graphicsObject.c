@@ -63,7 +63,7 @@ void GraphicsObjectInit(GraphicsObject* graphObj, uint32_t type)
         case TIGOR_VERTEX_TYPE_MODEL_OBJECT:
             graphObj->shapes[0].bindingDescription = &BindModel3DDescription;
             graphObj->shapes[0].attr = modelAttributeDescription;
-            graphObj->shapes[0].countAttr = 5;
+            graphObj->shapes[0].countAttr = 7;
             graphObj->shapes[0].countBind = 1;
             graphObj->shapes[0].type = type;
             break;

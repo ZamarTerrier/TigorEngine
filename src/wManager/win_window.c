@@ -875,25 +875,25 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
        case WM_CHAR:
        case WM_SYSCHAR:
        {
-           if (wParam >= 0xd800 && wParam <= 0xdbff)
+           /*if (wParam >= 0xd800 && wParam <= 0xdbff)
                ((wManagerWin *)window)->highSurrogate = (WCHAR) wParam;
-           else
+           else*/
            {
                uint32_t codepoint = 0;
 
                if (wParam >= 0xdc00 && wParam <= 0xdfff)
                {
-                   if (((wManagerWin *)window)->highSurrogate)
+                   /*if (((wManagerWin *)window)->highSurrogate)
                    {
                        codepoint += (((wManagerWin *)window)->highSurrogate - 0xd800) << 10;
                        codepoint += (WCHAR) wParam - 0xdc00;
                        codepoint += 0x10000;
-                   }
+                   }*/
                }
                else
                    codepoint = (WCHAR) wParam;
 
-               ((wManagerWin *)window)->highSurrogate = 0;
+               //((wManagerWin *)window)->highSurrogate = 0;
                _wManagerInputChar(window, codepoint, getKeyMods(), uMsg != WM_SYSCHAR);
            }
 

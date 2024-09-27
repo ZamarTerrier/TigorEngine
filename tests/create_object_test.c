@@ -32,7 +32,7 @@ int main(){
 
     TEngineInitSystem(800, 600, "Test");
 
-    TEngineSetFont("RobotoBlack.ttf");
+    TEngineSetFont("res\\RobotoBlack.ttf");
 
     Camera2DInit(&cam2D);
     Camera3DInit(&cam3D);
@@ -50,7 +50,7 @@ int main(){
     params.color = vec3_f(1, 1, 1);
 
     PrimitiveObjectInit(&po, &dParam, TIGOR_PRIMITIVE3D_CUBE, NULL);
-    Transform3DSetPosition(&po, 0, 0, -10);
+    Transform3DSetPosition(&po, 0, 0, 10);
 
     QuadParams param;
     param.size = 100;

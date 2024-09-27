@@ -228,7 +228,7 @@ uint32_t ShaderBuilderAddFuncMult(uint32_t val_1, uint32_t indx_1, uint32_t type
 uint32_t ShaderBuilderAddFuncAdd(uint32_t val_1, uint32_t indx_1, uint32_t type_1, uint32_t size_1,  uint32_t val_2, uint32_t indx_2, uint32_t type_2, uint32_t size_2, uint32_t res_size);
 uint32_t ShaderBuilderAddFuncMove(uint32_t src_indx, uint32_t src_size, uint32_t dest_indx, uint32_t dest_size);
 uint32_t ShaderBuilderAddFuncMultS(uint32_t val_indx, uint32_t single_indx, uint32_t size);
-uint32_t ShaderBuilderGetTexture(uint32_t texture_indx, uint32_t uv_indx);
+uint32_t ShaderBuilderGetTexture(uint32_t texture_indx, uint32_t uv_indx, uint32_t elem_num);
 
 void ShaderBuilderStoreValue(uint32_t *arr, uint32_t size);
 

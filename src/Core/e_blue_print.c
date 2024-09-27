@@ -328,7 +328,6 @@ void BluePrintAddRenderImage(Blueprints *blueprints, uint32_t indx_pack, void *o
     uint32_t nums = blueprints->blue_print_packs[indx_pack].num_descriptors;
     BluePrintDescriptor *descriptor = &blueprints->blue_print_packs[indx_pack].descriptors[nums];
 
-    descriptor->num_textures = engine.imagesCount;
     descriptor->descrType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
     descriptor->count = 1;
     descriptor->stageflag = VK_SHADER_STAGE_FRAGMENT_BIT;
@@ -364,8 +363,7 @@ BluePrintDescriptor *BluePrintAddTextureC(Blueprints *blueprints, uint32_t indx_
     BluePrintDescriptor *descriptor = &pack->descriptors[pack->num_descriptors];
 
     descriptor->image = NULL;
-    descriptor->count = 1;
-    descriptor->num_textures = 1;    
+    descriptor->count = 1; 
     descriptor->descrType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
     descriptor->binding = binding;
     descriptor->stageflag = stage_bit;// VK_SHADER_STAGE_FRAGMENT_BIT;
@@ -393,8 +391,10 @@ void BluePrintSetTextureImage(Blueprints *blueprints, uint32_t indx_pack, Textur
     }
     
     if(descriptor != NULL){
+        descriptor->textures = AllocateMemory(1, sizeof(Texture2D));
+
         descriptor->flags = TIGOR_BLUE_PRINT_FLAG_SINGLE_IMAGE | TIGOR_BLUE_PRINT_FLAG_LINKED_TEXTURE;
-        descriptor->textures = texture;
+        descriptor->textures[0] = *texture;
         descriptor->count = 1;
     }
 }
@@ -468,7 +468,6 @@ BluePrintDescriptor *BluePrintAddTextureImage(Blueprints *blueprints, uint32_t i
 
     descriptor->image = image;
     descriptor->count = 1;
-    descriptor->num_textures = 1;
     descriptor->binding = blueprints->blue_print_packs[indx_pack].curr_bind;
 
     if(image == NULL){
@@ -515,50 +514,38 @@ BluePrintDescriptor *BluePrintAddTextureImage(Blueprints *blueprints, uint32_t i
     return &pack->descriptors[pack->num_descriptors - 1];
 }
 
-void BluePrintAddTextureImageArray(Blueprints *blueprints, uint32_t indx_pack, GameObjectImage *images, uint32_t size)
+void BluePrintAddTextureImageArrayCreate(Blueprints *blueprints, uint32_t indx_pack, GameObjectImage *images, uint32_t size, uint32_t bind_indx)
 {
     BluePrintPack *pack = &blueprints->blue_print_packs[indx_pack];
 
+    BluePrintDescriptor *descriptor = NULL;
 
-    if(pack->num_descriptors + 1 > MAX_UNIFORMS)
-    {
-        printf("Too much descriptors!\n");
-        return;
-    }
-
-    BluePrintDescriptor *descriptor = &pack->descriptors[pack->num_descriptors];
-
-    descriptor->image = images;
-    descriptor->count = 1;
-    descriptor->num_textures = size;
-
-    for(int i=0;i < size;i++)
-    {
-
-        if(images[i].img_type == 0)
-            images[i].img_type = VK_FORMAT_R8G8B8A8_SRGB;
-
-        if(!(images[i].flags & TIGOR_TEXTURE_FLAG_SPECIFIC))
-        {
-            if(descriptor->image->size > 0)
-                TextureCreate((struct BluePrintDescriptor_T *)descriptor, VK_IMAGE_VIEW_TYPE_2D, &images[i], 0);
-            else
-                TextureCreate((struct BluePrintDescriptor_T *)descriptor, VK_IMAGE_VIEW_TYPE_2D, &images[i], 1);
-
-        }else
-        {
-            if(images[i].flags & TIGOR_TEXTURE_FLAG_URGB)
-                TextureCreateSpecific((struct BluePrintDescriptor_T *)descriptor, VK_FORMAT_R8G8B8A8_UINT, images[i].imgWidth, images[i].imgHeight);
-            else
-                TextureCreateSpecific((struct BluePrintDescriptor_T *)descriptor, VK_FORMAT_R8G8B8A8_SINT, images[i].imgWidth, images[i].imgHeight);
+    for(int i=0;i < pack->num_descriptors;i++){
+        BluePrintDescriptor *temp = &pack->descriptors[i];
+        if( temp->descrType == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER){
+            if(temp->binding == bind_indx){
+                descriptor = temp;
+                break;
+            }
         }
     }
 
-    descriptor->descrType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-    descriptor->stageflag = VK_SHADER_STAGE_FRAGMENT_BIT;
-    descriptor->flags = TIGOR_BLUE_PRINT_FLAG_ARRAY_IMAGE | TIGOR_BLUE_PRINT_FLAG_SINGLE_IMAGE;
+    if(descriptor != NULL){
+        descriptor->image = images;
+        descriptor->count = size;
 
-    pack->num_descriptors ++;
+        for(int i=0;i < size;i++)
+        {
+            if(images[i].img_type == 0)
+                images[i].img_type = VK_FORMAT_R8G8B8A8_SRGB;
+        }
+        
+        TextureCreateArray((struct BluePrintDescriptor_T *)descriptor, VK_IMAGE_VIEW_TYPE_2D, images, size);
+
+        descriptor->descrType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        descriptor->stageflag = VK_SHADER_STAGE_FRAGMENT_BIT;
+        descriptor->flags = TIGOR_BLUE_PRINT_FLAG_SINGLE_IMAGE;
+    }
 }
 
 
@@ -566,7 +553,7 @@ void BluePrintClearTextures(BluePrintDescriptor *descriptor){
 
     TDevice *device = (TDevice *)engine.device;
     
-    for(int i=0;i < descriptor->num_textures;i++){        
+    for(int i=0;i < descriptor->count;i++){        
         Texture2D *texture = (Texture2D *)&descriptor->textures[i];
 
         if(texture->flags & TIGOR_TEXTURE2D_FLAG_GENERATED)
@@ -575,7 +562,7 @@ void BluePrintClearTextures(BluePrintDescriptor *descriptor){
         }else if(texture->flags & TIGOR_TEXTURE2D_FLAG_VIEW){
             vkDestroyImageView(device->e_device, texture->image_view, NULL);
         }
-    }    
+    }   
 }
 
 void BluePrintClearShaders(PipelineSetting *settings){
@@ -597,9 +584,11 @@ void BluePrintClearAll(Blueprints *blueprints){
 
             if(descriptor->descrType == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER || descriptor->descrType == VK_DESCRIPTOR_TYPE_STORAGE_IMAGE){
 
-                if(descriptor->flags & TIGOR_BLUE_PRINT_FLAG_LINKED_TEXTURE)
-                    continue;
-                BluePrintClearTextures(descriptor);
+                if(!(descriptor->flags & TIGOR_BLUE_PRINT_FLAG_LINKED_TEXTURE)){
+                    BluePrintClearTextures(descriptor);
+                }                
+                
+                FreeMemory(descriptor->textures); 
             }else{
                 if(descriptor->flags & TIGOR_BLUE_PRINT_FLAG_LINKED_UNIFORM)
                     continue;

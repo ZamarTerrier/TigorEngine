@@ -55,8 +55,6 @@ void ModelClean(ModelObject3D* mo);
 void ModelRecreate(ModelObject3D* mo);
 void ModelDestroy(ModelObject3D* mo);
 
-void ModelDefautShader(GameObject3D *go);
-
 void ModelSetLightEnable(void *obj, bool enable);
 void ModelSetSelCameraEnable(void *obj, bool enable);
 void ModelSetSomeViewport(ModelObject3D* mo, float x, float y, float height, float width);

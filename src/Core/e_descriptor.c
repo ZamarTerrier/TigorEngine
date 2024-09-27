@@ -150,16 +150,12 @@ void DescriptorSetImage(VkWriteDescriptorSet* descriptorWrites, void *descr_set,
 
     for(int i=0;i < array_size;i++)
     {
+        Texture2D *text = &textures[i];
 
-        if((blueprint_descriptor->flags & TIGOR_BLUE_PRINT_FLAG_SINGLE_IMAGE) && (blueprint_descriptor->flags & TIGOR_BLUE_PRINT_FLAG_ARRAY_IMAGE)){
+        if(blueprint_descriptor->flags & TIGOR_BLUE_PRINT_FLAG_SINGLE_IMAGE){
             imageInfo[i].imageView = textures[i].image_view;
             imageInfo[i].sampler = textures[i].sampler;
             imageInfo[i].imageLayout = textures[i].imageLayout == 0 ? VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL : textures[i].imageLayout;
-        }
-        else if(blueprint_descriptor->flags & TIGOR_BLUE_PRINT_FLAG_SINGLE_IMAGE){
-            imageInfo[i].imageView = textures[0].image_view;
-            imageInfo[i].sampler = textures[0].sampler;
-            imageInfo[i].imageLayout = textures[0].imageLayout == 0 ? VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL : textures[i].imageLayout;
         }
         else{
             imageInfo[i].imageView = textures[i].image_view;
@@ -295,23 +291,7 @@ void DescriptorCreate(ShaderDescriptor *descriptor, BluePrintDescriptor *descrip
                 //Дескриптор Изображений для шейдера
                 Texture2D *textures = (Texture2D *)blueprint_descriptor->textures;
 
-                //Если изображение еденичное и является массивом
-                if((blueprint_descriptor->flags & TIGOR_BLUE_PRINT_FLAG_SINGLE_IMAGE) && (blueprint_descriptor->flags & TIGOR_BLUE_PRINT_FLAG_ARRAY_IMAGE))
-                {
-
-                    DescriptorSetImage(&descriptorWrites[blueprint_descriptor->binding], descriptor->descr_sets[i], blueprint_descriptor->count, blueprint_descriptor);
-
-                //Если изображение еденичное
-                }else if(blueprint_descriptor->flags & TIGOR_BLUE_PRINT_FLAG_SINGLE_IMAGE){
-
-                    DescriptorSetImage(&descriptorWrites[blueprint_descriptor->binding], descriptor->descr_sets[i], 1, blueprint_descriptor);
-
-                //Просто массив изображений
-                }else{
-
-                    DescriptorSetImage(&descriptorWrites[blueprint_descriptor->binding], descriptor->descr_sets[i], blueprint_descriptor->count, blueprint_descriptor);
-
-                }
+                DescriptorSetImage(&descriptorWrites[blueprint_descriptor->binding], descriptor->descr_sets[i], blueprint_descriptor->count, blueprint_descriptor);
 
             }
         }

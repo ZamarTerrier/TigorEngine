@@ -19,7 +19,7 @@ int main(){
 
     TEngineInitSystem(800, 600, "Test");
 
-    TEngineSetFont("res\\RobotoBlack.ttf");
+    //TEngineSetFont("res\\RobotoBlack.ttf");
 
     printf("Size uniform is %i\n", sizeof(InvMatrixsBuffer));
 
@@ -32,7 +32,7 @@ int main(){
     dParam.diffuse = "res\\secretary_tex.png";
 
     //Load3DglTFModel(&model, "res\\", "Little_Tokyo", 2, &dParam);
-    Load3DFBXModel(&model, "res\\Dismissing Gesture.fbx", &dParam);
+    Load3DFBXModel(&model, "res\\Taunt.fbx", &dParam);
 
     Transform3DSetScaleT(&model.transform, 0.1, 0.1, -0.1);
 
@@ -50,7 +50,7 @@ int main(){
 
         TEngineRender();
 
-        ModelNextFrame(&model, 0.02, 1);
+        ModelNextFrame(&model, 0.02, 0);
     }
         
 

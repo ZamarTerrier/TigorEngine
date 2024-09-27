@@ -553,6 +553,9 @@ uint32_t ShaderBuilderAddArray(uint32_t count, ShaderStructConstr *str, uint32_t
             case SHADER_VARIABLE_TYPE_MATRIX:
                 type_indx = ShaderBuilderAddMatrix(str[0].size, NULL);
                 break;
+            case SHADER_VARIABLE_TYPE_IMAGE:
+                type_indx = ShaderBuilderAddImage();
+                break;
         }
     }
     
@@ -748,6 +751,21 @@ uint32_t ShaderBuilderAddPointer(ShaderVariableType point_type, uint32_t size, S
 
     uint32_t type_indx = ShaderBuilderGetType(point_type, size, NULL);
 
+    if(type_indx == 0)
+        return 0;
+
+    uint32_t res = ShaderBuilderCheckPointer(type_indx, flags);
+
+    if(!res){
+        uint32_t arr[] = { type_indx };
+        res = ShaderBuilderAddVariable(SHADER_VARIABLE_TYPE_POINTER, flags, arr, 1, NULL, 0);
+    }
+
+    return res;
+}
+
+uint32_t ShaderBuilderAddPointerF(uint32_t type_indx, ShaderDataFlags flags){
+
     uint32_t res = ShaderBuilderCheckPointer(type_indx, flags);
 
     if(!res){
@@ -769,7 +787,7 @@ uint32_t ShaderBuilderAddIOData(ShaderVariableType type, ShaderDataFlags flags, 
             res = ShaderBuilderAddFloat();
             break;
         case SHADER_VARIABLE_TYPE_INT:
-            res = ShaderBuilderAddInt(1);
+            res = ShaderBuilderAddInt(size);
             break;
         case SHADER_VARIABLE_TYPE_VECTOR:
             res = ShaderBuilderAddVector(size, NULL );
@@ -785,6 +803,9 @@ uint32_t ShaderBuilderAddIOData(ShaderVariableType type, ShaderDataFlags flags, 
             break;
         case SHADER_VARIABLE_TYPE_IMAGE:
             res = ShaderBuilderAddImage();
+            break;
+        case SHADER_VARIABLE_TYPE_ARRAY:
+            res = ShaderBuilderAddArray(size, struct_arr, 1, NULL);
             break;
     }
 
@@ -930,18 +951,31 @@ uint32_t ShaderBuilderAcceptAccess(uint32_t val_indx, ShaderVariableType var_typ
     InputOutputData *data = ShaderBuilderFindIOData(val_indx);
     
     if(data != NULL){
-        if(data->flags & SHADER_DATA_FLAG_UNIFORM)
+        ShaderVariable *var = ShaderBuilderFindVar(data->indx);
+
+        if(var->flags & SHADER_DATA_FLAG_UNIFORM)
             arr[0] = ShaderBuilderAddPointer(var_type, type_arg, SHADER_DATA_FLAG_UNIFORM);
-        else if(data->flags & SHADER_DATA_FLAG_SYSTEM){
+        else if(var->flags & SHADER_DATA_FLAG_SYSTEM){
             arr[0] = ShaderBuilderAddPointer(var_type, type_arg, SHADER_DATA_FLAG_OUTPUT);
+        }else if(var->flags & SHADER_DATA_FLAG_UNIFORM_CONSTANT){            
+            arr[0] = ShaderBuilderAddPointer(var_type, type_arg, SHADER_DATA_FLAG_UNIFORM_CONSTANT);
+
+            if(arr[0] == 0)
+                arr[0] = ShaderBuilderAddPointerF(type_arg, SHADER_DATA_FLAG_UNIFORM_CONSTANT);
         }else{        
             arr[0] = ShaderBuilderAddPointer(var_type, type_arg, 0);
+
+            if(arr[0] == 0)
+                arr[0] = ShaderBuilderAddPointerF(type_arg, 0);
         }
     }else{
         arr[0] = ShaderBuilderGetType(var_type, type_arg, NULL);
     }
 
-    uint32_t load_type = ShaderBuilderGetType(var_type, type_arg, NULL);;
+    uint32_t load_type = ShaderBuilderGetType(var_type, type_arg, NULL);
+
+    if(load_type == 0)
+        load_type = type_arg;
     
     arr[1] = val_indx;
 
@@ -1010,6 +1044,11 @@ uint32_t ShaderBuilderAcceptLoad(uint32_t val_indx, uint32_t struct_indx){
             res = ShaderBuilderAddOperand(arr2, 2, SHADER_OPERAND_TYPE_LOAD);
 
 
+        }else if(var->type == SHADER_VARIABLE_TYPE_ARRAY){
+            ShaderVariable *arg = ShaderBuilderFindVar(var->args[0]);
+
+            res  = ShaderBuilderAcceptAccess(val_indx, arg->type, arg->indx, (uint32_t []){ struct_indx }, 1, true);
+            
         }else{
             uint32_t arr[] = {data->orig_indx, val_indx};
             res = ShaderBuilderAddOperand(arr, 2, SHADER_OPERAND_TYPE_LOAD);
@@ -1089,9 +1128,9 @@ uint32_t ShaderBuilderAddFuncMove(uint32_t src_indx, uint32_t src_size, uint32_t
     return res;
 }
 
-uint32_t ShaderBuilderGetTexture(uint32_t texture_indx, uint32_t uv_indx){
+uint32_t ShaderBuilderGetTexture(uint32_t texture_indx, uint32_t uv_indx, uint32_t elem_num){
 
-    uint32_t res = ShaderBuilderAcceptLoad(texture_indx, 0);
+    uint32_t res = ShaderBuilderAcceptLoad(texture_indx, elem_num);
     
     uint32_t res2 = ShaderBuilderAcceptLoad(uv_indx, 0);
 
@@ -2101,7 +2140,15 @@ void ShaderBuilderMake(){
                 ShaderBuilderAddValue(curr_builder->ioData[i].indx );
                 ShaderBuilderAddValue(SpvDecorationDescriptorSet );
                 ShaderBuilderAddValue(curr_builder->ioData[i].descr_set);   
-            }else{         
+            }else{     
+                ShaderVariable *v = ShaderBuilderFindVar(curr_builder->ioData[i].orig_indx);    
+
+                if(curr_builder->type == SHADER_TYPE_FRAGMENT && (v->type == SHADER_VARIABLE_TYPE_INT || v->type == SHADER_VARIABLE_TYPE_FLOAT)){
+                    ShaderBuilderAddOp(SpvOpDecorate, 3);
+                    ShaderBuilderAddValue(curr_builder->ioData[i].indx );
+                    ShaderBuilderAddValue(SpvDecorationFlat);
+                }
+
                 ShaderBuilderAddOp(SpvOpDecorate, 4);
                 ShaderBuilderAddValue(curr_builder->ioData[i].indx );
                 ShaderBuilderAddValue(SpvDecorationLocation );
@@ -2720,19 +2767,20 @@ void ShaderBuilderMakeUniformsFromShader(ShaderBuilder *builder, uint32_t *code,
                     ShaderVariable *var_point = ShaderBuilderFindVar(currVar->args[0]);
 
                     ShaderVariable *var_orig = ShaderBuilderFindVar(var_point->args[0]);
-                    
-                    if(var_orig->type == SHADER_VARIABLE_TYPE_SAMPLED_IMAGE){
 
+                    if(var_orig->type == SHADER_VARIABLE_TYPE_ARRAY || var_orig->type == SHADER_VARIABLE_TYPE_SAMPLED_IMAGE){
+                        
+                        ShaderVariable *var_arr = ShaderBuilderFindVar(var_orig->args[0]);
                         
                         uint32_t binding = 0;
                         for(int i=0;i < curr_builder->num_decorations;i++){
                             if(curr_builder->decors[i].type == SpvDecorationBinding && curr_builder->decors[i].indx == currVar->indx)
                                 binding = curr_builder->decors[i].val;
                         }
-                    
+                        
                         BluePrintAddTextureC(blueprints, indx_pack, curr_builder->type == SHADER_TYPE_VERTEX ? VK_SHADER_STAGE_VERTEX_BIT : VK_SHADER_STAGE_FRAGMENT_BIT, binding);
 
-                        printf("Shader builder : Image added to blueprint\n", size_buffer);
+                        printf("Shader builder : Image added to blueprint\n");
                     }
                 }
             }

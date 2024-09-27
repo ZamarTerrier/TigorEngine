@@ -247,7 +247,7 @@ Texture2D *TextureFindTexture(char *path)
     return NULL;
 }
 
-int TextureImageCreate(GameObjectImage *image, struct BluePrintDescriptor_T *descriptor, bool from_file) {
+int TextureImageCreate(GameObjectImage *image, uint32_t indx, struct BluePrintDescriptor_T *descriptor, bool from_file) {
 
     TDevice *device = (TDevice *)engine.device;
 
@@ -259,7 +259,7 @@ int TextureImageCreate(GameObjectImage *image, struct BluePrintDescriptor_T *des
 
     if(image == NULL)
     {
-        descr->textures = &images[0].texture;
+        descr->textures[indx] = images[0].texture;
         descr->flags |= TIGOR_BLUE_PRINT_FLAG_LINKED_TEXTURE;
         return 0;
     }
@@ -267,11 +267,11 @@ int TextureImageCreate(GameObjectImage *image, struct BluePrintDescriptor_T *des
     if(image->size == 0){
         if(image->path == NULL)
         {
-            descr->textures = &images[0].texture;
+            descr->textures[indx] = images[0].texture;
             descr->flags |= TIGOR_BLUE_PRINT_FLAG_LINKED_TEXTURE;
             return 0;
         } else if(!DirectIsFileExist(image->path)){
-            descr->textures = &images[0].texture;
+            descr->textures[indx] = images[0].texture;
             descr->flags |= TIGOR_BLUE_PRINT_FLAG_LINKED_TEXTURE;
             return 0;
         }
@@ -287,7 +287,7 @@ int TextureImageCreate(GameObjectImage *image, struct BluePrintDescriptor_T *des
 
     if(temp_tex != NULL)
     {
-        descr->textures = temp_tex;
+        descr->textures[indx] = *temp_tex;
         descr->flags |= TIGOR_BLUE_PRINT_FLAG_LINKED_TEXTURE;
         return 0;
     }
@@ -316,7 +316,7 @@ int TextureImageCreate(GameObjectImage *image, struct BluePrintDescriptor_T *des
     if (!fileData.data) {
         printf("failed to load texture image!");
 
-        descr->textures = &images[0].texture;
+        descr->textures[indx] = images[0].texture;
 
         return 0;
     }
@@ -599,7 +599,9 @@ void TextureCreate(struct BluePrintDescriptor_T *descriptor, uint32_t type, Game
 
     BluePrintDescriptor *descr = (BluePrintDescriptor *)descriptor;
 
-    int res = TextureImageCreate(image, descriptor, from_file);
+    descr->textures = AllocateMemory(1, sizeof(Texture2D));
+
+    int res = TextureImageCreate(image, 0, descriptor, from_file);
 
     if(res)
     {
@@ -612,21 +614,51 @@ void TextureCreate(struct BluePrintDescriptor_T *descriptor, uint32_t type, Game
         TextureCreateTextureImageView(texture, type);
         TextureCreateSampler(&texture->sampler, texture->textureType, texture->image_data.mip_levels);
 
-        descr->textures = texture;
+        descr->textures[0] = *texture;
 
         image->imgHeight = texture->image_data.texHeight;
         image->imgWidth = texture->image_data.texWidth;
 
         engine.DataR.e_var_num_images ++;
-    }else{
+    }
+}
 
-        return;
+void TextureCreateArray(struct BluePrintDescriptor_T *descriptor, uint32_t type, GameObjectImage *images, uint32_t size){
+    
+    BluePrintDescriptor *descr = (BluePrintDescriptor *)descriptor;
+
+    descr->textures = AllocateMemory(size, sizeof(Texture2D));
+
+    for(int i = 0; i < size;i++){
+
+        int res = TextureImageCreate(&images[i], i, descriptor, false);
+
+        if(res)
+        {
+            engine_buffered_image *b_images = engine.DataR.e_var_images;
+
+            Texture2D *texture = &b_images[engine.DataR.e_var_num_images].texture;
+
+            texture->flags = 0;
+
+            TextureCreateTextureImageView(texture, type);
+            TextureCreateSampler(&texture->sampler, texture->textureType, texture->image_data.mip_levels);
+
+            descr->textures[i] = *texture;
+
+            images[i].imgHeight = texture->image_data.texHeight;
+            images[i].imgWidth = texture->image_data.texWidth;
+
+            engine.DataR.e_var_num_images ++;
+        }
     }
 }
 
 void TextureCreateSpecific(struct BluePrintDescriptor_T *descriptor, uint32_t format, uint32_t width, uint32_t height)
 {
     BluePrintDescriptor *descr = (BluePrintDescriptor *)descriptor;
+
+    descr->textures = AllocateMemory(1, sizeof(Texture2D));
 
     Texture2D *texture = descr->textures;
 

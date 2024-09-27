@@ -16,8 +16,12 @@ typedef struct GameObject3D{
     GameObject self;
     GraphicsObject graphObj;
     Transform3D transform;
-    GameObjectImage *images;
-    uint32_t num_images;
+    GameObjectImage *diffuses;
+    uint32_t num_diffuses;
+    GameObjectImage *normals;
+    uint32_t num_normals;
+    GameObjectImage *speculars;
+    uint32_t num_speculars;
     VertexInstance3D instances[MAX_INSTANCES];
     BufferObject buffer;
     uint32_t num_instances;
@@ -44,6 +48,7 @@ void GameObject3DAddDescriptorTexture(GameObject3D* go, uint32_t shader_indx, ui
 void GameObject3DSetDescriptorUpdate(GameObject3D* go, uint32_t shader_indx, uint32_t bind_index, UpdateDescriptor Updater);
 void GameObject3DSetDescriptorTexture(GameObject3D* go, uint32_t shader_indx, uint32_t bind_index, Texture2D *texture);
 void GameObject3DSetDescriptorTextureCreate(GameObject3D* go, uint32_t shader_indx, uint32_t bind_index, GameObjectImage *image);
+void GameObject3DSetDescriptorTextureArrayCreate(GameObject3D* go, uint32_t shader_indx, uint32_t bind_index, GameObjectImage *image, uint32_t size);
 
 void GameObject3DSetShader(GameObject3D *go, char *vert_path, char *frag_path);
 void GameObject3DSetShaderSimple(GameObject3D *go, char *vert_path, char *frag_path);

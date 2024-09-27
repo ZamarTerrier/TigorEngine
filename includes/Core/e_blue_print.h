@@ -9,16 +9,13 @@
 
 typedef enum{
     TIGOR_BLUE_PRINT_FLAG_SINGLE_IMAGE = 0x1,
-    TIGOR_BLUE_PRINT_FLAG_ARRAY_IMAGE = 0x2,
-    TIGOR_BLUE_PRINT_FLAG_LINKED_UNIFORM = 0x4,
-    TIGOR_BLUE_PRINT_FLAG_LINKED_TEXTURE = 0x8,
+    TIGOR_BLUE_PRINT_FLAG_LINKED_UNIFORM = 0x2,
+    TIGOR_BLUE_PRINT_FLAG_LINKED_TEXTURE = 0x4,
 } EngineBluePrintFlag;
 
 typedef struct{
     void *update;
     Texture2D *textures;
-    uint32_t num_textures;
-    uint32_t max_textures;
     BufferContainer uniform;
     uint32_t descrType;
     uint32_t desr_set_indx;
@@ -79,7 +76,7 @@ void BluePrintAddRenderImageCube(Blueprints *blueprints, uint32_t indx_pack, uin
 void BluePrintAddRenderImageVector(Blueprints *blueprints, uint32_t indx_pack, void *obj, uint32_t size);
 void BluePrintAddRenderImageArray(Blueprints *blueprints, uint32_t indx_pack, void *obj, uint32_t size);
 void BluePrintAddRenderImage(Blueprints *blueprints, uint32_t indx_pack, void *render);
-void BluePrintAddTextureImageArray(Blueprints *blueprints, uint32_t indx_pack, GameObjectImage *images, uint32_t size);
+void BluePrintAddTextureImageArrayCreate(Blueprints *blueprints, uint32_t indx_pack, GameObjectImage *images, uint32_t size, uint32_t bind_indx);
 
 BluePrintDescriptor *BluePrintAddTextureImage(Blueprints *blueprints, uint32_t indx_pack, GameObjectImage *image, uint32_t stage_bit);
 

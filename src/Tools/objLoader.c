@@ -1,8 +1,15 @@
 #include "Tools/objLoader.h"
 #include "Tools/e_math.h"
+#include "Tools/e_shaders.h"
+
+#include "Core/e_camera.h"
+
+#include "Objects/render_texture.h"
 
 #define TINYOBJ_LOADER_C_IMPLEMENTATION
 #include "tinyobj_loader.h"
+
+extern TEngine engine;
 
 typedef struct{
     tinyobj_attrib_t attrib;
@@ -241,6 +248,63 @@ static void get_file_data(void* ctx, const char* filename, const int is_mtl, con
   (*len) = data_len;
 }
 
+void ModelObjUpdate(ModelObject3D* mo, uint32_t indx_node, void *data){
+
+    Camera3D* cam = (Camera3D*) engine.cam3D;
+
+    RenderTexture *render = engine.current_render;
+
+    ModelBuffer3D mbo = {};
+    vec3 cameraUp = {0.0f,1.0f, 0.0f};
+    
+
+    mbo.model = m4_transform(mo->transform.position, mo->transform.scale, mo->transform.rotation);
+    mbo.view = m4_look_at(cam->position, v3_add(cam->position, cam->rotation), cameraUp);
+    mbo.proj = m4_perspective(render->width, render->height, cam->view_angle, cam->view_near, cam->view_distance);
+    mbo.proj.m[1][1] *= -1;
+
+    memcpy(data, (char *)&mbo, sizeof(mbo));
+}
+
+void ModelObjSetDefaultShader(GameObject3D *go)
+{    
+    if(go->self.flags & TIGOR_GAME_OBJECT_FLAG_SHADED)
+        return;
+
+    uint32_t num_pack = BluePrintInit(&go->graphObj.blueprints);
+    
+    ShaderBuilder *vert = go->self.vert;
+    ShaderBuilder *frag = go->self.frag;
+
+    ShadersMakeDefault3DShader(vert, frag, go->num_diffuses > 0);
+
+    ShaderObject vert_shader, frag_shader;
+    memset(&vert_shader, 0, sizeof(ShaderObject));
+    memset(&frag_shader, 0, sizeof(ShaderObject));
+
+    vert_shader.code = (char *)vert->code;
+    vert_shader.size = vert->size * sizeof(uint32_t);
+    
+    frag_shader.code = (char *)frag->code;
+    frag_shader.size = frag->size * sizeof(uint32_t);
+
+    GraphicsObjectSetShaderWithUniform(&go->graphObj, &vert_shader, num_pack);
+    GraphicsObjectSetShaderWithUniform(&go->graphObj, &frag_shader, num_pack);
+    
+    GameObject3DSetDescriptorUpdate(go, num_pack, 0, (UpdateDescriptor)ModelObjUpdate);
+
+    if(go->num_diffuses > 1)
+        GameObject3DSetDescriptorTextureArrayCreate(go, num_pack, 1, go->diffuses, go->num_diffuses);
+    else
+        GameObject3DSetDescriptorTextureCreate(go, num_pack, 1, go->num_diffuses > 0 ? go->diffuses : NULL);
+        
+    
+    uint32_t flags = BluePrintGetSettingsValue(&go->graphObj.blueprints, 0, 3);
+    BluePrintSetSettingsValue(&go->graphObj.blueprints, 0, 3, flags | TIGOR_PIPELINE_FLAG_FACE_CLOCKWISE);
+    
+    go->self.flags |= TIGOR_GAME_OBJECT_FLAG_SHADED;
+}
+
 void DestroyOBJModel(ModelObject3D *mo){
 
     OBJStruct *obj = mo->obj;
@@ -297,23 +361,27 @@ void Load3DObjModel(ModelObject3D * mo, char *filepath, DrawParam *dParam){
   
   GameObject3DInit(model, TIGOR_GAME_OBJECT_TYPE_3D);
   
-  GameObjectSetShaderInitFunc(model, ModelDefautShader);
-
+  GameObjectSetUpdateFunc((GameObject *)model, NULL);
+  
+  GameObjectSetShaderInitFunc(model, ModelObjSetDefaultShader);
 
   model->graphObj.gItems.perspective = true;
 
-  model->graphObj.shapes[0].vParam.vertices = (Vertex3D *) AllocateMemory(obj->attrib.num_face_num_verts * 3, sizeof(Vertex3D));
-  model->graphObj.shapes[0].iParam.indices = (uint32_t *) AllocateMemory(obj->attrib.num_face_num_verts * 3, sizeof(uint32_t));
+  Vertex3D *vertices = (Vertex3D *) AllocateMemory(obj->attrib.num_face_num_verts * 3, sizeof(Vertex3D));
+  uint32_t *indices = (uint32_t *) AllocateMemory(obj->attrib.num_face_num_verts * 3, sizeof(uint32_t));
 
-  ParseSomeStruct(mo, model->graphObj.shapes[0].vParam.vertices );
+  ParseSomeStruct(mo, vertices );
 
-  model->graphObj.shapes[0].vParam.num_verts = obj->attrib.num_face_num_verts * 3;
-  model->graphObj.shapes[0].iParam.indexesSize = obj->attrib.num_face_num_verts * 3;
+  uint32_t num_verts = obj->attrib.num_face_num_verts * 3;
+  uint32_t indexesSize = obj->attrib.num_face_num_verts * 3;
 
-  for(int i=0; i < model->graphObj.shapes[0].iParam.indexesSize;i++)
-      model->graphObj.shapes[0].iParam.indices[i] = i;
+  for(int i=0; i < indexesSize;i++)
+      indices[i] = i;
+  
+  GraphicsObjectSetVertex(&model->graphObj, vertices, num_verts, sizeof(Vertex3D), indices, indexesSize, sizeof(uint32_t));
 
-  GraphicsObjectSetVertex(&model->graphObj, model->graphObj.shapes[0].vParam.vertices, model->graphObj.shapes[0].vParam.num_verts, sizeof(Vertex3D), model->graphObj.shapes[0].iParam.indices, model->graphObj.shapes[0].iParam.indexesSize, sizeof(uint32_t));
+  FreeMemory(vertices);
+  FreeMemory(indices);
 
   GameObject3DInitTextures(model, dParam);
   

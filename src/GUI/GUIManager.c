@@ -481,20 +481,6 @@ void GUIManagerInitFont(){
     TextureCreateSampler(&texture->sampler, texture->textureType, 1);
 }
 
-void GUIManagerAddTexture(){
-    BluePrintPack *pack = &gui.go.graphObj.blueprints.blue_print_packs[0];
-
-    BluePrintDescriptor *descriptor = &pack->descriptors[1];
-
-    descriptor->descrType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-    descriptor->count = 1;
-    descriptor->stageflag = VK_SHADER_STAGE_FRAGMENT_BIT;
-    descriptor->image = NULL;
-    descriptor->flags = TIGOR_BLUE_PRINT_FLAG_SINGLE_IMAGE | TIGOR_BLUE_PRINT_FLAG_LINKED_TEXTURE;
-    descriptor->textures = gui.font.texture;
-
-}
-
 void GUIManagerInit(){
     
     for (int i = 0; i < GUI_ARRAYSIZE(ArcFastVtx); i++)

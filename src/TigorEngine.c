@@ -25,18 +25,18 @@ extern bool enableValidationLayers;
 
 void EngineCharacterCallback(wManagerWindow* window, uint32_t codepoint)
 {
-    EntryWidgetCharacterCallback(window, codepoint);
+    /*EntryWidgetCharacterCallback(window, codepoint);
 
     for(int i=0; i < engine.func.charCallbackSize;i++)
-        engine.func.charCallbacks[i](window, codepoint);
+        engine.func.charCallbacks[i](window, codepoint);*/
 }
 
 void EngineKeyCallback(wManagerWindow* window,  unsigned int key, unsigned int scancode, unsigned int action, unsigned int mods)
 {
-    EntryWidgetKeyCallback(window, key, scancode, action, mods);
+    /*EntryWidgetKeyCallback(window, key, scancode, action, mods);
 
     for(int i=0; i < engine.func.keyCallbackSize;i++)
-        engine.func.keyCallbacks[i](window, key, scancode, action, mods);
+        engine.func.keyCallbacks[i](window, key, scancode, action, mods);*/
 }
 
 

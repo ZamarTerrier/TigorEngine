@@ -35,7 +35,7 @@ Texture2D *TextureFindTexture(char *image);
 
 void TextureCreateImage(uint32_t width, uint32_t height, uint32_t mip_levels, uint32_t format, uint32_t tiling, uint32_t usage, uint32_t properties, uint32_t flags, Texture2D *texture);
 
-int TextureImageCreate(GameObjectImage *image, struct BluePrintDescriptor_T *descriptor, bool from_file);
+int TextureImageCreate(GameObjectImage *image, uint32_t indx, struct BluePrintDescriptor_T *descriptor, bool from_file);
 
 void TextureGenerateMipmaps(Texture2D *texture);
 
@@ -50,6 +50,7 @@ VkImageView TextureCreateImageView(VkImage image, uint32_t type, uint32_t format
 void TextureCreateSampler(void *sampler, uint32_t texture_type, uint32_t mip_levels);
 
 void TextureCreate( struct BluePrintDescriptor_T *descriptor, uint32_t type, GameObjectImage *image, bool from_file);
+void TextureCreateArray(struct BluePrintDescriptor_T *descriptor, uint32_t type, GameObjectImage *image, uint32_t size);
 void TextureCreateSpecific(struct BluePrintDescriptor_T *descriptor, uint32_t format, uint32_t width, uint32_t height);
 
 void TextureUpdate(struct BluePrintDescriptor_T *descriptor, void *in_data, uint32_t size_data, uint32_t offset);

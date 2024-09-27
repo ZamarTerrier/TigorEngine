@@ -218,14 +218,6 @@ void ModelPopulateVertex3D(GameObject3D *model)
 
 }
 
-void ModelDefautShader(GameObject3D *go){
-
-    GameObject3DInitDefaultShader(go);
-
-    uint32_t flags = BluePrintGetSettingsValue(&go->graphObj.blueprints, 0, 3);
-    BluePrintSetSettingsValue(&go->graphObj.blueprints, 0, 3, flags | TIGOR_PIPELINE_FLAG_FACE_CLOCKWISE);
-}
-
 void ModelDefaultInit(ModelObject3D *mo, GameObjectType type){
 
     for(int i=0; i < mo->num_draw_nodes;i++)

@@ -50,16 +50,25 @@ void read_mesh(engine_model_mesh *vBuffer, ufbx_mesh *mesh, FBXStruct *fbx)
     size_t max_parts = 0;
     size_t max_triangles = 0;
 
-    if(mesh->materials.count > 0){
-        if(mesh->materials.count > 0){
-            vBuffer->image = AllocateMemory(1, sizeof(GameObjectImage));
-                        
-            vBuffer->image->path = AllocateMemory(mesh->materials.data[0]->pbr.base_color.texture->name.length, sizeof(char));
-            memcpy(vBuffer->image->path, mesh->materials.data[0]->pbr.base_color.texture->name.data, sizeof(char) * mesh->materials.data[0]->pbr.base_color.texture->name.length);
 
-            vBuffer->image->buffer = AllocateMemory(mesh->materials.data[0]->pbr.base_color.texture->content.size, sizeof(char));
-            memcpy(vBuffer->image->buffer, mesh->materials.data[0]->pbr.base_color.texture->content.data, mesh->materials.data[0]->pbr.base_color.texture->content.size * sizeof(char));
-            vBuffer->image->size = mesh->materials.data[0]->pbr.base_color.texture->content.size;
+    if(mesh->materials.count > 0){
+        vBuffer->image = AllocateMemory(mesh->materials.count, sizeof(GameObjectImage));
+
+        for(int i=0; i < mesh->materials.count;i++){
+
+            if(mesh->materials.data[i]->pbr.base_color.texture == NULL)
+                continue;
+
+            GameObjectImage *image = &vBuffer->image[vBuffer->num_images];
+                            
+            image->path = AllocateMemory(mesh->materials.data[i]->pbr.base_color.texture->name.length, sizeof(char));
+            memcpy(image->path, mesh->materials.data[i]->pbr.base_color.texture->name.data, sizeof(char) * mesh->materials.data[i]->pbr.base_color.texture->name.length);
+
+            image->buffer = AllocateMemory(mesh->materials.data[i]->pbr.base_color.texture->content.size, sizeof(char));
+            memcpy(image->buffer, mesh->materials.data[i]->pbr.base_color.texture->content.data, mesh->materials.data[i]->pbr.base_color.texture->content.size * sizeof(char));
+            image->size = mesh->materials.data[i]->pbr.base_color.texture->content.size;
+
+            vBuffer->num_images++;
         }
     }
 
@@ -161,15 +170,24 @@ void read_mesh(engine_model_mesh *vBuffer, ufbx_mesh *mesh, FBXStruct *fbx)
 
     int num_indices = 0;
     
+    ufbx_vec2 default_uv = { 0, 0 };
+        
+    ufbx_vec4 def_color =  { (float)(rand() % 1000) / 1000, (float)(rand() % 1000) / 1000, (float)(rand() % 1000) / 1000, 1.0f };
+
+    uint32_t mat_indx = 0;
     for (size_t face_ix = 0; face_ix < mesh->num_faces; face_ix++) {
         ufbx_face face = mesh->faces.data[face_ix];
         size_t num_tris = ufbx_triangulate_face(tri_indices, num_tri_indices, mesh, face);
-
-        ufbx_vec2 default_uv = { 0, 0 };
+        
+		if (mesh->face_material.count > 0) {
+			//ufbx_material *mat = mesh->materials.data[mesh->face_material.data[face_ix]];
+			mat_indx = mesh->face_material.data[face_ix];//mat->element.typed_id;
+		}
 
         // Iterate through every vertex of every triangle in the triangulated result
         for (size_t tri_ix = 0; tri_ix < num_tris; tri_ix++) {
-            
+                
+
 			for (size_t corner_ix = 0; corner_ix < 3; corner_ix++) {
 
 				uint32_t ix = tri_indices[tri_ix*3 + corner_ix];
@@ -178,11 +196,14 @@ void read_mesh(engine_model_mesh *vBuffer, ufbx_mesh *mesh, FBXStruct *fbx)
 
                 ufbx_vec3 pos = ufbx_get_vertex_vec3(&mesh->vertex_position, ix);
                 ufbx_vec2 uv = mesh->vertex_uv.exists ? ufbx_get_vertex_vec2(&mesh->vertex_uv, ix) : default_uv;
+                ufbx_vec4 color = mesh->vertex_color.exists ? ufbx_get_vertex_vec4(&mesh->vertex_color, ix) : def_color;
                 ufbx_vec3 normal = ufbx_get_vertex_vec3(&mesh->vertex_normal, ix);
 
                 vert->position = vec3_f(pos.x, pos.y, pos.z);
                 vert->normal = vec3_f(normal.x, normal.y, normal.z);
-                vert->texCoord = vec2_f(uv.x - 0.5f, 1.0f - uv.y);
+                vert->texCoord = vec2_f(uv.x, 1.0f - uv.y);
+                vert->color = vec3_f(color.x, color.y, color.z);
+                vert->material_indx = mat_indx;
 
                 // The skinning vertex stream is pre-calculated above so we just need to
                 // copy the right one by the vertex index.
@@ -517,7 +538,7 @@ void ModelFBXSetDefaultShader(GameObject3D *go)
     ShaderBuilder *vert = go->self.vert;
     ShaderBuilder *frag = go->self.frag;
 
-    ShadersMakeDefault3DModelShader(vert, frag);
+    ShadersMakeDefault3DModelShader(vert, frag, go->num_diffuses);
 
     ShaderObject vert_shader, frag_shader;
     memset(&vert_shader, 0, sizeof(ShaderObject));
@@ -534,9 +555,21 @@ void ModelFBXSetDefaultShader(GameObject3D *go)
     
     GameObject3DSetDescriptorUpdate(go, num_pack, 0, (UpdateDescriptor)ModelFBXUpdate);
     GameObject3DSetDescriptorUpdate(go, num_pack, 1, (UpdateDescriptor)ModelFBXInvMatrixBuffer);
-    GameObject3DSetDescriptorTextureCreate(go, num_pack, 2, go->num_images > 0 ? &go->images[0] : NULL);
-    GameObject3DSetDescriptorTextureCreate(go, num_pack, 3, go->num_images > 0 ? &go->images[1] : NULL);
-    GameObject3DSetDescriptorTextureCreate(go, num_pack, 4, go->num_images > 0 ? &go->images[2] : NULL);
+
+    if(go->num_diffuses > 1)
+        GameObject3DSetDescriptorTextureArrayCreate(go, num_pack, 2, go->diffuses, go->num_diffuses);
+    else
+        GameObject3DSetDescriptorTextureCreate(go, num_pack, 2, go->num_diffuses > 0 ? go->diffuses : NULL);
+        
+    if(go->num_normals > 1)
+        GameObject3DSetDescriptorTextureArrayCreate(go, num_pack, 3, go->normals, go->num_normals);
+    else
+        GameObject3DSetDescriptorTextureCreate(go, num_pack, 3, go->num_normals > 0 ? go->normals : NULL);
+        
+    if(go->num_speculars > 1)
+        GameObject3DSetDescriptorTextureArrayCreate(go, num_pack, 4, go->speculars, go->num_speculars);
+    else
+        GameObject3DSetDescriptorTextureCreate(go, num_pack, 4, go->num_speculars > 0 ? go->speculars : NULL);
     
     /*uint32_t flags = BluePrintGetSettingsValue(&go->graphObj.blueprints, 0, 3);
     BluePrintSetSettingsValue(&go->graphObj.blueprints, 0, 3, flags | TIGOR_PIPELINE_FLAG_FACE_CLOCKWISE);*/
@@ -606,11 +639,13 @@ void Load3DFBXModel(ModelObject3D * mo, char *filepath, DrawParam *dParam)
 
             GraphicsObjectSetVertex(&mo->nodes[i].models->graphObj, mesh->verts, mesh->num_verts, sizeof(ModelVertex3D), mesh->indices, mesh->num_indices, sizeof(uint32_t));
             
-            if(mesh->image != NULL){   
-                mo->nodes[i].models->images = AllocateMemory(3, sizeof(GameObjectImage));
-                mo->nodes[i].models->images[0] = *mesh->image;
+            if(mesh->num_images > 0){   
+                mo->nodes[i].models->diffuses = AllocateMemory(mesh->num_images, sizeof(GameObjectImage));
 
-                mo->nodes[i].models->num_images = 1;
+                for(int j=0;j < mesh->num_images;j++)
+                    mo->nodes[i].models->diffuses[j] = mesh->image[j];
+
+                mo->nodes[i].models->num_diffuses = mesh->num_images;
             }else{
                 GameObject3DInitTextures(mo->nodes[i].models, dParam);
             }

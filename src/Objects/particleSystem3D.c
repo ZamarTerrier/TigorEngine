@@ -256,14 +256,14 @@ void Particle3DDestroy(ParticleObject3D* particle){
 
     GraphicsObjectDestroy(&particle->go.graphObj);
 
-    if(particle->go.images != NULL)
+    if(particle->go.diffuses != NULL)
     {
-        FreeMemory(particle->go.images->path);
+        FreeMemory(particle->go.diffuses->path);
 
-        if(particle->go.images->size > 0)
-            FreeMemory(particle->go.images->buffer);
+        if(particle->go.diffuses->size > 0)
+            FreeMemory(particle->go.diffuses->buffer);
 
-        FreeMemory(particle->go.images);
+        FreeMemory(particle->go.diffuses);
     }
 
     BuffersDestroyBuffer(&particle->go.graphObj.shapes[0].vParam.buffer);
@@ -295,7 +295,7 @@ void Particle3DInit(ParticleObject3D* particle, DrawParam *dParam){
     particle->go.graphObj.shapes[0].vParam.num_verts = 0;
     particle->go.graphObj.num_shapes ++;
 
-    particle->go.images = AllocateMemory(1, sizeof(GameObjectImage));
+    particle->go.diffuses = AllocateMemory(1, sizeof(GameObjectImage));
 
     char *currPath = DirectGetCurrectFilePath();
     int len = strlen(currPath);
@@ -312,9 +312,9 @@ void Particle3DInit(ParticleObject3D* particle, DrawParam *dParam){
             return;
         }
 
-        particle->go.images->path = full_path;
+        particle->go.diffuses->path = full_path;
         //go->image->buffer = ToolsLoadImageFromFile(&go->image->size, dParam.filePath);
-        particle->go.num_images ++;
+        particle->go.num_diffuses ++;
     }    
 
     FreeMemory(currPath);
@@ -347,7 +347,7 @@ void Particle3DSetDefaultShader(ParticleObject3D* particle)
     GraphicsObjectSetShaderWithUniform(&particle->go.graphObj, &frag_shader, num_pack);
 
     GameObject3DSetDescriptorUpdate((GameObject3D *)particle, num_pack, 0, (UpdateDescriptor)Particle3DDefaultUpdate);
-    GameObject3DSetDescriptorTextureCreate((GameObject3D *)particle, num_pack, 1, particle->go.images);
+    GameObject3DSetDescriptorTextureCreate((GameObject3D *)particle, num_pack, 1, particle->go.diffuses);
     
     uint32_t flags = BluePrintGetSettingsValue(&particle->go.graphObj.blueprints, num_pack, 3);
     BluePrintSetSettingsValue(&particle->go.graphObj.blueprints, num_pack, 1, VK_PRIMITIVE_TOPOLOGY_POINT_LIST);

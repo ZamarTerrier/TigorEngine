@@ -461,7 +461,7 @@ void SetupMeshState(glTFStruct *glTF, cgltf_data *model) {
                                 }
                                 break;
                             case cgltf_attribute_type_color:
-                                //g_mesh->verts[v].color = v3_point[v];
+                                g_mesh->verts[v].color = v3_point[v];
                                 break;
                             case cgltf_attribute_type_joints:
                                 g_mesh->verts[v].joints.x = v4_u8_point[v].x;
@@ -474,7 +474,7 @@ void SetupMeshState(glTFStruct *glTF, cgltf_data *model) {
                                 break;
                             default:
                                 break;
-                        }
+                        }                        
                     }
                 }
 
@@ -767,7 +767,7 @@ void ModelglTFSetDefaultShader(GameObject3D *go)
     ShaderBuilder *vert = go->self.vert;
     ShaderBuilder *frag = go->self.frag;
 
-    ShadersMakeDefault3DModelShader(vert, frag);
+    ShadersMakeDefault3DModelShader(vert, frag, go->num_diffuses > 0);
 
     ShaderObject vert_shader, frag_shader;
     memset(&vert_shader, 0, sizeof(ShaderObject));
@@ -784,9 +784,21 @@ void ModelglTFSetDefaultShader(GameObject3D *go)
     
     GameObject3DSetDescriptorUpdate(go, num_pack, 0, (UpdateDescriptor)ModelModelBufferUpdate);
     GameObject3DSetDescriptorUpdate(go, num_pack, 1, (UpdateDescriptor)ModelglTFnvMatrixBuffer);
-    GameObject3DSetDescriptorTextureCreate(go, num_pack, 2, go->num_images > 0 ? &go->images[0] : NULL);
-    GameObject3DSetDescriptorTextureCreate(go, num_pack, 3, go->num_images > 0 ? &go->images[1] : NULL);
-    GameObject3DSetDescriptorTextureCreate(go, num_pack, 4, go->num_images > 0 ? &go->images[2] : NULL);
+    
+    if(go->num_diffuses > 1)
+        GameObject3DSetDescriptorTextureArrayCreate(go, num_pack, 2, go->diffuses, go->num_diffuses);
+    else
+        GameObject3DSetDescriptorTextureCreate(go, num_pack, 2, go->num_diffuses > 0 ? go->diffuses : NULL);
+        
+    if(go->num_normals > 1)
+        GameObject3DSetDescriptorTextureArrayCreate(go, num_pack, 3, go->normals, go->num_normals);
+    else
+        GameObject3DSetDescriptorTextureCreate(go, num_pack, 3, go->num_normals > 0 ? go->normals : NULL);
+        
+    if(go->num_speculars > 1)
+        GameObject3DSetDescriptorTextureArrayCreate(go, num_pack, 4, go->speculars, go->num_speculars);
+    else
+        GameObject3DSetDescriptorTextureCreate(go, num_pack, 4, go->num_speculars > 0 ? go->speculars : NULL);
     
     /*uint32_t flags = BluePrintGetSettingsValue(&go->graphObj.blueprints, 0, 3);
     BluePrintSetSettingsValue(&go->graphObj.blueprints, 0, 3, flags | TIGOR_PIPELINE_FLAG_FACE_CLOCKWISE);*/
@@ -905,16 +917,24 @@ void Load3DglTFModel(void *model, char *path, char *name, uint8_t type, DrawPara
                         GameObject3DInit(model, TIGOR_GAME_OBJECT_TYPE_MODEL);
 
                         if(mesh->image || mesh->specular || mesh->normal){
-                            model->images = AllocateMemory(3, sizeof(GameObjectImage));
 
-                            if(mesh->image)
-                                model->images[0] = *mesh->image;
-                            if(mesh->specular)
-                                model->images[1] = *mesh->specular;
-                            if(mesh->normal)
-                                model->images[2] = *mesh->normal;
+                            if(mesh->image){
+                                model->diffuses = AllocateMemory(1, sizeof(GameObjectImage));
+                                model->diffuses[0] = *mesh->image;
+                                model->num_diffuses = 1;
+                            }
+
+                            if(mesh->specular){
+                                model->normals = AllocateMemory(1, sizeof(GameObjectImage));
+                                model->normals[0] = *mesh->specular;
+                                model->num_normals = 1;
+                            }
+                            if(mesh->normal){
+                                model->speculars = AllocateMemory(1, sizeof(GameObjectImage));
+                                model->speculars[0] = *mesh->normal;
+                                model->num_speculars = 1;
+                            }
                                 
-                            model->num_images = 3;
                         }else{
                             GameObject3DInitTextures(model, dParam);
                         }                          

@@ -1660,6 +1660,8 @@ int tinyobj_parse_obj(tinyobj_attrib_t *attrib, tinyobj_shape_t **shapes,
 
   (*materials_out) = materials;
   (*num_materials_out) = num_materials;
+  
+  FreeMemory(buf);
 
   return TINYOBJ_SUCCESS;
 }

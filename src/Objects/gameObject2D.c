@@ -247,7 +247,9 @@ void GameObject2DInitDefaultShader(GameObject2D *go){
 
     GameObject2DSetDescriptorUpdate((GameObject2D *)go, num_pack, 0, (UpdateDescriptor)GameObject2DTransformBufferUpdate);
     GameObject2DSetDescriptorUpdate((GameObject2D *)go, num_pack, 1, (UpdateDescriptor)GameObject2DImageBuffer);
-    GameObject2DSetDescriptorTextureCreate(go, num_pack, 2, go->image);
+
+    if(go->num_images > 0)
+        GameObject2DSetDescriptorTextureCreate(go, num_pack, 2, go->image);
 
     uint32_t flags = BluePrintGetSettingsValue(&go->graphObj.blueprints, num_pack, 3);
     BluePrintSetSettingsValue(&go->graphObj.blueprints, num_pack, 3, flags | TIGOR_PIPELINE_FLAG_FACE_CLOCKWISE);
