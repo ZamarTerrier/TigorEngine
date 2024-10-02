@@ -2,10 +2,6 @@
 
 #include <vulkan/vulkan.h>
 
-void *e_var_current_entry;
-
-char *rootDirPath;
-
 const char* validationLayers[] = {
     "VK_LAYER_KHRONOS_validation"
 };

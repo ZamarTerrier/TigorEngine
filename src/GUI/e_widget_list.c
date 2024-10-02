@@ -4,7 +4,7 @@
 
 int max_size = 2;
 
-int ListWidgetPressItem(EWidget *widget, void *entry, int id){
+int ListWidgetPressItem(EWidget *widget, void *entry, void *arg){
 
     EWidgetList *list = (EWidgetList *)widget->parent;
 
@@ -14,6 +14,7 @@ int ListWidgetPressItem(EWidget *widget, void *entry, int id){
 
     ChildStack *child = parent->child;
 
+    uint32_t indx = 0;
     while(child != NULL)
     {
         button = child->node;
@@ -23,11 +24,22 @@ int ListWidgetPressItem(EWidget *widget, void *entry, int id){
         child = child->next;
     }
 
+    child = parent->child;
+    
+    while(child != NULL)
+    {
+        if(child->node == widget)
+            break;
+
+        child = child->next;
+        indx++;
+    }
+
     button = (EWidgetButton *)widget;
 
     ButtonWidgetSetColor(button, parent->color.x + 0.6, parent->color.y, parent->color.z);
 
-    WidgetConfirmTrigger((EWidget *)list, TIGOR_WIDGET_TRIGGER_LIST_PRESS_ITEM, (void *)id);
+    WidgetConfirmTrigger((EWidget *)list, TIGOR_WIDGET_TRIGGER_LIST_PRESS_ITEM, (void *)indx);
 
     return -1;
 }
@@ -92,7 +104,7 @@ EWidgetButton *ListWidgetAddItem(EWidgetList *list, const char *text){
 
     ButtonWidgetSetColor(item, list->widget.color.x, list->widget.color.y, list->widget.color.z);
 
-    WidgetConnect((EWidget *)item, TIGOR_WIDGET_TRIGGER_BUTTON_PRESS, (widget_callback)ListWidgetPressItem, (void *)list->size);
+    WidgetConnect((EWidget *)item, TIGOR_WIDGET_TRIGGER_BUTTON_PRESS, (widget_callback)ListWidgetPressItem, NULL);
 
     list->size ++;
     return item;
@@ -103,66 +115,63 @@ void ListWidgetRemoveItem(EWidgetList *list, int num){
     if(num + 1 > list->size)
         return;
 
-    ChildStack *child = list->widget.child;
+    ChildStack *child = list->widget.child, *before = NULL;
 
     if(child == NULL)
         return;
 
-    /*if(child->next != NULL && child->before != NULL)
-    {
-        ChildStack *next = child->next;
-        ChildStack *before = child->before;
+    uint32_t counter = 0;
+    while(child != NULL){
 
-        WidgetDestroy(child->node);
-        child->node = NULL;
+        if(counter == num)
+            break;
 
-        FreeMemory(child);
-        next->before = before;
-        before->next = next;
+        before = child;
+        child = child->next;
 
-    }else if(child->next != NULL){
-        WidgetDestroy(child->node);
-        child->node = NULL;
+        counter++;
+    }
 
-        child->next->before = NULL;
-        list->widget.child = child->next;
-        FreeMemory(child);
+    if(child == NULL)
+        return;
 
-    }else if(child->before != NULL){
-        WidgetDestroy(child->node);
-        child->node = NULL;
-
-        child->before->next = NULL;
-        list->widget.last = child->before;
-
-        FreeMemory(child);
-
-    }else{
-        if(list->widget.child->node != NULL)
-        {
-            WidgetDestroy(list->widget.child->node);
-            list->widget.child->node = NULL;
+    if(child->next != NULL){
+        if(before != NULL){
+            child->next->before = before;
+            before->next = child->next;
         }
-
-        if(list->widget.child != NULL)
-        {
-            FreeMemory(list->widget.child);
-            list->widget.last = NULL;
-            list->widget.child = NULL;
+        else{
+            child->next->before = NULL;
+            list->widget.child = child->next;
+        }
+    }else{
+        if(before != NULL){
+            before->next = NULL;
         }
     }
-*/
-    /*list->size--;
 
-    Transform2DSetScale(&list->widget, list->size_x, list->size_y * list->size);
+    GameObjectDestroy(child->node);
+    child->node = NULL;
+    FreeMemory(child);
+    child = NULL;
 
-    for(int i=0;i < list->size;i++)
-    {
-        child = WidgetFindChild(&list->widget, i);
+    list->size --;
 
-        EWidget* widget = child->node;
-        widget->callbacks.stack[2].args = i;
-        Transform2DSetPosition(child->node, 0, i * (list->size_y * 2));
-        Transform2DSetScale(child->node, list->size_x, list->size_y);
-    }*/
+}
+
+void ListWidgetClear(EWidgetList *list){
+    ChildStack *child = list->widget.child, *next;
+
+    while(child != NULL){
+        next = child->next;
+        
+        if(child->node != NULL)
+            GameObjectDestroy(child->node);
+
+        child->node = NULL;
+        FreeMemory(child);
+        child = next;
+    }
+
+    list->widget.child = NULL;
 }

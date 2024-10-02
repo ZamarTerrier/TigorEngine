@@ -1,6 +1,4 @@
 #include "GUI/e_widget.h"
-#include "GUI/e_widget_entry.h"
-
 #include <vulkan/vulkan.h>
 
 #include "wManager/window_manager.h"
@@ -53,6 +51,58 @@ void WidgetAcceptStack(EWidget* ew){
 
         gui.last_widget = child;
     }
+}
+
+void WidgetRemoveStack(EWidget* ew){
+
+    ChildStack *child = gui.first_widget;
+    ChildStack *before = NULL;
+
+    while(child != NULL){
+
+        if(child->node != NULL)
+            if(child->node == ew)
+                break;
+        
+        before = child;
+        child = child->next;
+    }
+
+    if(child == NULL)
+        return;
+
+    if(child->next != NULL){
+        if(before != NULL){
+            child->next->before = before;
+            before->next = child->next;
+
+            if(child->next->node == NULL)
+                gui.last_widget = before;
+
+        }
+        else{
+            child->next->before = NULL;
+            gui.first_widget = child->next;
+        }
+    }else{
+        if(before != NULL){
+            before->next = NULL;
+            gui.last_widget = before;
+        }
+    }
+
+    if(child->next != NULL && before != NULL){
+
+    }
+
+    if((ew->widget_flags & TIGOR_FLAG_WIDGET_ALLOCATED))
+        FreeMemory(ew);
+
+    if(before == NULL && child->next != NULL){
+        gui.first_widget = child->next;
+    }
+    child->node = NULL;
+    FreeMemory(child);
 }
 
 void WidgetSetParent(EWidget* ew, EWidget* parent){
@@ -319,8 +369,8 @@ void WidgetEventsPipe(ChildStack *child)
 
         if(e_var_leftMouse && e_var_wasReleased)
         {
-            if(e_var_current_entry != e_var_sellected)
-                e_var_current_entry = NULL;
+            if(engine.e_var_current_entry != e_var_sellected)
+                engine.e_var_current_entry = NULL;
 
             WidgetConfirmTrigger(e_var_sellected, TIGOR_WIDGET_TRIGGER_MOUSE_PRESS, NULL);
             e_var_wasReleased = false;
@@ -368,21 +418,23 @@ void WidgetDestroy(EWidget *widget){
         return;
 
     ChildStack *child = widget->child;
-    ChildStack *lastChild;
+    ChildStack *next;
 
     while(child != NULL)
     {      
-        GameObjectDestroy(child->node);
-        lastChild = child;
-        child = child->next;
-        FreeMemory(lastChild);
+        next = child->next;
+
+        if(child->node != NULL)
+            GameObjectDestroy(child->node);   
+            
+        FreeMemory(child);          
+
+        child = next;
     }
 
     FreeMemory(widget->callbacks.stack);
 
     widget->go.flags &= ~(TIGOR_GAME_OBJECT_FLAG_INIT);
 
-    if((widget->widget_flags & TIGOR_FLAG_WIDGET_ALLOCATED))
-        FreeMemory(widget);
-
+    WidgetRemoveStack(widget);  
 }

@@ -503,7 +503,7 @@ void GUIManagerInit(){
 
     memcpy(gui.go.name, "GUI", 3);
 
-    gui.first_widget = calloc(1, sizeof(ChildStack));
+    gui.first_widget = AllocateMemory(1, sizeof(ChildStack));
 
     gui.font.fontWidth = 512;
     gui.font.fontHeight = 512;
@@ -1178,14 +1178,14 @@ int GUIManagerIsInit(){
     return gui.go.self.flags & TIGOR_GAME_OBJECT_FLAG_INIT;
 }
 
-void GUIManagerDraw(){
-
-    if(GUIManagerObjCount() == 0)
-        return;
+void GUIManagerUpdate(){
 
     WidgetEventsPipe(gui.last_widget);
 
     GameObject2DDefaultUpdate((GameObject2D *)&gui);
+}
+
+void GUIManagerDraw(){
     
     ChildStack *child = gui.first_widget;  
 
@@ -1202,6 +1202,10 @@ void GUIManagerDraw(){
 
         child = child->next;
     }
+
+    if(GUIManagerObjCount() == 0)
+        return;
+    
     
     TDevice *device = (TDevice *)engine.device;
     
@@ -1272,17 +1276,18 @@ void GUIManagerDestroy(){
     GUIManagerClear();   
 
     ChildStack *child = gui.first_widget;
-    ChildStack *last = NULL;
+    ChildStack *last = NULL, *next;
 
-    while(child != NULL){
+    while(child != NULL){  
 
-        GameObjectDestroy(child->node);
-        
-        last = child;
-        child = child->next;
-
-        free(last);
-
+        if(child->node != NULL)
+            GameObjectDestroy(child->node);
+        else{
+            FreeMemory(child);
+            break;
+        }
+  
+        child = gui.first_widget;
     }
 
     BuffersDestroyBuffer(&gui.vertBuffer);

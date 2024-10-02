@@ -24,7 +24,7 @@ void ListWidgetInit(EWidgetList *list, vec2 scale, EWidget *parent);
 void ListWidgetSetColor(EWidgetList *list, vec3 color);
 EWidgetButton *ListWidgetAddItem(EWidgetList *list, const char *text);
 void ListWidgetRemoveItem(EWidgetList *list, int num);
-
+void ListWidgetClear(EWidgetList *list);
 #ifdef __cplusplus
 }
 #endif

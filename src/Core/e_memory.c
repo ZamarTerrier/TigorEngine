@@ -178,7 +178,10 @@ void ClearAllAllocatedMemory(){
             obj = child->node;
             free(obj->ptr);
             if(obj->name != NULL){
+                #ifndef NDEBUG
                 printf("Object not free with name : %s\n", obj->name);
+                #endif   
+
                 free(obj->name);
             }
             free(child->node);

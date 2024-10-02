@@ -100,6 +100,8 @@ void GUIManagerInit();
 /// @brief Функция проверки инициализации отрисовщика интерфейса
 /// @return 0 - не инициализирован 1 - инициалиазирован
 int GUIManagerIsInit();
+/// @brief Функция обновления данных виджетов
+void GUIManagerUpdate();
 /// @brief Функция отрисовки объекта интерфейса
 void GUIManagerDraw();
 /// @brief Функция очистки объекта интерфейса

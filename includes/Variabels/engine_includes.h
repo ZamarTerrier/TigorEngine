@@ -23,17 +23,15 @@
 
 #define TIGOR_DEFINE_NON_DISPATCHABLE_HANDLE(object) typedef struct object##_T *object;
 
-#define MAX_FONTS 16
-#define MAX_IMAGES 16
-#define MAX_PIPELINES 16
-#define MAX_UNIFORMS 16
-#define MAX_BLUE_PRINTS 16
+#define MAX_FONTS 256
+#define MAX_IMAGES 256
+#define MAX_PIPELINES 256
+#define MAX_UNIFORMS 256
+#define MAX_BLUE_PRINTS 256
 
 #define MAX_DRAW_OBJECTS 256
 
-#define MAX_GUI_CALLBACKS 16
-
-#define NODE_COUNT 16
+#define MAX_GUI_CALLBACKS 64
 
 #ifdef __cplusplus
 extern "C"

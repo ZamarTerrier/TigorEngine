@@ -81,7 +81,7 @@ int TEngineWindowIsClosed();
 double TEngineGetTime();
 /// @brief Получение строки сохраненной в буфере окна
 /// @return Возвращает указатель на строку
-const char *TEngineGetClipBoard();
+const char *TEngineGetClipBoardString();
 /// @brief Установка набора символов в буфере окна
 /// @param string - Строка содежащая символы
 void TEngineSetClipBoardString(const char *string);

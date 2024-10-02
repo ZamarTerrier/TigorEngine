@@ -3,10 +3,6 @@
 
 #include "Variabels/engine_includes.h"
 
-extern void *e_var_current_entry;
-
-extern char *rootDirPath;
-
 extern const char* validationLayers[];
 extern uint32_t num_valid_layers;
 

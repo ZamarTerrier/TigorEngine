@@ -40,15 +40,13 @@ target_sources(${PROJECT_NAME} PRIVATE
 				src/GUI/GUIManager.c
 				src/GUI/e_widget.c
 				src/GUI/e_widget_button.c
-				src/GUI/e_widget_combobox.c
 				src/GUI/e_widget_entry.c
-				src/GUI/e_widget_entry_area.c
+				src/GUI/e_widget_combobox.c
 				src/GUI/e_widget_image.c
 				src/GUI/e_widget_list.c
 				src/GUI/e_widget_range.c
 				src/GUI/e_widget_roller.c
 				src/GUI/e_widget_scroll.c
-				src/GUI/e_widget_top_menu.c
 				src/GUI/e_widget_window.c
 				src/Objects/e_audioObject.c
 				src/Objects/gameObject.c
@@ -94,42 +92,42 @@ target_link_libraries(${PROJECT_NAME} Vulkan::Vulkan)
 
 enable_testing()
 add_executable(TestMemory tests/memory_test.c)
-target_link_libraries(TestMemory ${CMAKE_CURRENT_SOURCE_DIR}/Debug/libTigorEngine.a Vulkan::Vulkan)
+target_link_libraries(TestMemory ${CMAKE_CURRENT_SOURCE_DIR}/${CMAKE_BUILD_TYPE}/libTigorEngine.a Vulkan::Vulkan)
 add_test(NAME Test1
 		COMMAND TestMemory)
 		
 add_executable(TestCreate tests/create_object_test.c)
-target_link_libraries(TestCreate ${CMAKE_CURRENT_SOURCE_DIR}/Debug/libTigorEngine.a Vulkan::Vulkan)
+target_link_libraries(TestCreate ${CMAKE_CURRENT_SOURCE_DIR}/${CMAKE_BUILD_TYPE}/libTigorEngine.a Vulkan::Vulkan)
 add_test(NAME Test2
 		COMMAND TestCreate)
 		
 add_executable(TestShaderBuilder tests/shader_builder_test.c)
-target_link_libraries(TestShaderBuilder ${CMAKE_CURRENT_SOURCE_DIR}/Debug/libTigorEngine.a Vulkan::Vulkan)
+target_link_libraries(TestShaderBuilder ${CMAKE_CURRENT_SOURCE_DIR}/${CMAKE_BUILD_TYPE}/libTigorEngine.a Vulkan::Vulkan)
 add_test(NAME Test3
 		COMMAND TestShaderBuilder)
 		
 add_executable(TestRender tests/render_objets_test.c)
-target_link_libraries(TestRender ${CMAKE_CURRENT_SOURCE_DIR}/Debug/libTigorEngine.a Vulkan::Vulkan)
+target_link_libraries(TestRender ${CMAKE_CURRENT_SOURCE_DIR}/${CMAKE_BUILD_TYPE}/libTigorEngine.a Vulkan::Vulkan)
 add_test(NAME Test4
 		COMMAND TestRender)
 		
 add_executable(TestGUI tests/test_gui.c)
-target_link_libraries(TestGUI ${CMAKE_CURRENT_SOURCE_DIR}/Debug/libTigorEngine.a Vulkan::Vulkan)
+target_link_libraries(TestGUI ${CMAKE_CURRENT_SOURCE_DIR}/${CMAKE_BUILD_TYPE}/libTigorEngine.a Vulkan::Vulkan)
 add_test(NAME Test5
 		COMMAND TestGUI)
 		
 add_executable(TestPath tests/file_path_test.c)
-target_link_libraries(TestPath ${CMAKE_CURRENT_SOURCE_DIR}/Debug/libTigorEngine.a Vulkan::Vulkan)
+target_link_libraries(TestPath ${CMAKE_CURRENT_SOURCE_DIR}/${CMAKE_BUILD_TYPE}/libTigorEngine.a Vulkan::Vulkan)
 add_test(NAME Test6
 		COMMAND TestPath)
 
 add_executable(TestParticle tests/test_particles.c)
-target_link_libraries(TestParticle ${CMAKE_CURRENT_SOURCE_DIR}/Debug/libTigorEngine.a Vulkan::Vulkan)
+target_link_libraries(TestParticle ${CMAKE_CURRENT_SOURCE_DIR}/${CMAKE_BUILD_TYPE}/libTigorEngine.a Vulkan::Vulkan)
 add_test(NAME Test7
 		COMMAND TestParticle)
 		
 add_executable(TestModel tests/test_model.c)
-target_link_libraries(TestModel ${CMAKE_CURRENT_SOURCE_DIR}/Debug/libTigorEngine.a Vulkan::Vulkan)
+target_link_libraries(TestModel ${CMAKE_CURRENT_SOURCE_DIR}/${CMAKE_BUILD_TYPE}/libTigorEngine.a Vulkan::Vulkan)
 add_test(NAME Test8
 		COMMAND TestModel)
 		

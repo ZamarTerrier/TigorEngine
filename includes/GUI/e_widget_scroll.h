@@ -16,7 +16,7 @@ typedef struct{
     uint32_t scroll_size;
 } EWidgetScroll;
 
-void ScrollWidgetInit(EWidgetScroll *scroll, uint32_t width, uint32_t height, DrawParam *dParam, EWidget *parent);
+void ScrollWidgetInit(EWidgetScroll *scroll, uint32_t width, uint32_t height, EWidget *parent);
 void ScrollWidgetSetScrollSize(EWidgetScroll *scroll, float percent);
 void ScrollWidgetUpdate(EWidgetScroll *scroll, void *list);
 

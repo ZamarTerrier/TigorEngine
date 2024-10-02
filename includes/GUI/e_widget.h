@@ -90,7 +90,8 @@ typedef struct EWidget{
     struct ChildStack* child;
     struct ChildStack* first;
     struct ChildStack* last;
-    uint32_t widget_flags, type;
+    EngineWidgetFlag widget_flags;
+    EngineWidgetTypeEnum type;
     CallbackStack callbacks;
 } EWidget;
 
@@ -116,6 +117,8 @@ typedef struct{
 typedef int(*widget_callback)(EWidget *widget, void *, void*);
 
 void WidgetGUIBufferUpdate(EWidget *ew, BluePrintDescriptor *descriptor);
+
+void WidgetRemoveStack(EWidget *ew);
 
 int WidgetFindIdChild(EWidget* widget);
 ChildStack * WidgetFindChild(EWidget* widget, int num);

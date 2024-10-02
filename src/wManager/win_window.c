@@ -473,7 +473,7 @@ void _wManagerSetClipboardStringWin32(const char* string)
 
     // NOTE: Retry clipboard opening a few times as some other application may have it
     //       open and also the Windows Clipboard History reads it after each update
-    /*while (!OpenClipboard(((wManagerWin* )_wMWindow.WindowData)->helperWindowHandle))
+    while (!OpenClipboard(((wManagerWin* )_wMWindow.WindowData)->helperWindowHandle))
     {
         Sleep(1);
         tries++;
@@ -484,7 +484,7 @@ void _wManagerSetClipboardStringWin32(const char* string)
             GlobalFree(object);
             return;
         }
-    }*/
+    }
 
     EmptyClipboard();
     SetClipboardData(CF_UNICODETEXT, object);
@@ -499,18 +499,17 @@ const char* _wManagerGetClipboardStringWin32(void)
 
     // NOTE: Retry clipboard opening a few times as some other application may have it
     //       open and also the Windows Clipboard History reads it after each update
-    /*while (!OpenClipboard(((wManagerWin* )_wMWindow.WindowData)->helperWindowHandle))
+    while (!OpenClipboard(((wManagerWin* )_wMWindow.WindowData)->helperWindowHandle))
     {
         Sleep(1);
         tries++;
 
         if (tries == 3)
         {
-            _wManagerInputErrorWin32(TIGOR_PLATFORM_ERROR,
-                                 "Win32: Failed to open clipboard");
+            printf("Win32: Failed to open clipboard\n");
             return NULL;
         }
-    }*/
+    }
 
     object = GetClipboardData(CF_UNICODETEXT);
     if (!object)
@@ -875,25 +874,25 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
        case WM_CHAR:
        case WM_SYSCHAR:
        {
-           /*if (wParam >= 0xd800 && wParam <= 0xdbff)
-               ((wManagerWin *)window)->highSurrogate = (WCHAR) wParam;
-           else*/
+           if (wParam >= 0xd800 && wParam <= 0xdbff)
+               ((wManagerWin *)window->WindowData)->highSurrogate = (WCHAR) wParam;
+           else
            {
                uint32_t codepoint = 0;
 
                if (wParam >= 0xdc00 && wParam <= 0xdfff)
                {
-                   /*if (((wManagerWin *)window)->highSurrogate)
+                   if (((wManagerWin *)window)->highSurrogate)
                    {
-                       codepoint += (((wManagerWin *)window)->highSurrogate - 0xd800) << 10;
+                       codepoint += (((wManagerWin *)window->WindowData)->highSurrogate - 0xd800) << 10;
                        codepoint += (WCHAR) wParam - 0xdc00;
                        codepoint += 0x10000;
-                   }*/
+                   }
                }
                else
                    codepoint = (WCHAR) wParam;
 
-               //((wManagerWin *)window)->highSurrogate = 0;
+               ((wManagerWin *)window->WindowData)->highSurrogate = 0;
                _wManagerInputChar(window, codepoint, getKeyMods(), uMsg != WM_SYSCHAR);
            }
 
@@ -1232,7 +1231,7 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                                       (window->maximized &&
                                        wParam != SIZE_RESTORED);
 
-           if (((wManagerWin *)&_wMWindow)->capturedCursorWindow == window)
+           if (((wManagerWin *)&window->WindowData)->capturedCursorWindow == window)
                captureCursor(window);
 
            if (window->iconified != iconified)
@@ -1268,7 +1267,7 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
 
         case WM_MOVE:
         {
-            if (((wManagerWin *)_wMWindow.WindowData)->capturedCursorWindow == window)
+            if (((wManagerWin *)window->WindowData)->capturedCursorWindow == window)
                 captureCursor(window);
 
             // NOTE: This cannot use LOWORD/HIWORD recommended by MSDN, as

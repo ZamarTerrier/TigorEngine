@@ -19,9 +19,7 @@ int main(){
 
     TEngineInitSystem(800, 600, "Test");
 
-    //TEngineSetFont("res\\RobotoBlack.ttf");
-
-    printf("Size uniform is %i\n", sizeof(InvMatrixsBuffer));
+    TEngineSetFont("res\\RobotoBlack.ttf");
 
     Camera2DInit(&cam2D);
     Camera3DInit(&cam3D);
@@ -29,10 +27,10 @@ int main(){
     DrawParam dParam;
     memset(&dParam, 0, sizeof(DrawParam));
    
-    dParam.diffuse = "res\\secretary_tex.png";
+    //dParam.diffuse = "res\\secretary_tex.png";
 
-    //Load3DglTFModel(&model, "res\\", "Little_Tokyo", 2, &dParam);
-    Load3DFBXModel(&model, "res\\Taunt.fbx", &dParam);
+    Load3DglTFModel(&model, "res\\", "Little_Tokyo", 2, &dParam);
+    //Load3DFBXModel(&model, "res\\Taunt.fbx", &dParam);
 
     Transform3DSetScaleT(&model.transform, 0.1, 0.1, -0.1);
 
@@ -47,13 +45,12 @@ int main(){
         Camera3DUpdateInput(0.1);
 
         TEngineDraw(&model);
-
+        
         TEngineRender();
 
         ModelNextFrame(&model, 0.02, 0);
     }
         
-
     GameObjectDestroy(&model);
 
     //EngineDeviceWaitIdle();

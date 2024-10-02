@@ -279,12 +279,12 @@ int wManagerGetKey(wManagerWindow *window, int key)
 
 void wManagerSetClipboardString(wManagerWindow *window, const char *string)
 {
-
+    return _wMWindow.platform.setClipboardString(string);
 }
 
 const char *wManagerGetClipboardString(wManagerWindow *window)
 {
-
+    return _wMWindow.platform.getClipboardString();
 }
 
 void wManagerSetMouseButtonCallback(wManagerWindow *window, wManagerMouseButtonFun func)

@@ -287,9 +287,21 @@ int TextureImageCreate(GameObjectImage *image, uint32_t indx, struct BluePrintDe
 
     if(temp_tex != NULL)
     {
-        descr->textures[indx] = *temp_tex;
-        descr->flags |= TIGOR_BLUE_PRINT_FLAG_LINKED_TEXTURE;
-        return 0;
+        if(fileData.buff_size != temp_tex->image_data.buff_size){
+            char buffer[25];
+
+            sprintf(buffer, "_%i", rand() % 10000);
+
+            char *new_path = ToolsMakeString(image->path, buffer);
+
+            FreeMemory(image->path);
+
+            image->path = new_path;
+        }else{
+            descr->textures[indx] = *temp_tex;
+            descr->flags |= TIGOR_BLUE_PRINT_FLAG_LINKED_TEXTURE;
+            return 0;
+        }
     }
 
     if(image->size == 0)

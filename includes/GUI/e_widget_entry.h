@@ -1,38 +1,23 @@
-#ifndef E_WIDGET_ENTRY_H
-#define E_WIDGET_ENTRY_H
+#ifndef EWIDGET_ENTRY_H
+#define EWIDGET_ENTRY_H
 
 #include "e_widget.h"
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
+#define MAX_ENTERY_LENGTH 2048
 
 typedef struct{
     EWidget widget;
-    uint32_t num_texts;
-    uint32_t curr_texts;
-    char **buffers;
-    uint32_t num_lines;
-    uint32_t curr_line;
+    char text[MAX_ENTERY_LENGTH];
     int currPos;
-    float width;
-    float height;
 } EWidgetEntry;
 
-extern bool e_ctrl_press, e_c_press, e_v_press, e_pasted;
+void EntryWidgetCharacterCallback(void* arg, uint32_t codepoint);
+void EntryWidgetKeyCallback(void* arg,  int key, int scancode, int action, int mods);
 
-int EntryWidgetDestroyDefault(EWidgetEntry *entry);
+void EntryWidgetInit(EWidgetEntry *entry, vec2 scale, EWidget *parent);
 
-void EntryWidgetInit(EWidgetEntry *entry, int fontSize, DrawParam *dParam, EWidget* parent);
-void EntryWidgetUpdate();
-void EntryWidgetCharacterCallback(void* window, uint32_t codepoint);
-void EntryWidgetKeyCallback(void* window,  int key, int scancode, int action, int mods);
 char *EntryWidgetGetText(EWidgetEntry *entry);
 void EntryWidgetSetText(EWidgetEntry *entry, char *text);
+void EntryWidgetCleartext(EWidgetEntry *entry);
 
-#ifdef __cplusplus
-}
-#endif
-
-#endif // E_WIDGET_ENTRY_H
+#endif //EWIDGET_ENTRY_H

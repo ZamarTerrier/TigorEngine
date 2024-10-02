@@ -11,6 +11,7 @@
 #include <GUI/e_widget_range.h>
 #include <GUI/e_widget_window.h>
 #include <GUI/e_widget_image.h>
+#include <GUI/e_widget_entry.h>
 
 #include <Tools/e_math.h>
 
@@ -29,6 +30,8 @@ EWidgetImage image;
 
 EWidgetList list;
 
+EWidgetEntry entry;
+
 float source;
 
 void GetValue(EWidget *widget, float *value, void *arg){
@@ -44,12 +47,19 @@ int main(){
     Camera2DInit(&cam2D);
     Camera3DInit(&cam3D);
 
-    Camera2DSetActive(&cam2D);
-    Camera3DSetActive(&cam3D);
+    WindowWidgetInit(&window, "test", vec2_f(800, 400), vec2_f(200, 200));
 
-    WindowWidgetInit(&window, "test", vec2_f(300, 200), vec2_f(200, 200));
+    ListWidgetInit(&list, vec2_f(70, 30), WindowWidgetGetSurface(&window));
+    ListWidgetAddItem(&list, "awdawdawd");
+    ListWidgetAddItem(&list, "awdawdawd");
+    ListWidgetAddItem(&list, "awdawdawd");
+    ListWidgetAddItem(&list, "awdawdawd");
+
+    ListWidgetRemoveItem(&list, 0);
+
+    EntryWidgetInit(&entry, vec2_f(400, 30), WindowWidgetGetSurface(&window));
+    Transform2DSetPosition(&entry, 200, 200);
     
-
     float rot = 0;
         
     char buffer[256];

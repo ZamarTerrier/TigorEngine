@@ -18,9 +18,23 @@ typedef struct{
     vec3 position __attribute__ ((aligned (16)));
     vec3 rotation __attribute__ ((aligned (16)));
     vec3 scale __attribute__ ((aligned (16)));
+
     double view_distance;
     double view_angle;
     double view_near;
+
+    float yaw;
+    float pitch;
+    float sensitivity;
+
+    float moveSpeed;
+    float cameraSpeed;
+
+    float lastX;
+    float lastY;
+
+    bool firstMouse;
+    bool walk;
 } Camera3D;
 /// @brief Функция инициализации двумерной камеры
 /// @param cam - объект камеры

@@ -36,9 +36,6 @@ int main(){
 
     Camera2DInit(&cam2D);
     Camera3DInit(&cam3D);
-
-    Camera2DSetActive(&cam2D);
-    Camera3DSetActive(&cam3D);
         
     DrawParam dParam;
     memset(&dParam, 0, sizeof(DrawParam));

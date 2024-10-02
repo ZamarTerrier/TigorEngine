@@ -8,17 +8,6 @@
 
 extern TEngine engine;
 
-bool firstMouse = true;
-
-double lastX, lastY;
-
-double yaw = 90, pitch = 0, sensitivity = 2.0f;
-
-float moveSpeed = 2.0f;
-float cameraSpeed = 3.5f;
-
-bool walk = false;
-
 void Camera2DInit(Camera2D *cam){
 
     memset(cam, 0, sizeof(Camera2D));
@@ -40,6 +29,16 @@ void Camera3DInit(Camera3D *cam){
     cam->view_distance = 1000;
     cam->view_angle = 75.0f;
     cam->view_near = 0.01f;
+
+    cam->yaw = 90;
+    cam->pitch = 0;
+    cam->sensitivity = 2.0f;
+
+    cam->moveSpeed = 2.0f;
+    cam->cameraSpeed = 3.5f;
+
+    cam->firstMouse = true;
+    cam->walk = false;
     
     if(engine.cam3D == NULL)
         Camera3DSetActive(cam);
@@ -135,6 +134,8 @@ void Camera3DSetScale(float x, float y, float z){
 }
 
 void Camera3DUpdateInput(float deltaTime){
+    Camera3D* cam = (Camera3D*)engine.cam3D;
+
     vec3 up = {0.0f,1.0f,0.0f};
 
     vec3 pos = Camera3DGetPosition();
@@ -142,31 +143,31 @@ void Camera3DUpdateInput(float deltaTime){
     vec3 some_pos;
 
     if (TEngineGetKeyPress(TIGOR_KEY_W)){
-        if(walk)
+        if(cam->walk)
             viewRot.y = 0;
-        some_pos = v3_sub(pos, v3_muls( viewRot, cameraSpeed * deltaTime));
+        some_pos = v3_sub(pos, v3_muls( viewRot, cam->cameraSpeed * deltaTime));
 
         Camera3DSetPosition(some_pos.x, some_pos.y, some_pos.z);
     }else if (TEngineGetKeyPress(TIGOR_KEY_S)){
-        if(walk)
+        if(cam->walk)
             viewRot.y = 0;
-        some_pos = v3_add(pos, v3_muls( viewRot, cameraSpeed * deltaTime));
+        some_pos = v3_add(pos, v3_muls( viewRot, cam->cameraSpeed * deltaTime));
         Camera3DSetPosition(some_pos.x, some_pos.y, some_pos.z);
     }
 
 
     if (TEngineGetKeyPress(TIGOR_KEY_A)){
-        some_pos = v3_sub(pos, v3_muls(v3_norm(v3_cross(viewRot, up)), cameraSpeed * deltaTime));
+        some_pos = v3_sub(pos, v3_muls(v3_norm(v3_cross(viewRot, up)), cam->cameraSpeed * deltaTime));
         Camera3DSetPosition(some_pos.x, some_pos.y, some_pos.z);
     }else if (TEngineGetKeyPress(TIGOR_KEY_D)){
-        some_pos = v3_add(pos, v3_muls(v3_norm(v3_cross(viewRot, up)), cameraSpeed * deltaTime));
+        some_pos = v3_add(pos, v3_muls(v3_norm(v3_cross(viewRot, up)), cam->cameraSpeed * deltaTime));
         Camera3DSetPosition(some_pos.x, some_pos.y, some_pos.z);
     }
 
     if (TEngineGetKeyPress(TIGOR_KEY_LEFT_SHIFT)){
-        cameraSpeed = moveSpeed * 10;
+        cam->cameraSpeed = cam->moveSpeed * 10;
     }else{
-        cameraSpeed = moveSpeed * 3;
+        cam->cameraSpeed = cam->moveSpeed * 3;
     }
 
     /*if (TEngineGetKeyPress(TIGOR_KEY_1)){
@@ -182,39 +183,40 @@ void Camera3DUpdateInput(float deltaTime){
 }
 
 void Camera3DMovementUpdate(float deltaTime){
+    Camera3D* cam = (Camera3D*)engine.cam3D;
 
     double xpos, ypos;
 
     TEngineGetCursorPos(&xpos, &ypos);
 
-    if (firstMouse)
+    if (cam->firstMouse)
     {
-        lastX = xpos;
-        lastY = ypos;
-        firstMouse = false;
+        cam->lastX = xpos;
+        cam->lastY = ypos;
+        cam->firstMouse = false;
     }
 
-    double xoffset = xpos - lastX;
-    double yoffset = lastY - ypos; 
-    lastX = xpos;
-    lastY = ypos;
+    double xoffset = xpos - cam->lastX;
+    double yoffset = cam->lastY - ypos; 
+    cam->lastX = xpos;
+    cam->lastY = ypos;
 
-    xoffset *= sensitivity * deltaTime;
-    yoffset *= sensitivity * deltaTime;
+    xoffset *= cam->sensitivity * deltaTime;
+    yoffset *= cam->sensitivity * deltaTime;
 
-    yaw   += xoffset;
-    pitch += yoffset;
+    cam->yaw   += xoffset;
+    cam->pitch += yoffset;
 
-    if(pitch > 89.0f)
-        pitch = 89.0f;
-    if(pitch < -89.0f)
-        pitch = -89.0f;
+    if(cam->pitch > 89.0f)
+        cam->pitch = 89.0f;
+    if(cam->pitch < -89.0f)
+        cam->pitch = -89.0f;
 
     vec3 direction = Camera3DGetRotation();
     vec3 next_rotation, result;
-    next_rotation.x = cos(yaw * (M_PI / 180)) * cos(pitch * (M_PI / 180));
-    next_rotation.y = -sin(pitch * (M_PI / 180));
-    next_rotation.z = -sin(yaw * (M_PI / 180)) * cos(pitch * (M_PI / 180));
+    next_rotation.x = cos(cam->yaw * (M_PI / 180)) * cos(cam->pitch * (M_PI / 180));
+    next_rotation.y = -sin(cam->pitch * (M_PI / 180));
+    next_rotation.z = -sin(cam->yaw * (M_PI / 180)) * cos(cam->pitch * (M_PI / 180));
 
     next_rotation = v3_norm(next_rotation);
 

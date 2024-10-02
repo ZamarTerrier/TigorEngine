@@ -54,7 +54,7 @@ int ScrollWidgetMove(EWidget* widget, void* entry, EWidgetScroll* scroll){
     return 0;
 }
 
-void ScrollWidgetInit(EWidgetScroll *scroll, uint32_t width, uint32_t height, DrawParam *dParam, EWidget *parent)
+void ScrollWidgetInit(EWidgetScroll *scroll, uint32_t width, uint32_t height, EWidget *parent)
 {
     if(!GUIManagerIsInit())
         return;

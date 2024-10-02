@@ -93,9 +93,8 @@ void GameObjectDestroy(GameObject* go){
         
     EngineDeviceWaitIdle();
 
-    void (*destroy)(GameObject* go) = go->DestroyPoint;
-
-    destroy(go);
+    if(go->DestroyPoint != NULL)
+        go->DestroyPoint(go);
 }
 
 void GameObjectShaderInit(GameObject* go){

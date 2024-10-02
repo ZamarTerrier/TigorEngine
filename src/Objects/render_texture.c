@@ -110,6 +110,8 @@ void RenderTextureCreateRenderPass(RenderTexture *render, void **render_pass)
 
     VkSubpassDependency *depency = AllocateMemory( render->type != TIGOR_RENDER_TYPE_DEPTH ? 2 : 1, sizeof(VkSubpassDependency));
 
+    VkAttachmentDescription attachments[] = {*colorAttachment, *depthAttachment};
+
     if(render->type == TIGOR_RENDER_TYPE_CUBEMAP)
     {
         if(render->flags & TIGOR_RENDER_FLAG_DEPTH)
@@ -117,7 +119,6 @@ void RenderTextureCreateRenderPass(RenderTexture *render, void **render_pass)
             renderPassInfo.attachmentCount = 1;
             renderPassInfo.pAttachments = depthAttachment;
         }else{
-            VkAttachmentDescription attachments[] = {*colorAttachment, *depthAttachment};
 
             renderPassInfo.attachmentCount = 2;
             renderPassInfo.pAttachments = attachments;
@@ -143,8 +144,6 @@ void RenderTextureCreateRenderPass(RenderTexture *render, void **render_pass)
 
         if(render->type == TIGOR_RENDER_TYPE_WINDOW)
         {
-            VkAttachmentDescription attachments[] = {*colorAttachment, *depthAttachment};
-
             renderPassInfo.attachmentCount = 2;
             renderPassInfo.pDependencies = depency;
             renderPassInfo.pAttachments = attachments;
@@ -172,6 +171,7 @@ void RenderTextureCreateRenderPass(RenderTexture *render, void **render_pass)
     renderPassInfo.subpassCount = 1;
     renderPassInfo.pSubpasses = &subpass;
     renderPassInfo.dependencyCount = render->type == TIGOR_RENDER_TYPE_CUBEMAP ? 0 : 1;
+
 
     if(vkCreateRenderPass(device->e_device, &renderPassInfo, NULL, (VkRenderPass *)render_pass) != VK_SUCCESS)
     {
@@ -462,11 +462,13 @@ void RenderTextureBeginRendering(RenderTexture *render, void *cmd_buff)
     renderBeginInfo->renderArea.extent.width = render->width;
     renderBeginInfo->renderArea.extent.height = render->height;
 
+    VkClearValue clearValue;
+    VkClearValue clearValues[2];
+
     if(render->m_format != 0)
     {
         if(render->type == TIGOR_RENDER_TYPE_DEPTH || (render->flags & TIGOR_RENDER_FLAG_DEPTH))
         {
-            VkClearValue clearValue;
 
             clearValue.depthStencil.depth = 1.0f;
             clearValue.depthStencil.stencil = 0.0;
@@ -474,7 +476,6 @@ void RenderTextureBeginRendering(RenderTexture *render, void *cmd_buff)
             renderBeginInfo->clearValueCount = 1;
             renderBeginInfo->pClearValues = &clearValue;
         }else{
-            VkClearValue clearValues[2];
 
             clearValues[0].color.float32[0] = render->clear_color.x;
             clearValues[0].color.float32[1] = render->clear_color.y;

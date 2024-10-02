@@ -22,9 +22,6 @@
 #include "Objects/gameObject.h"
 #include "Objects/render_texture.h"
 
-#include "GUI/e_widget_entry.h"
-#include "GUI/e_widget_entry_area.h"
-
 #include "Tools/e_tools.h"
 
 #include "Data/e_resource_data.h"

@@ -300,28 +300,10 @@ uint32_t ShaderBuilderAddVariableF(ShaderVariableType type, uint32_t flags, uint
     variable->type = type;
     variable->indx = curr_builder->current_index + 1;
 
-    if(num_args > 0)
-    {
-        if(args == NULL)
-            return 0;
-
-        for(int i=0; i  < num_args;i++)
-            variable->args[i] = args[i];
-
-    }
+    memcpy(variable->args, args, sizeof(uint32_t) * num_args);
+    memcpy(variable->values, vals, sizeof(uint32_t) * num_vals);
 
     variable->num_args = num_args;
-
-    if(num_vals > 0)
-    {
-        if(vals == NULL)
-            return 0;
-
-        for(int i=0; i  < num_vals;i++)
-            variable->values[i] = vals[i];
-
-    }
-
     variable->num_values = num_vals;
     variable->flags = flags;
 
@@ -2725,7 +2707,9 @@ void ShaderBuilderMakeUniformsFromShader(ShaderBuilder *builder, uint32_t *code,
 
     ShaderBuilderParcingShader(code, size);
 
+    #ifndef NDEBUG
     printf("Shader builder : Variables count %i \n", ShaderBuilderGetVariablesCount(builder));
+    #endif
 
     ShaderVariable *currVar = NULL;
     uint32_t size_buffer = 0, flags = 0;
@@ -2758,7 +2742,9 @@ void ShaderBuilderMakeUniformsFromShader(ShaderBuilder *builder, uint32_t *code,
                         
                         BluePrintAddUniformObjectC(blueprints, indx_pack, size_buffer, curr_builder->type == SHADER_TYPE_VERTEX ? VK_SHADER_STAGE_VERTEX_BIT : VK_SHADER_STAGE_FRAGMENT_BIT, binding);
 
+                        #ifndef NDEBUG
                         printf("Shader builder : Uniform buffer size is %i\n", size_buffer);
+                        #endif
                     }
 
 
@@ -2780,7 +2766,9 @@ void ShaderBuilderMakeUniformsFromShader(ShaderBuilder *builder, uint32_t *code,
                         
                         BluePrintAddTextureC(blueprints, indx_pack, curr_builder->type == SHADER_TYPE_VERTEX ? VK_SHADER_STAGE_VERTEX_BIT : VK_SHADER_STAGE_FRAGMENT_BIT, binding);
 
+                        #ifndef NDEBUG
                         printf("Shader builder : Image added to blueprint\n");
+                        #endif
                     }
                 }
             }

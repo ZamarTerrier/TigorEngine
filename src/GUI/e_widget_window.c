@@ -242,22 +242,27 @@ void WindowWidgetDraw(EWidgetWindow *window){
 
 void WindowWidgetDestroy(EWidgetWindow *window){
     ChildStack *child = window->window.child;
-    ChildStack *lastChild;
+    ChildStack *next;
 
     if(!(window->window.go.flags & TIGOR_GAME_OBJECT_FLAG_INIT))
         return;
     
     while(child != NULL)
     {
+        next = child->next;   
+
         GameObjectDestroy(child->node);
-        lastChild = child;
-        child = child->next;
-        FreeMemory(lastChild);
+
+        FreeMemory(child);
+    
+        child = next;
     }
     
     FreeMemory(window->window.callbacks.stack);
     
     window->window.go.flags &= ~(TIGOR_GAME_OBJECT_FLAG_INIT);
+
+    WidgetRemoveStack(window);  
 }
 
 

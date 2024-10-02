@@ -736,16 +736,41 @@ void ShadersMakeClear2DShader(ShaderBuilder *vert, ShaderBuilder *frag){
 
         uint32_t fragColor = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_VECTOR, 0, NULL, 3, "fragColor", 0, 0);
         uint32_t fragTexCoord = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_VECTOR, 0, NULL, 2, "fragTexCoord", 1, 0);
+
         uint32_t outColor = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_VECTOR, SHADER_DATA_FLAG_OUTPUT, NULL, 4, "outColor", 0, 0);
 
         uint32_t texture = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_IMAGE, SHADER_DATA_FLAG_UNIFORM_CONSTANT, NULL, 0, "Texture2D", 0, 1);
 
-        uint32_t tExtract = ShaderBuilderGetTexture(texture, fragTexCoord, 0);
+        uint32_t res = ShaderBuilderGetTexture(texture, fragTexCoord, 0);
 
-        uint32_t res = ShaderBuilderAddFuncMult(tExtract, 0, SHADER_VARIABLE_TYPE_VECTOR, 4, fragColor, 0, SHADER_VARIABLE_TYPE_VECTOR, 3, 4);
+        uint32_t l_kill = ShaderBuilderNextLabel(false);
 
-        uint32_t arr[] = { outColor, res} ;
-        ShaderBuilderStoreValue(arr, 2);
+        uint32_t end_label = ShaderBuilderNextLabel(true);
+        
+        float f = 0.01f;
+        uint32_t c = 0;
+        memcpy(&c, &f, sizeof(uint32_t));
+        uint32_t cons = ShaderBuilderAddConstant(SHADER_VARIABLE_TYPE_FLOAT, 0, c, 1);
+
+        VectorExtract extr = ShaderBuilderGetElemenets(SHADER_VARIABLE_TYPE_FLOAT, res, 4, 0, 1);
+
+        ShaderBuilderMakeBranchConditional(SHADER_CONDITIONAL_TYPE_FLESS_THAN, (uint32_t []){ extr.elems[0], cons}, 2, end_label, l_kill, end_label);
+
+        ShaderBuilderSetCurrentLabel(l_kill);
+
+        ShaderBuilderMakeKill();
+
+        ShaderBuilderSetCurrentLabel(end_label);
+
+        uint32_t get_frag_color = ShaderBuilderAcceptLoad(fragColor, 0);
+
+        VectorExtract extr2 = ShaderBuilderGetElemenets(SHADER_VARIABLE_TYPE_FLOAT, get_frag_color, 3, 0, 3);
+
+        uint32_t vec_type = ShaderBuilderAddVector(4, NULL);
+
+        res =  ShaderBuilderCompositeConstruct((uint32_t []){vec_type, extr2.elems[0], extr2.elems[1], extr2.elems[2], extr.elems[0]}, 5);
+
+        ShaderBuilderStoreValue((uint32_t []){ outColor, res}, 2);
 
         ShaderBuilderMake();
     }
@@ -779,7 +804,7 @@ void ShadersMakeDefault2DTextShader(ShaderBuilder *vert, ShaderBuilder *frag){
         res = ShaderBuilderAddFuncAdd(uniform, 0, SHADER_VARIABLE_TYPE_VECTOR, 2, res, 0, SHADER_VARIABLE_TYPE_VECTOR, 2, 2);
 
         uint32_t acc = ShaderBuilderAcceptAccess(vert->gl_struct_indx, SHADER_VARIABLE_TYPE_VARIABLE, 4, (uint32_t []){ 0 }, 1, false);
-        ShaderBuilderStoreValue((uint32_t []){ acc, res }, 1);
+        ShaderBuilderStoreValue((uint32_t []){ acc, res }, 2);
 
         ShaderBuilderAddFuncMove(clr_indx, 3, clr_dst, 3);
         ShaderBuilderAddFuncMove(txt_indx, 2, txt_dst, 2);

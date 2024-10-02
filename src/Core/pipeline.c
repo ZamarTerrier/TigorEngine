@@ -197,13 +197,15 @@ void PipelineMakePipeline(GraphicsObject *graphObj, uint32_t indx_pack)
     //-----------------
     //Информация для щейдеров
 
-    VkPipelineInputAssemblyStateCreateInfo inputAssembly = {};
+    VkPipelineInputAssemblyStateCreateInfo inputAssembly;
+    memset(&inputAssembly, 0, sizeof(VkPipelineInputAssemblyStateCreateInfo));
     inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
     inputAssembly.topology = setting->topology;
     inputAssembly.primitiveRestartEnable = VK_FALSE;
     //-----------
     //Растеризатор
-    VkPipelineRasterizationStateCreateInfo rasterizer = {};
+    VkPipelineRasterizationStateCreateInfo rasterizer;
+    memset(&rasterizer, 0, sizeof(VkPipelineRasterizationStateCreateInfo));
     rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
     rasterizer.depthClampEnable = VK_FALSE;
     rasterizer.rasterizerDiscardEnable = VK_FALSE;
@@ -214,7 +216,8 @@ void PipelineMakePipeline(GraphicsObject *graphObj, uint32_t indx_pack)
     rasterizer.depthBiasEnable = setting->flags & TIGOR_PIPELINE_FLAG_BIAS ? VK_TRUE : VK_FALSE;
     //-----------------
     //Колор блендинг
-    VkPipelineColorBlendAttachmentState colorBlendAttachment = {};
+    VkPipelineColorBlendAttachmentState colorBlendAttachment;
+    memset(&colorBlendAttachment, 0, sizeof(VkPipelineColorBlendAttachmentState));
     colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
 
     if((render->type != TIGOR_RENDER_TYPE_DEPTH && !(render->flags & TIGOR_RENDER_FLAG_DEPTH)) || (setting->flags & TIGOR_PIPELINE_FLAG_ALPHA))
@@ -229,7 +232,8 @@ void PipelineMakePipeline(GraphicsObject *graphObj, uint32_t indx_pack)
     }else
         colorBlendAttachment.blendEnable = VK_FALSE;
 
-    VkPipelineColorBlendStateCreateInfo colorBlending = {};
+    VkPipelineColorBlendStateCreateInfo colorBlending;
+    memset(&colorBlending, 0, sizeof(VkPipelineColorBlendStateCreateInfo));
     colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
     colorBlending.logicOpEnable = VK_FALSE;
     colorBlending.attachmentCount = 1;
@@ -245,7 +249,8 @@ void PipelineMakePipeline(GraphicsObject *graphObj, uint32_t indx_pack)
     }
 
     //---------------
-    VkPipelineDepthStencilStateCreateInfo depthStencil = {};
+    VkPipelineDepthStencilStateCreateInfo depthStencil;
+    memset(&depthStencil, 0, sizeof(VkPipelineDepthStencilStateCreateInfo));
     depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
     depthStencil.depthTestEnable = graphObj->gItems.perspective;
     depthStencil.depthWriteEnable = graphObj->gItems.perspective;
@@ -257,12 +262,14 @@ void PipelineMakePipeline(GraphicsObject *graphObj, uint32_t indx_pack)
 
     //---------------
     //Мультисэмплинг
-    VkPipelineMultisampleStateCreateInfo multisampling = {};
+    VkPipelineMultisampleStateCreateInfo multisampling;
+    memset(&multisampling, 0, sizeof(VkPipelineMultisampleStateCreateInfo));
     multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
     multisampling.sampleShadingEnable = VK_FALSE;
     multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
     //------------
-    VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
+    VkPipelineVertexInputStateCreateInfo vertexInputInfo;
+    memset(&vertexInputInfo, 0, sizeof(VkPipelineVertexInputStateCreateInfo));
     vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
     vertexInputInfo.vertexBindingDescriptionCount = graphObj->shapes[setting->vert_indx].countBind;
     vertexInputInfo.vertexAttributeDescriptionCount = graphObj->shapes[setting->vert_indx].countAttr;
@@ -278,13 +285,14 @@ void PipelineMakePipeline(GraphicsObject *graphObj, uint32_t indx_pack)
     viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
     viewportState.viewportCount = 1;
     viewportState.scissorCount = 1;
+    
+    VkDynamicState dynamicStates[] = {
+        VK_DYNAMIC_STATE_VIEWPORT,
+        VK_DYNAMIC_STATE_SCISSOR
+    };
 
     if(setting->flags & TIGOR_PIPELINE_FLAG_DYNAMIC_VIEW)
     {
-        VkDynamicState dynamicStates[] = {
-            VK_DYNAMIC_STATE_VIEWPORT,
-            VK_DYNAMIC_STATE_SCISSOR
-        };
 
         dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
         dynamicState.dynamicStateCount = 2;
@@ -325,7 +333,8 @@ void PipelineMakePipeline(GraphicsObject *graphObj, uint32_t indx_pack)
     }
 
 
-    VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
+    VkPipelineLayoutCreateInfo pipelineLayoutInfo;
+    memset(&pipelineLayoutInfo, 0, sizeof(VkPipelineLayoutCreateInfo));
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
     pipelineLayoutInfo.setLayoutCount = 1; // Кол-во Дескирпторов для Юниформ баферов
     pipelineLayoutInfo.pSetLayouts = (const VkDescriptorSetLayout *) &descriptor->descr_set_layout; // Дескирпторы для Юниформ баферов
@@ -340,7 +349,8 @@ void PipelineMakePipeline(GraphicsObject *graphObj, uint32_t indx_pack)
     FreeMemory(push_ranges);
 
     //Сам пайплайн
-    VkGraphicsPipelineCreateInfo pipelineInfo = {};
+    VkGraphicsPipelineCreateInfo pipelineInfo;
+    memset(&pipelineInfo, 0, sizeof(VkGraphicsPipelineCreateInfo));
 
     VkPipelineTessellationStateCreateInfo *tessellationState;
     if(setting->flags & (TIGOR_PIPELINE_FLAG_TESSELLATION_CONTROL_SHADER | TIGOR_PIPELINE_FLAG_TESSELLATION_EVALUATION_SHADER))

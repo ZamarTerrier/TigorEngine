@@ -800,8 +800,8 @@ void ModelglTFSetDefaultShader(GameObject3D *go)
     else
         GameObject3DSetDescriptorTextureCreate(go, num_pack, 4, go->num_speculars > 0 ? go->speculars : NULL);
     
-    /*uint32_t flags = BluePrintGetSettingsValue(&go->graphObj.blueprints, 0, 3);
-    BluePrintSetSettingsValue(&go->graphObj.blueprints, 0, 3, flags | TIGOR_PIPELINE_FLAG_FACE_CLOCKWISE);*/
+    //uint32_t flags = BluePrintGetSettingsValue(&go->graphObj.blueprints, 0, 3);
+    //BluePrintSetSettingsValue(&go->graphObj.blueprints, 0, 3, flags | TIGOR_PIPELINE_FLAG_FACE_CLOCKWISE);
     
     go->self.flags |= TIGOR_GAME_OBJECT_FLAG_SHADED;
 }

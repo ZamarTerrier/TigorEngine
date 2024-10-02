@@ -11,7 +11,6 @@
 #include "Objects/render_texture.h"
 
 #include "GUI/GUIManager.h"
-#include "GUI/e_widget_entry.h"
 
 #include "wManager/window_manager.h"
 
@@ -25,18 +24,18 @@ extern bool enableValidationLayers;
 
 void EngineCharacterCallback(wManagerWindow* window, uint32_t codepoint)
 {
-    /*EntryWidgetCharacterCallback(window, codepoint);
+    EntryWidgetCharacterCallback(window, codepoint);
 
     for(int i=0; i < engine.func.charCallbackSize;i++)
-        engine.func.charCallbacks[i](window, codepoint);*/
+        engine.func.charCallbacks[i](window, codepoint);
 }
 
 void EngineKeyCallback(wManagerWindow* window,  unsigned int key, unsigned int scancode, unsigned int action, unsigned int mods)
 {
-    /*EntryWidgetKeyCallback(window, key, scancode, action, mods);
+    EntryWidgetKeyCallback(window, key, scancode, action, mods);
 
     for(int i=0; i < engine.func.keyCallbackSize;i++)
-        engine.func.keyCallbacks[i](window, key, scancode, action, mods);*/
+        engine.func.keyCallbacks[i](window, key, scancode, action, mods);
 }
 
 
@@ -149,6 +148,9 @@ void TEngineRender(){
     }
 
     //vkResetCommandPool(e_device, commandPool, 0);
+
+    if(GUIManagerIsInit())
+        GUIManagerUpdate();
 
     VkCommandBufferBeginInfo *beginInfo = AllocateMemory(1, sizeof(VkCommandBufferBeginInfo));
     beginInfo->sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
