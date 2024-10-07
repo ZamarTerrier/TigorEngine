@@ -11,10 +11,11 @@ void ShadersMakeDefault2DShader(ShaderBuilder *vert, ShaderBuilder *frag, bool h
 
         ShaderStructConstr uniform_arr[] = {
             {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "model", NULL, 0, NULL},
+            {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "view", NULL, 0, NULL},
             {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "proj", NULL, 0, NULL},
         };
 
-        uint32_t uniform = ShaderBuilderAddUniform(uniform_arr, 2, "TransformBufferObjects", 0, 1);
+        uint32_t uniform = ShaderBuilderAddUniform(uniform_arr, 3, "TransformBufferObjects", 0, 1);
 
         uint32_t posit = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_VECTOR, 0, NULL, 2, "position", 0, 0);
         uint32_t clr_indx = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_VECTOR, 0, NULL, 3, "color", 1, 0);
@@ -24,6 +25,7 @@ void ShadersMakeDefault2DShader(ShaderBuilder *vert, ShaderBuilder *frag, bool h
         uint32_t txt_dst = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_VECTOR, SHADER_DATA_FLAG_OUTPUT, NULL, 2, "fragTexCoord", 1, 0);
 
         uint32_t res = ShaderBuilderAddFuncMult(uniform, 1, SHADER_VARIABLE_TYPE_MATRIX, 4, uniform, 0, SHADER_VARIABLE_TYPE_MATRIX, 4, 4);
+        res = ShaderBuilderAddFuncMult(uniform, 2, SHADER_VARIABLE_TYPE_MATRIX, 4, res, 0, SHADER_VARIABLE_TYPE_MATRIX, 4, 4);
         res = ShaderBuilderAddFuncMult(res, 0, SHADER_VARIABLE_TYPE_MATRIX, 4, posit, 0, SHADER_VARIABLE_TYPE_VECTOR, 2, 4);
 
         uint32_t acc = ShaderBuilderAcceptAccess(vert->gl_struct_indx, SHADER_VARIABLE_TYPE_VECTOR, 4, (uint32_t []){ 0 }, 1, false);
@@ -181,7 +183,7 @@ void ShadersMakeDefault3DShader(ShaderBuilder *vert, ShaderBuilder *frag, bool h
     ShaderStructConstr uniform_arr[] = {
         {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "model", NULL, 0, NULL},
         {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "view", NULL, 0, NULL},
-        {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "porl", NULL, 0, NULL},
+        {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "proj", NULL, 0, NULL},
     };
 
     uint32_t uniform = ShaderBuilderAddUniform(uniform_arr, 3, "ModelBufferObjects", 0, 1);

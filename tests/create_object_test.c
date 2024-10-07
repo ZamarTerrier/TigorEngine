@@ -69,8 +69,8 @@ int main(){
 
         Update(0.1);
 
-        rot = sin(TEngineGetTime()) * 360;
-        Transform2DSetRotate(&shape, rot);
+        rot += 0.01f;
+        Camera2DSetPosition(rot, 0);
         //GUIAddText(30, 30, vec3_f(1, 0, 0), 9, "У попа была собака");
 
         //TEngineDraw(&po);

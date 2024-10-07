@@ -10,7 +10,7 @@ extern "C"
 
 typedef struct{
     vec2 position;
-    vec2 rotation;
+    float angle;
     vec2 scale;
 } Camera2D;
 
@@ -60,11 +60,17 @@ void Camera3DSetActive(Camera3D *cam);
 /// @brief Назначение активной камеры
 /// @param cam - объект камеры
 void Camera2DSetActive(Camera2D *cam);
+/// @brief Установка поворота двумерной камеры
+/// @param angle - поворот камеры
+void Camera2DSetRotation(float angle);
 /// @brief Установка поворота камеры
 /// @param x - поворот по х
 /// @param y - поворот по у
 /// @param z - поворот по z
 void Camera3DSetRotation(float x, float y, float z);
+/// @brief Функция получения угла поворота двумерной камеры
+/// @return число с плавающей точкой
+float Camra2DGetRotation();
 /// @brief Функция получения значений поворота камеры
 /// @return трёхмерный вектор координат x, y и z
 vec3 Camera3DGetRotation();

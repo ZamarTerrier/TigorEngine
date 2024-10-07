@@ -77,12 +77,24 @@ void Camera2DSetActive(Camera2D *cam){
     engine.cam2D = cam;
 }
 
+void Camera2DSetRotation(float angle){
+    Camera2D* cam = (Camera2D*)engine.cam2D;
+
+    cam->angle = angle;
+}
+
 void Camera3DSetRotation(float x, float y, float z){
     Camera3D* cam = (Camera3D*)engine.cam3D;
 
     cam->rotation.x = x;
     cam->rotation.y = y;
     cam->rotation.z = z;
+}
+
+float Camra2DGetRotation(){
+    Camera2D* cam = (Camera2D*)engine.cam2D;
+
+    return cam->angle;
 }
 
 vec3 Camera3DGetRotation(){

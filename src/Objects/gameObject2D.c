@@ -19,10 +19,14 @@
 extern TEngine engine;
 
 void GameObject2DTransformBufferUpdate(GameObject2D *go, void *data)
-{
-    TransformBuffer2D tbo;
+{    
+    Camera2D* cam = (Camera2D*) engine.cam2D;
 
+    vec3 cameraUp = {0.0f, 1.0f, 0.0f};
+
+    TransformBuffer2D tbo;
     tbo.model = m4_transform2D(go->transform.position, go->transform.scale, go->transform.rotation) ;
+    tbo.view = m4_look_at(vec3_f(cam->position.x, cam->position.y, 0), v3_add(vec3_f(cam->position.x, cam->position.y, -1), vec3_f(0, 0, 0)), cameraUp);
     tbo.proj = m4_ortho(0, engine.width, engine.height, 0, -1.0, 1.0f);
     
     memcpy(data, &tbo, sizeof(tbo));
