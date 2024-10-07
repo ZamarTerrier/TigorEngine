@@ -21,6 +21,10 @@ float lerp(float a, float b, float t);
 float clamp(float a, float d1, float d2);
 int get_sig(float val);
 
+vec2 rotate2D(float x, float y, float angle);
+
+mat2 m2_rotate(float angle);
+
 mat3 rotateX(float theta);
 // Rotation matrix around the Y axis.
 mat3 rotateY(float theta);
@@ -108,6 +112,7 @@ mat4 m4_mul_rot(mat4 mat1, mat4 mat2) ;
 mat4 mat4_mult_transform(mat4 m1, mat4 m2);
 mat4 m4_transform_quaternion(vec3 translation, vec3 scale, vec4 rotation);
 mat4 m4_transform(vec3 pos, vec3 scale, vec3 axis);
+mat4 m4_transform2D(vec2 pos, vec2 scale, float angle);
 mat4 m4_translate(vec3 pos);
 mat4 m4_translate_mat_add(mat4 mat, vec3 pos);
 mat4 m4_translate_mat(mat4 mat, vec3 pos);
@@ -121,7 +126,7 @@ mat4 m4_scale_mat(vec3 scale);
 mat4 m4_scale(mat4 mat, vec3 scale);
 mat4 m4_add(mat4 m1, mat4 m2);
 mat4 m4_mult(mat4 m1, mat4 m2);
-mat4 m4_ortho(float top, float bottom, float left, float right, float zFar, float zNear);
+mat4 m4_ortho(float left, float right, float bottom, float top, float zNear, float zFar);
 mat4 m4_frustum(float left, float right, float bottom, float top, float nearZ, float farZ) ;
 mat4 m4_perspective(uint32_t width, uint32_t height, float vertical_field_of_view_in_deg, float near_view_distance, float far_view_distance);
 mat4 mat4_transpose(mat4 a);

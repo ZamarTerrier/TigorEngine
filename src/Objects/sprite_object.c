@@ -17,28 +17,26 @@ void SpriteObjectCreateQuad(SpriteObject *so)
 {
     Vertex2D *verts = AllocateMemory(4, sizeof(Vertex2D));
 
-    float size = 1.0f;
-
-    verts[0].position.x = -size;
-    verts[0].position.y = -size;
+    verts[0].position.x = -1.0f;
+    verts[0].position.y = -1.0f;
     verts[0].texCoord.x = 0;
     verts[0].texCoord.y = 0;
 
-    verts[1].position.x = size;
-    verts[1].position.y = -size;
+    verts[1].position.x = 1.0f;
+    verts[1].position.y = -1.0f;
     verts[1].texCoord.x = 1.0f;
     verts[1].texCoord.y = 0;
 
-    verts[2].position.x = size;
-    verts[2].position.y = size;
+    verts[2].position.x = 1.0f;
+    verts[2].position.y = 1.0f;
     verts[2].texCoord.x = 1.0f;
     verts[2].texCoord.y = 1.0f;
 
-    verts[3].position.x = -size;
-    verts[3].position.y = size;
+    verts[3].position.x = -1.0f;
+    verts[3].position.y = 1.0f;
     verts[3].texCoord.x = 0;
     verts[3].texCoord.y = 1.0f;
-
+    
     for(int i=0;i < 4;i++)
     {
         verts[i].color = (vec3){ 1, 1, 1};

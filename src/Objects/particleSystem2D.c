@@ -229,9 +229,8 @@ void Particle2DDefaultUpdate(ParticleObject2D* particle, void *data){
 
     TransformBuffer2D tbo = {};
 
-    tbo.position = v2_subs(particle->go.transform.position, 1.0f);
-    tbo.rotation = particle->go.transform.rotation;
-    tbo.scale = particle->go.transform.scale;
+    vec2 posit = v2_subs(particle->go.transform.position, 1.0f);
+    tbo.model = m4_transform(vec3_f(posit.x, posit.y, 0), vec3_f(particle->go.transform.scale.x, particle->go.transform.scale.y, 0), vec3_f(particle->go.transform.rotation, 0, 0));
 
     memcpy(data, &tbo, sizeof(tbo));
 }

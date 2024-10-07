@@ -59,6 +59,8 @@ int main(){
 
     EntryWidgetInit(&entry, vec2_f(400, 30), WindowWidgetGetSurface(&window));
     Transform2DSetPosition(&entry, 200, 200);
+
+    RangeWidgetInit(&range, vec2_f(100, 50), 0, 100, NULL);
     
     float rot = 0;
         

@@ -762,6 +762,8 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
 
     wManagerWindow* window = e_window->e_window;
 
+    wManagerWin *winWindow = (wManagerWin *)window->WindowData;
+
     if (!window)
     {
         return DefWindowProcW(hWnd, uMsg, wParam, lParam);
@@ -1231,7 +1233,9 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                                       (window->maximized &&
                                        wParam != SIZE_RESTORED);
 
-           if (((wManagerWin *)&window->WindowData)->capturedCursorWindow == window)
+            
+
+           if (winWindow->capturedCursorWindow == window)
                captureCursor(window);
 
            if (window->iconified != iconified)

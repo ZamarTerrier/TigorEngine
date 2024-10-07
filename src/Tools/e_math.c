@@ -5,6 +5,8 @@
 #include "Data/e_resource_data.h"
 #include "Data/e_resource_engine.h"
 
+extern TEngine engine;
+
 bool mat4_is_affine(mat4 a){
     if(a.m[3][0] == 0 && a.m[3][1] == 0 && a.m[3][2] == 0 && a.m[3][3] == 1)
         return true;
@@ -39,6 +41,22 @@ int get_sig(float val)
     return 1;
 }
 
+vec2 rotate2D(float x, float y, float angle){
+    
+    angle *= M_PI / 180;  // convert to radians
+
+    float c = cos(angle);
+    float s = sin(angle);
+
+
+    vec2 res;
+    
+    res.x = c * x + (-s * y);
+    res.y = s * x + c * y;
+
+    return res;      
+}
+
 mat3 rotateX(float theta) {
     theta *= M_PI / 180;  // convert to radians
     mat3 result;
@@ -57,6 +75,22 @@ mat3 rotateX(float theta) {
     result.m[0][2] = 0;
     result.m[1][2] = -s;
     result.m[2][2] = c;
+
+    return result;
+}
+
+mat2 m2_rotate(float angle){
+
+    angle *= M_PI / 180;  // convert to radians
+    mat2 result;
+
+    double c = cos(angle) / 10;
+    double s = sin(angle) / 10;
+
+    result.m[0][0] = c;
+    result.m[0][1] = -s;
+    result.m[1][0] = s;
+    result.m[1][1] = c;
 
     return result;
 }
@@ -569,6 +603,41 @@ mat4 m4_transform(vec3 pos, vec3 scale, vec3 axis)
     return mat;
 }
 
+mat4 m4_transform2D(vec2 pos, vec2 scale, float angle)
+{
+    mat4 mat;
+    angle *= M_PI / 180;  // convert to radians
+
+    float sin_x = sin(0);
+    float cos_x = cos(0);
+    float sin_y = sin(0);
+    float cos_y = cos(0);
+    float sin_z = sin(angle);
+    float cos_z = cos(angle);
+
+    mat.m[0][0] = scale.x *( cos_z * cos_y );
+    mat.m[1][0] = scale.x *( cos_z * sin_y * sin_x + sin_z * cos_x );
+    mat.m[2][0] = scale.x *( -cos_z * sin_y * cos_x + sin_z * sin_x );
+    mat.m[3][0] = pos.x;
+
+    mat.m[0][1] = scale.y *( -sin_z * cos_y );
+    mat.m[1][1] = scale.y *( -sin_z * sin_y * sin_x + cos_z * cos_x );
+    mat.m[2][1] = scale.y *( sin_z * sin_y * cos_x + cos_z * sin_x );
+    mat.m[3][1] = pos.y;
+
+    mat.m[0][2] = 0;
+    mat.m[1][2] = 0;
+    mat.m[2][2] = 1;
+    mat.m[3][2] = 0;
+
+    mat.m[0][3] = 0;
+    mat.m[1][3] = 0;
+    mat.m[2][3] = 0;
+    mat.m[3][3] = 1;
+
+    return mat;
+}
+
 mat4 m4_transform_quaternion(vec3 translation, vec3 scale, vec4 rotation)
 {
     vec4 q = rotation;
@@ -898,7 +967,7 @@ mat4 m4_perspective(uint32_t width, uint32_t height, float fov_degrees, float ne
     return matrix;
 }
 
-mat4 m4_ortho(float top, float bottom, float left, float right, float zFar, float zNear)
+mat4 m4_ortho(float left, float right, float bottom, float top, float zNear, float zFar)
 {
     float rl = 1.0f / (right  - left);
     float tb = 1.0f / (top    - bottom);
@@ -907,8 +976,8 @@ mat4 m4_ortho(float top, float bottom, float left, float right, float zFar, floa
     mat4 matrix;
     memset(&matrix, 0, sizeof(mat4));
 
-    matrix.m[0][0] = 2.0 / rl;
-    matrix.m[1][1] = 2.0 / tb;
+    matrix.m[0][0] = 2.0f * rl;
+    matrix.m[1][1] = 2.0f * tb;
     matrix.m[2][2] = -fn;
     matrix.m[3][0] = -(right + left) * rl;
     matrix.m[3][1] = -(top + bottom) * tb;

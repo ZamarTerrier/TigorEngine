@@ -11,13 +11,13 @@ extern "C"
 typedef struct{
     vec2 position;
     vec2 positionOrig;
-    vec2 rotation;
+    float rotation;
     vec2 scale;
     vec2 scaleOrig;
     struct{
         vec2 offset;
         vec2 scale;
-        vec2 rotation;
+        float rotation;
     }img;
     mat4 model;
 } Transform2D;
@@ -47,6 +47,8 @@ vec2 Transform2DGetImageOffset(struct GameObject2D_T* go);
 void Transform2DSetScale(struct GameObject2D_T* go, float x, float y);
 vec2 Transform2DGetScale(struct GameObject2D_T* go);
 void Transform2DRescale(struct GameObject2D_T* go);
+void Transform2DSetRotate(struct GameObject2D_T* go, float angle);
+float Transform2DGetRotate(struct GameObject2D_T* go);
 
 void Transform3DSetPositionT(Transform3D* transform, float x, float y, float z);
 void Transform3DSetPosition(struct GameObject3D_T* go, float x, float y, float z);

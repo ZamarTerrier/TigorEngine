@@ -11,15 +11,13 @@ typedef struct{
 } DefaultBuffer2D;
 
 typedef struct {
-    vec2 position;
-    vec2 rotation;
-    vec2 scale;
+    mat4 model;
+    mat4 proj;
 } TransformBuffer2D;
 
 typedef struct{
-    vec2 offset;
-    vec2 scale;
-    vec2 rotation;
+    mat4 model;
+    mat4 proj;
 } ImageBufferObjects;
 
 typedef struct{

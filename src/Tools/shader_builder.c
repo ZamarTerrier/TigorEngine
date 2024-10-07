@@ -1711,6 +1711,16 @@ uint32_t DecoratingUniforStruct(ShaderVariable *str_elm, uint32_t *offset){
 
         }else if(var_elm->type == SHADER_VARIABLE_TYPE_MATRIX){
             
+            ShaderVariable *mat_elm = ShaderBuilderFindVar(var_elm->args[0]);
+            uint32_t o_val = mat_elm->values[0] * 4 * var_elm->values[0];
+            uint32_t s_val = 4 * var_elm->values[0];
+
+            while(o_val % 16)
+                o_val ++;
+                
+            while(s_val % 16)
+                s_val ++;
+
             ShaderBuilderAddOp(SpvOpMemberDecorate, 4);
             ShaderBuilderAddValue(str_elm->indx );
             ShaderBuilderAddValue(j );
@@ -1720,15 +1730,15 @@ uint32_t DecoratingUniforStruct(ShaderVariable *str_elm, uint32_t *offset){
             ShaderBuilderAddValue(str_elm->indx );
             ShaderBuilderAddValue(j );
             ShaderBuilderAddValue(SpvDecorationOffset );
-            ShaderBuilderAddValue(*offset );
+            ShaderBuilderAddValue(*offset);
             
             ShaderBuilderAddOp(SpvOpMemberDecorate, 5);
             ShaderBuilderAddValue(str_elm->indx );
             ShaderBuilderAddValue(j );
             ShaderBuilderAddValue(SpvDecorationMatrixStride );
-            ShaderBuilderAddValue(16);
+            ShaderBuilderAddValue(s_val);
 
-            *offset +=64;
+            *offset += o_val;
         }else if(var_elm->type == SHADER_VARIABLE_TYPE_VECTOR){
             
             ShaderBuilderAddOp(SpvOpMemberDecorate, 5);
@@ -1748,6 +1758,12 @@ uint32_t DecoratingUniforStruct(ShaderVariable *str_elm, uint32_t *offset){
 
             *offset += 4;
         }
+
+        uint32_t res = *offset;
+        while(res % 16)
+            res++;
+        
+        *offset = res;
     }
 }
 

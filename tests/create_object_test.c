@@ -32,7 +32,7 @@ int main(){
 
     TEngineInitSystem(800, 600, "Test");
 
-    TEngineSetFont("res\\RobotoBlack.ttf");
+    TEngineSetFont("res\\fantazer-normal.ttf");
 
     Camera2DInit(&cam2D);
     Camera3DInit(&cam3D);
@@ -55,7 +55,11 @@ int main(){
 
     ShapeObjectInit(&shape, &dParam, TIGOR_SHAPE_OBJECT_QUAD, &param);
     shape.go.transform.img.scale = vec2_f(2, 2);
+    shape.go.transform.scale = vec2_f(100, 100);
+    shape.go.transform.position = vec2_f(100, 100);
+    shape.go.transform.rotation = 0;
 
+    float rot = 0;
     while (!TEngineWindowIsClosed())
     {
         TEnginePoolEvents();
@@ -65,9 +69,11 @@ int main(){
 
         Update(0.1);
 
-        GUIAddText(30, 30, vec3_f(1, 0, 0), 9, "У попа была собака");
+        rot = sin(TEngineGetTime()) * 360;
+        Transform2DSetRotate(&shape, rot);
+        //GUIAddText(30, 30, vec3_f(1, 0, 0), 9, "У попа была собака");
 
-        TEngineDraw(&po);
+        //TEngineDraw(&po);
         TEngineDraw(&shape);
 
         TEngineRender();

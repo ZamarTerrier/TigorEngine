@@ -14,11 +14,11 @@ void Transform2DInit(Transform2D* transform){
 
     memset(transform, 0, sizeof(Transform2D));
 
-    transform->scale.x = 1;
-    transform->scale.y = 1;
+    transform->scale.x = engine.width / 10;
+    transform->scale.y = engine.height / 10;
     
-    transform->img.scale.x = 1;
-    transform->img.scale.y = 1;
+    transform->img.scale.x = transform->scale.x;
+    transform->img.scale.y = transform->scale.y;
 
     transform->scaleOrig.x = engine.width;
     transform->scaleOrig.y = engine.height;
@@ -47,12 +47,6 @@ void Transform2DSetPosition(struct GameObject2D_T* go, float x, float y)
     temp->transform.positionOrig.x = x;
     temp->transform.positionOrig.y = y;
 
-    if(x != 0)
-        x /= engine.width;
-
-    if(y != 0)
-        y /= engine.height;
-
     temp->transform.position.x = x;
     temp->transform.position.y = y;
 }
@@ -60,20 +54,15 @@ void Transform2DSetPosition(struct GameObject2D_T* go, float x, float y)
 void Transform2DReposition(struct GameObject2D_T* go)
 {
     GameObject2D *temp = (GameObject2D *)go;
-    temp->transform.position.x = temp->transform.positionOrig.x / (engine.width) / 2;
-    temp->transform.position.y = temp->transform.positionOrig.y / (engine.height) / 2;
+    temp->transform.position.x = temp->transform.positionOrig.x;
+    temp->transform.position.y = temp->transform.positionOrig.y;
 }
 
 vec2 Transform2DGetPosition(struct GameObject2D_T* go)
 {
     GameObject2D *temp = (GameObject2D *)go;
 
-    vec2 pos = temp->transform.position;
-
-    pos.x *= engine.width;
-    pos.y *= engine.height;
-
-    return pos;
+    return temp->transform.position;
 }
 
 
@@ -81,8 +70,8 @@ void Transform2DSetImageOffset(struct GameObject2D_T* go, float x, float y)
 {
     GameObject2D *temp = (GameObject2D *)go;
 
-    temp->transform.img.offset.x = x / temp->image->imgWidth;
-    temp->transform.img.offset.y = y / temp->image->imgHeight;
+    temp->transform.img.offset.x = x;
+    temp->transform.img.offset.y = y;
 }
 
 vec2 Transform2DGetImageOffset(struct GameObject2D_T* go)
@@ -90,8 +79,8 @@ vec2 Transform2DGetImageOffset(struct GameObject2D_T* go)
     GameObject2D *temp = (GameObject2D *)go;
 
     vec2 offset;
-    offset.x = temp->image->imgWidth * temp->transform.img.offset.x;
-    offset.y = temp->image->imgHeight * temp->transform.img.offset.y;
+    offset.x = temp->transform.img.offset.x;
+    offset.y = temp->transform.img.offset.y;
 
     return offset;
 }
@@ -102,18 +91,15 @@ void Transform2DSetScale(struct GameObject2D_T* go, float x, float y)
     temp->transform.scaleOrig.x = x;
     temp->transform.scaleOrig.y = y;
 
-    x /= engine.width;
-    y /= engine.height;
-
-    temp->transform.scale.x = x / 2;
-    temp->transform.scale.y = y / 2;
+    temp->transform.scale.x = x;
+    temp->transform.scale.y = y;
 }
 
 void Transform2DRescale(struct GameObject2D_T* go)
 {
     GameObject2D *temp = (GameObject2D *)go;
-    temp->transform.scale.x = temp->transform.scaleOrig.x / (engine.width) / 2;
-    temp->transform.scale.y = temp->transform.scaleOrig.y / (engine.height) / 2;
+    temp->transform.scale.x = temp->transform.scaleOrig.x;
+    temp->transform.scale.y = temp->transform.scaleOrig.y;
 }
 
 vec2 Transform2DGetScale(struct GameObject2D_T* go)
@@ -121,11 +107,29 @@ vec2 Transform2DGetScale(struct GameObject2D_T* go)
     GameObject2D *temp = (GameObject2D *)go;
 
     vec2 size;
-    size.x = temp->transform.scale.x * (engine.width) * 2;
-    size.y = temp->transform.scale.y * (engine.height) * 2;
+    size.x = temp->transform.scale.x;
+    size.y = temp->transform.scale.y;
 
     return size;
 }
+
+void Transform2DSetRotate(struct GameObject2D_T* go, float angle){
+
+    GameObject2D *temp = (GameObject2D *)go;
+
+    angle = angle > 360 ? -360 : angle;
+    angle = angle < -360 ? 360 : angle;
+
+    temp->transform.rotation = angle;
+}
+
+float Transform2DGetRotate(struct GameObject2D_T* go){
+
+    GameObject2D *temp = (GameObject2D *)go;
+
+    return temp->transform.rotation;
+}
+
 
 //3D Transforms
 void Transform3DSetPositionT(Transform3D* transform, float x, float y, float z)

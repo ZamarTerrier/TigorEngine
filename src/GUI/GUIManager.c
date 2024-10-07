@@ -43,8 +43,8 @@ double GUIRsqrt(double x)          { return 1.0 / sqrt(x); }
 #define GUI_DRAWLIST_CIRCLE_AUTO_SEGMENT_CALC(_RAD,_MAXERROR)    clamp(GUI_ROUNDUP_TO_EVEN((int)ceil(M_PI / acos(1 - min((_MAXERROR), (_RAD)) / (_RAD)))), GUI_DRAWLIST_CIRCLE_AUTO_SEGMENT_MIN, GUI_DRAWLIST_CIRCLE_AUTO_SEGMENT_MAX)
 #define GUI_DRAWLIST_CIRCLE_AUTO_SEGMENT_CALC_R(_N,_MAXERROR)    ((_MAXERROR) / (1 - cos(M_PI / max((float)(_N), M_PI))))
 
-#define MAX_VERTEX_SIZE 1024
-#define MAX_INDEX_SIZE 2048
+#define MAX_VERTEX_SIZE 4096
+#define MAX_INDEX_SIZE 8192
 
 GUIManager gui;
 
@@ -213,13 +213,17 @@ void PathArcTo(const vec2 center, float radius, float a_min, float a_max, int nu
         const bool a_emit_end = abs(a_max - a_max_segment_angle) >= 1e-5f;
 
         if (a_emit_start){
-            gui._Path[gui._Path_Size] = vec2_f(center.x + cos(a_min) * radius, center.y + sin(a_min) * radius);
+            vec2 pos = vec2_f(center.x + cos(a_min) * radius, center.y + sin(a_min) * radius);
+            pos = v2_div(pos, vec2_f(engine.width, engine.height));
+            gui._Path[gui._Path_Size] = pos;
             gui._Path_Size++;
         }
         if (a_mid_samples > 0)
             _PathArcToFastEx(center, radius, a_min_sample, a_max_sample, 0);
         if (a_emit_end){
-            gui._Path[gui._Path_Size] = vec2_f(center.x + cos(a_min) * radius, center.y + sin(a_max) * radius);
+            vec2 pos = vec2_f(center.x + cos(a_min) * radius, center.y + sin(a_min) * radius);
+            pos = v2_div(pos, vec2_f(engine.width, engine.height));
+            gui._Path[gui._Path_Size] = pos;
             gui._Path_Size++;
         }
     }

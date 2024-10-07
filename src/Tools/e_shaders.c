@@ -10,12 +10,11 @@ void ShadersMakeDefault2DShader(ShaderBuilder *vert, ShaderBuilder *frag, bool h
         ShaderBuilderInit(vert, SHADER_TYPE_VERTEX);
 
         ShaderStructConstr uniform_arr[] = {
-            {SHADER_VARIABLE_TYPE_VECTOR, 2, 0, "position", NULL, 0, NULL},
-            {SHADER_VARIABLE_TYPE_VECTOR, 2, 0, "rotation", NULL, 0, NULL},
-            {SHADER_VARIABLE_TYPE_VECTOR, 2, 0, "scale", NULL, 0, NULL},
+            {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "model", NULL, 0, NULL},
+            {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "proj", NULL, 0, NULL},
         };
 
-        uint32_t uniform = ShaderBuilderAddUniform(uniform_arr, 3, "TransformBufferObjects", 0, 1);
+        uint32_t uniform = ShaderBuilderAddUniform(uniform_arr, 2, "TransformBufferObjects", 0, 1);
 
         uint32_t posit = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_VECTOR, 0, NULL, 2, "position", 0, 0);
         uint32_t clr_indx = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_VECTOR, 0, NULL, 3, "color", 1, 0);
@@ -24,10 +23,9 @@ void ShadersMakeDefault2DShader(ShaderBuilder *vert, ShaderBuilder *frag, bool h
         uint32_t clr_dst = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_VECTOR, SHADER_DATA_FLAG_OUTPUT, NULL, 3, "fragColor", 0, 0);
         uint32_t txt_dst = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_VECTOR, SHADER_DATA_FLAG_OUTPUT, NULL, 2, "fragTexCoord", 1, 0);
 
-        uint32_t res = ShaderBuilderAddFuncMult(uniform, 2, SHADER_VARIABLE_TYPE_VECTOR, 2, posit, 0, SHADER_VARIABLE_TYPE_VECTOR, 2, 2);
-        res = ShaderBuilderAddFuncAdd(uniform, 0, SHADER_VARIABLE_TYPE_VECTOR, 2, res, 0, SHADER_VARIABLE_TYPE_VECTOR, 2, 2);
+        uint32_t res = ShaderBuilderAddFuncMult(uniform, 1, SHADER_VARIABLE_TYPE_MATRIX, 4, uniform, 0, SHADER_VARIABLE_TYPE_MATRIX, 4, 4);
+        res = ShaderBuilderAddFuncMult(res, 0, SHADER_VARIABLE_TYPE_MATRIX, 4, posit, 0, SHADER_VARIABLE_TYPE_VECTOR, 2, 4);
 
-        res = ShaderBuilderMutateVector(res, 2, 4);
         uint32_t acc = ShaderBuilderAcceptAccess(vert->gl_struct_indx, SHADER_VARIABLE_TYPE_VECTOR, 4, (uint32_t []){ 0 }, 1, false);
         ShaderBuilderStoreValue((uint32_t []){ acc, res }, 2);
 
@@ -41,12 +39,11 @@ void ShadersMakeDefault2DShader(ShaderBuilder *vert, ShaderBuilder *frag, bool h
         ShaderBuilderInit(frag, SHADER_TYPE_FRAGMENT);
 
         ShaderStructConstr uniform_arr_2[] = {
-            {SHADER_VARIABLE_TYPE_VECTOR, 2, 0, 0, "offset", NULL, 0, NULL},
-            {SHADER_VARIABLE_TYPE_VECTOR, 2, 0, 0, "scale", NULL, 0, NULL},
-            {SHADER_VARIABLE_TYPE_VECTOR, 2, 0, 0, "rotation", NULL, 0, NULL},
+            {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "model", NULL, 0, NULL},
+            {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "proj", NULL, 0, NULL},
         };
 
-        uint32_t uniform2 = ShaderBuilderAddUniform(uniform_arr_2, 3, "ImageBufferObjects", 0, 2);
+        uint32_t uniform2 = ShaderBuilderAddUniform(uniform_arr_2, 2, "ImageBufferObjects", 0, 2);
 
         uint32_t fragColor = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_VECTOR, 0, NULL, 3, "fragColor", 0, 0);
         uint32_t fragTexCoord = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_VECTOR, 0, NULL, 2, "fragTexCoord", 1, 0);
@@ -54,8 +51,15 @@ void ShadersMakeDefault2DShader(ShaderBuilder *vert, ShaderBuilder *frag, bool h
 
         if(hasTexture){
             uint32_t texture = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_IMAGE, SHADER_DATA_FLAG_UNIFORM_CONSTANT, NULL, 0, "Texture2D", 0, 3);
+            
+            uint32_t res = ShaderBuilderAddFuncMult(uniform2, 0, SHADER_VARIABLE_TYPE_MATRIX, 4, fragTexCoord, 0, SHADER_VARIABLE_TYPE_VECTOR, 2, 4);
+            //res = ShaderBuilderAddFuncMult(res, 0, SHADER_VARIABLE_TYPE_MATRIX, 4, fragTexCoord, 0, SHADER_VARIABLE_TYPE_VECTOR, 2, 4);
+            
+            VectorExtract extr = ShaderBuilderGetElemenets(SHADER_VARIABLE_TYPE_FLOAT, res, 4, 0, 2);
 
-            uint32_t res = ShaderBuilderAddFuncMult(uniform2, 1, SHADER_VARIABLE_TYPE_VECTOR, 2, fragTexCoord, 0, SHADER_VARIABLE_TYPE_VECTOR, 2, 2);
+            uint32_t vec_type = ShaderBuilderAddVector(2, NULL);
+
+            res = ShaderBuilderCompositeConstruct((uint32_t []){vec_type, extr.elems[0], extr.elems[1]}, 3);
 
             uint32_t text = ShaderBuilderGetTexture(texture, res, 0);
 

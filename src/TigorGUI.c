@@ -111,6 +111,9 @@ void GUIAddCircleFilled(vec2 center, float radius, vec3 col, int num_segments){
     }
     else
     {
+        center.x *= engine.width;
+        center.y *= engine.height;
+
         // Explicit segment count (still clamp to avoid drawing insanely tessellated shapes)
         num_segments = clamp(num_segments, 3, GUI_DRAWLIST_CIRCLE_AUTO_SEGMENT_MAX);
 
