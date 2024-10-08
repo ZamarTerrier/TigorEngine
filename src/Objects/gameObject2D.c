@@ -26,7 +26,7 @@ void GameObject2DTransformBufferUpdate(GameObject2D *go, void *data)
 
     TransformBuffer2D tbo;
     tbo.model = m4_transform2D(go->transform.position, go->transform.scale, go->transform.rotation) ;
-    tbo.view = m4_look_at(vec3_f(cam->position.x, cam->position.y, 0), v3_add(vec3_f(cam->position.x, cam->position.y, -1), vec3_f(0, 0, 0)), cameraUp);
+    tbo.view = m4_transform2D(v2_muls(cam->position, -1), cam->scale, cam->angle) ;//m4_look_at(vec3_f(cam->position.x, cam->position.y, 0), v3_add(vec3_f(cam->position.x, cam->position.y, -1), vec3_f(cos(cam->angle), 0, sin(cam->angle))), cameraUp);
     tbo.proj = m4_ortho(0, engine.width, engine.height, 0, -1.0, 1.0f);
     
     memcpy(data, &tbo, sizeof(tbo));

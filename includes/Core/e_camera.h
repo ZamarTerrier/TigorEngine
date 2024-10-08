@@ -101,11 +101,11 @@ void Camera3DSetScale(float x, float y, float z);
 /// @brief Функция вращения камеры
 ///     Производит вращение камеры в соответствии с положением мыши на экране
 /// @param deltaTime - множитель скорости бработки кадров
-void Camera3DMovementUpdate(float deltaTime);
+void Camera3DRotationUpdate(float deltaTime);
 /// @brief  Функция обработки нажатия клавиш
 ///     Позволяет изменять положение камеры с помощью клавиатуры
 /// @param deltaTime - множитель скорости бработки кадров
-void Camera3DUpdateInput(float deltaTime);
+void Camera3DMovementUpdate(float deltaTime);
 #ifdef __cplusplus
 }
 #endif

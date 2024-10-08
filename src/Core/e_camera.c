@@ -145,7 +145,7 @@ void Camera3DSetScale(float x, float y, float z){
     cam->scale.z = z;
 }
 
-void Camera3DUpdateInput(float deltaTime){
+void Camera3DMovementUpdate(float deltaTime){
     Camera3D* cam = (Camera3D*)engine.cam3D;
 
     vec3 up = {0.0f,1.0f,0.0f};
@@ -194,7 +194,7 @@ void Camera3DUpdateInput(float deltaTime){
     }*/
 }
 
-void Camera3DMovementUpdate(float deltaTime){
+void Camera3DRotationUpdate(float deltaTime){
     Camera3D* cam = (Camera3D*)engine.cam3D;
 
     double xpos, ypos;

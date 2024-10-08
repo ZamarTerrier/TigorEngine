@@ -54,26 +54,32 @@ int main(){
     param.color = vec3_f(1, 1, 1);
 
     ShapeObjectInit(&shape, &dParam, TIGOR_SHAPE_OBJECT_QUAD, &param);
+    Transform2DSetScale(&shape, 100, 100);
+    Transform2DSetPosition(&shape, 400, 400);
     shape.go.transform.img.scale = vec2_f(2, 2);
-    shape.go.transform.scale = vec2_f(100, 100);
-    shape.go.transform.position = vec2_f(100, 100);
-    shape.go.transform.rotation = 0;
 
     float rot = 0;
+    
+    vec2 c_pos = {-100, -100};
+
+    Camera2DSetPosition(c_pos.x, c_pos.y);
     while (!TEngineWindowIsClosed())
     {
         TEnginePoolEvents();
 
         Camera3DMovementUpdate(0.1);
-        Camera3DUpdateInput(0.1);
+        Camera3DRotationUpdate(0.1);
 
         Update(0.1);
 
-        rot += 0.01f;
-        Camera2DSetPosition(rot, 0);
-        //GUIAddText(30, 30, vec3_f(1, 0, 0), 9, "У попа была собака");
+        rot += 1.0f;
+        c_pos.x -= 1.1f;
 
-        //TEngineDraw(&po);
+        Camera2DSetRotation(rot);
+        Camera2DSetPosition(c_pos.x, c_pos.y);
+        GUIAddText(30, 30, vec3_f(1, 0, 0), 9, "У попа была собака");
+
+        TEngineDraw(&po);
         TEngineDraw(&shape);
 
         TEngineRender();
