@@ -54,6 +54,12 @@ void TEngineInitSystem(int width, int height, const char* name){
     engine.viewSize.x = engine.width;
     engine.viewSize.y = engine.height;
 
+    #ifndef NDEBUG
+        enableValidationLayers = true;
+    #else
+        enableValidationLayers = false;
+    #endif
+
     //rootDirPath = e_GetCurrectFilePath();
 
     engine.window = AllocateMemoryP(1, sizeof(TWindow), &engine);

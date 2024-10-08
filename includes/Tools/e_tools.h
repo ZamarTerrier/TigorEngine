@@ -63,6 +63,7 @@ char *ToolsMakeString(char *s1, char *s2);
 void ToolsAddStrings(char *out, int buff_size, char *s1, char *s2);
 bool ToolsCmpStrings(char *in, char *s1);
 int ToolsStr32BitLength(uint32_t *text);
+int ToolsTextStrFromUtf8(uint32_t* buf, int buf_size, const char* in_text, const char* in_text_end, const char** in_text_remaining);
 int ToolsStringToUInt32(uint32_t *dest, const char *src);
 int ToolsUInt32ToString(char *dest, const uint32_t *src);
 

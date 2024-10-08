@@ -105,30 +105,25 @@ add_executable(TestShaderBuilder tests/shader_builder_test.c)
 target_link_libraries(TestShaderBuilder ${CMAKE_CURRENT_SOURCE_DIR}/${CMAKE_BUILD_TYPE}/libTigorEngine.a Vulkan::Vulkan)
 add_test(NAME Test3
 		COMMAND TestShaderBuilder)
-		
-add_executable(TestRender tests/render_objets_test.c)
-target_link_libraries(TestRender ${CMAKE_CURRENT_SOURCE_DIR}/${CMAKE_BUILD_TYPE}/libTigorEngine.a Vulkan::Vulkan)
-add_test(NAME Test4
-		COMMAND TestRender)
-		
+				
 add_executable(TestGUI tests/test_gui.c)
 target_link_libraries(TestGUI ${CMAKE_CURRENT_SOURCE_DIR}/${CMAKE_BUILD_TYPE}/libTigorEngine.a Vulkan::Vulkan)
-add_test(NAME Test5
+add_test(NAME Test4
 		COMMAND TestGUI)
 		
 add_executable(TestPath tests/file_path_test.c)
 target_link_libraries(TestPath ${CMAKE_CURRENT_SOURCE_DIR}/${CMAKE_BUILD_TYPE}/libTigorEngine.a Vulkan::Vulkan)
-add_test(NAME Test6
+add_test(NAME Test5
 		COMMAND TestPath)
 
 add_executable(TestParticle tests/test_particles.c)
 target_link_libraries(TestParticle ${CMAKE_CURRENT_SOURCE_DIR}/${CMAKE_BUILD_TYPE}/libTigorEngine.a Vulkan::Vulkan)
-add_test(NAME Test7
+add_test(NAME Test6
 		COMMAND TestParticle)
 		
 add_executable(TestModel tests/test_model.c)
 target_link_libraries(TestModel ${CMAKE_CURRENT_SOURCE_DIR}/${CMAKE_BUILD_TYPE}/libTigorEngine.a Vulkan::Vulkan)
-add_test(NAME Test8
+add_test(NAME Test7
 		COMMAND TestModel)
 		
 

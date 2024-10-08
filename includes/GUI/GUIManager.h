@@ -23,6 +23,20 @@ typedef struct{
 } GUIObj;
 
 typedef struct{
+    uint32_t Colored : 1;
+    uint32_t Visible : 1;
+    uint32_t Codepoint  : 30;
+    float    AdvanceX;
+    float    X0, Y0, X1, Y1;
+    float    U0, V0, U1, V1;
+} TFontGlyph;
+
+typedef struct{
+    TFontGlyph *Glyphs;    
+
+} TFont;
+
+typedef struct{
     GameObject2D go;
     ChildStack *draw_list;
     BufferObject vertBuffer;

@@ -32,6 +32,8 @@ int main(){
 
     TEngineInitSystem(800, 600, "Test");
 
+    //TEngineSetFont("res\\arial.ttf");
+
     Camera2DInit(&cam2D);
     Camera3DInit(&cam3D);
         
@@ -76,6 +78,7 @@ int main(){
         Camera2DSetRotation(rot);
         Camera2DSetPosition(c_pos.x, c_pos.y);
         GUIAddText(30, 30, vec3_f(1, 0, 0), 9, "У попа была собака");
+        GUIAddText(30, 70, vec3_f(1, 0, 0), 9, "Entscheidungsschwierigkeiten");
 
         TEngineDraw(&po);
         TEngineDraw(&shape);

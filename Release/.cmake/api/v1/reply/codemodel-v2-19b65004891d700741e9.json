@@ -1,0 +1,123 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"jsonFile" : "directory-.-Release-d0094a50bb2071803777.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.5"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7
+					]
+				}
+			],
+			"name" : "Release",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "TigorEngine",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "TestCreate::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-TestCreate-Release-0502626635f35371bd29.json",
+					"name" : "TestCreate",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "TestGUI::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-TestGUI-Release-1c88838fbf0afb69447f.json",
+					"name" : "TestGUI",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "TestMemory::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-TestMemory-Release-39d230405e4a70b16a4e.json",
+					"name" : "TestMemory",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "TestModel::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-TestModel-Release-b9c1b4dff791b94d16f1.json",
+					"name" : "TestModel",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "TestParticle::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-TestParticle-Release-8bf004754cf2a078fadd.json",
+					"name" : "TestParticle",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "TestPath::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-TestPath-Release-73b4fd0c2f94da12d349.json",
+					"name" : "TestPath",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "TestShaderBuilder::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-TestShaderBuilder-Release-b94cb1f6c2f49215fae6.json",
+					"name" : "TestShaderBuilder",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "TigorEngine::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-TigorEngine-Release-95690f5e4d08c2ba0129.json",
+					"name" : "TigorEngine",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "C:/Projects/TigorEngine/Release",
+		"source" : "C:/Projects/TigorEngine"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 3
+	}
+}

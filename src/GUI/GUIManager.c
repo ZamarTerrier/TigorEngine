@@ -453,12 +453,6 @@ void GUIManagerInitFont(int default_font){
 
     vec2 TexUvScale = vec2_f(1.0f / gui.font.fontWidth, 1.0f / gui.font.fontHeight);
 
-    /*for(int i=0;i < 10;i++){
-        for(int j=0;j < 10;j++){
-            point[i * gui.font.fontWidth + j] = 0xFFFFFFFF;
-        }
-    }*/
-
     point[0] = point[1] = point[gui.font.fontWidth] = point[gui.font.fontWidth + 1] = 0xFF;
 
     TexUvWhitePixel = vec2_f(0.5f * TexUvScale.x, 0.5f * TexUvScale.y);
@@ -709,7 +703,9 @@ void GUIAddTextU8(float xpos, float ypos, vec3 color, float font_size, char *tex
     uint32_t size = strlen(text);
     uint32_t buff[size + 1];
 
-    ToolsStringToUInt32(buff, text);
+    //ToolsStringToUInt32(buff, text);
+
+    ToolsTextStrFromUtf8(buff, size, text, 0, NULL);
 
     GUIAddTextU32(xpos, ypos, color, font_size, buff);
 }

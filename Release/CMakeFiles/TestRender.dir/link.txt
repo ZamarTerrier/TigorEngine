@@ -1,0 +1,3 @@
+"C:\Program Files\CMake\bin\cmake.exe" -E rm -f CMakeFiles\TestRender.dir/objects.a
+C:\msys64\mingw64\bin\ar.exe qc CMakeFiles\TestRender.dir/objects.a @CMakeFiles\TestRender.dir\objects1.rsp
+C:\msys64\mingw64\bin\gcc.exe -std=c99 -O3 -DNDEBUG -Wl,--whole-archive CMakeFiles\TestRender.dir/objects.a -Wl,--no-whole-archive -o bin\TestRender.exe -Wl,--out-implib,libTestRender.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\TestRender.dir\linklibs.rsp

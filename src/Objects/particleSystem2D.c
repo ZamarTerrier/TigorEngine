@@ -353,11 +353,11 @@ void Particle2DAdd(ParticleObject2D* particle, vec2 position, vec2 direction, fl
 
     Particle2D *part = Particle2DAddObject(particle);
 
-    part->position = v2_div(position, vec2_f(engine.width, engine.height));
-    part->direction = v2_div(direction, vec2_f(engine.width / 100, engine.height / 100));
+    part->position = position;
+    part->direction = v2_muls(direction, -1);
     part->life = life;
     part->speed = speed;
-    part->gravity = gravity / 100;
+    part->gravity = gravity / 100 * -1;
 
     float min_size = 0.3f;
     float max_size = 1.0f;

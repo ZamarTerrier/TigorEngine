@@ -100,9 +100,9 @@ void ShaderMakeDefaultParticle2DShader(ShaderBuilder *vert, ShaderBuilder *frag)
         ShaderBuilderInit(vert, SHADER_TYPE_VERTEX);
         
         ShaderStructConstr uniform_arr[] = {
-            {SHADER_VARIABLE_TYPE_VECTOR, 2, 0, "position", NULL, 0, NULL},
-            {SHADER_VARIABLE_TYPE_VECTOR, 2, 0, "rotation", NULL, 0, NULL},
-            {SHADER_VARIABLE_TYPE_VECTOR, 2, 0, "scale", NULL, 0, NULL},
+            {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "model", NULL, 0, NULL},
+            {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "view", NULL, 0, NULL},
+            {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "proj", NULL, 0, NULL},
         };
 
         uint32_t uniform = ShaderBuilderAddUniform(uniform_arr, 3, "TransformBufferObjects", 0, 1);
@@ -122,9 +122,9 @@ void ShaderMakeDefaultParticle2DShader(ShaderBuilder *vert, ShaderBuilder *frag)
         uint32_t acc = ShaderBuilderAcceptAccess(vert->gl_struct_indx, SHADER_VARIABLE_TYPE_FLOAT, 0, (uint32_t []){ 1 }, 1, false);
         ShaderBuilderStoreValue((uint32_t []){ acc,  res}, 2);
 
-        res = ShaderBuilderAddFuncMult(uniform, 2, SHADER_VARIABLE_TYPE_VECTOR, 2, posit, 0, SHADER_VARIABLE_TYPE_VECTOR, 2, 2);
-        res = ShaderBuilderAddFuncAdd(uniform, 0, SHADER_VARIABLE_TYPE_VECTOR, 2, res, 0, SHADER_VARIABLE_TYPE_VECTOR, 2, 2);
-        res = ShaderBuilderMutateVector(res, 2, 4);
+        res = ShaderBuilderAddFuncMult(uniform, 1, SHADER_VARIABLE_TYPE_MATRIX, 4, uniform, 0, SHADER_VARIABLE_TYPE_MATRIX, 4, 4);
+        res = ShaderBuilderAddFuncMult(uniform, 2, SHADER_VARIABLE_TYPE_MATRIX, 4, res, 0, SHADER_VARIABLE_TYPE_MATRIX, 4, 4);
+        res = ShaderBuilderAddFuncMult(res, 0, SHADER_VARIABLE_TYPE_MATRIX, 4, posit, 0, SHADER_VARIABLE_TYPE_VECTOR, 2, 4);
         acc = ShaderBuilderAcceptAccess(vert->gl_struct_indx, SHADER_VARIABLE_TYPE_VECTOR, 4, (uint32_t []){ 0 }, 1, false);
         ShaderBuilderStoreValue((uint32_t []){ acc,  res}, 2);
 

@@ -1,0 +1,11 @@
+C:/Projects/TigorEngine/Release/CMakeFiles/TestGUI.dir
+C:/Projects/TigorEngine/Release/CMakeFiles/TigorEngine.dir
+C:/Projects/TigorEngine/Release/CMakeFiles/TestPath.dir
+C:/Projects/TigorEngine/Release/CMakeFiles/TestMemory.dir
+C:/Projects/TigorEngine/Release/CMakeFiles/rebuild_cache.dir
+C:/Projects/TigorEngine/Release/CMakeFiles/TestCreate.dir
+C:/Projects/TigorEngine/Release/CMakeFiles/TestParticle.dir
+C:/Projects/TigorEngine/Release/CMakeFiles/TestShaderBuilder.dir
+C:/Projects/TigorEngine/Release/CMakeFiles/TestModel.dir
+C:/Projects/TigorEngine/Release/CMakeFiles/test.dir
+C:/Projects/TigorEngine/Release/CMakeFiles/edit_cache.dir

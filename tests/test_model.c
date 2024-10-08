@@ -42,7 +42,7 @@ int main(){
         TEnginePoolEvents();
 
         Camera3DMovementUpdate(0.1);
-        Camera3DUpdateInput(0.1);
+        Camera3DRotationUpdate(0.1);
 
         TEngineDraw(&model);
         

@@ -40,12 +40,12 @@ int main(){
     {
         TEnginePoolEvents();
 
-        Camera3DMovementUpdate(0.1);
+        Camera3DRotationUpdate(0.1);
 
         ticker +=0.1f;
 
         if(ticker > 1){
-            Particle2DAdd(&particles, vec2_f(rand() % 300, rand() % 300), vec2_f(0, 1.0f), 1.0, 1.0, 1);
+            Particle2DAdd(&particles, vec2_f(rand() % 6, rand() % 6), vec2_f(0, 0.5f), 1.0, 1.0, 1);
             Particle3DAdd(&part3D, vec3_f(rand() % 6, rand() % 6, 0), vec3_f(0, 1.0f, 0), 1.0, 0.1, 1);
             ticker =0;
         }
