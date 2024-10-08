@@ -15,6 +15,7 @@
 #include "Core/pipeline.h"
 
 #include "Data/e_resource_shapes.h"
+#include "Data/default_font.h"
 
 #include "Tools/e_math.h"
 #include "Tools/e_shaders.h"
@@ -412,7 +413,7 @@ void GUIManagerClear(){
     gui.sellected = false;
 }
 
-void GUIManagerInitFont(){
+void GUIManagerInitFont(int default_font){
     
     TDevice *device = (TDevice *)engine.device;
     
@@ -424,23 +425,28 @@ void GUIManagerInitFont(){
     
     VkDeviceSize bufferSize = gui.font.fontWidth * gui.font.fontHeight;
 
-    FILE *font = fopen(engine.DataR.font_path, "r");
+    if(!default_font){
+        FILE *font = fopen(engine.DataR.font_path, "r");
 
-    if(font){
-        fseek(font, 0L, SEEK_END);
-        uint32_t size = ftell(font);
+        if(font){
+            fseek(font, 0L, SEEK_END);
+            uint32_t size = ftell(font);
 
-        char *buff = (char *)AllocateMemoryP(size, sizeof(char), &engine);
+            char *buff = (char *)AllocateMemoryP(size, sizeof(char), &engine);
 
-        fseek(font, 0L, SEEK_SET);
-        
-        fread(buff, sizeof(char),size, font);
+            fseek(font, 0L, SEEK_SET);
+            
+            fread(buff, sizeof(char),size, font);
 
-        stbtt_InitFont(gui.font.info, buff, stbtt_GetFontOffsetForIndex(buff,0));
-        stbtt_BakeFontBitmap(buff, 0, 32.0, temp_bitmap, gui.font.fontWidth, gui.font.fontHeight, 0, 1106, gui.font.cdata); // no guarantee this fits!
+            stbtt_InitFont(gui.font.info, buff, stbtt_GetFontOffsetForIndex(buff,0));
+            stbtt_BakeFontBitmap(buff, 0, 32.0, temp_bitmap, gui.font.fontWidth, gui.font.fontHeight, 0, 1106, gui.font.cdata); // no guarantee this fits!
 
-        FreeMemory(buff);
-        fclose(font);
+            FreeMemory(buff);
+            fclose(font);
+        }
+    }else{
+        stbtt_InitFont(gui.font.info, RobotoBlack_ttf, stbtt_GetFontOffsetForIndex(RobotoBlack_ttf,0));
+        stbtt_BakeFontBitmap(RobotoBlack_ttf, 0, 32.0, temp_bitmap, gui.font.fontWidth, gui.font.fontHeight, 0, 1106, gui.font.cdata); // no guarantee this fits!
     }
 
     uint32_t *point = (uint32_t *)temp_bitmap;
@@ -485,7 +491,7 @@ void GUIManagerInitFont(){
     TextureCreateSampler(&texture->sampler, texture->textureType, 1);
 }
 
-void GUIManagerInit(){
+void GUIManagerInit(int default_font){
     
     for (int i = 0; i < GUI_ARRAYSIZE(ArcFastVtx); i++)
     {
@@ -513,7 +519,7 @@ void GUIManagerInit(){
     gui.font.fontHeight = 512;
     gui.font.fontSize = 14;
        
-    GUIManagerInitFont();
+    GUIManagerInitFont(default_font);
 
     ////---------------------------------------------------------
         

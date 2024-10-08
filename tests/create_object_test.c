@@ -32,8 +32,6 @@ int main(){
 
     TEngineInitSystem(800, 600, "Test");
 
-    TEngineSetFont("res\\RobotoBlack.ttf");
-
     Camera2DInit(&cam2D);
     Camera3DInit(&cam3D);
         

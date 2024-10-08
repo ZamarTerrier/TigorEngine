@@ -97,6 +97,8 @@ void TEngineInitSystem(int width, int height, const char* name){
     RenderTextureInit(engine.main_render, TIGOR_RENDER_TYPE_WINDOW, 0, 0, 0);
 
     TEngineSetRender(engine.main_render, 1);
+
+    GUIManagerInit(true);
 }
 
 void TEngineSetRender(void *obj, uint32_t count)
@@ -422,7 +424,11 @@ void TEngineSetFont(char *font_path){
     FreeMemory(currPath);
         
     if(!GUIManagerIsInit())
-        GUIManagerInit();
+        GUIManagerInit(false);
+    else{
+        GUIManagerDestroy();
+        GUIManagerInit(false);
+    }
 }
 
 void TEngineCleanUp(){
