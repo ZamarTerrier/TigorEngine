@@ -237,7 +237,7 @@ void Particle3DDefaultUpdate(ParticleObject3D* particle, void *data){
 
     RenderTexture *render = engine.current_render;
 
-    ModelBuffer3D mbo = {};
+    TransformBuffer mbo;
     vec3 cameraUp = {0.0f,1.0f, 0.0f};
 
     particle->go.transform.model = m4_transform(particle->go.transform.position, particle->go.transform.scale, particle->go.transform.rotation);

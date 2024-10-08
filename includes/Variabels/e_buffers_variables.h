@@ -14,18 +14,12 @@ typedef struct {
     mat4 model;
     mat4 view;
     mat4 proj;
-} TransformBuffer2D;
+} TransformBuffer;
 
 typedef struct{
     mat4 model;
     mat4 proj;
 } ImageBufferObjects;
-
-typedef struct{
-    mat4 model;
-    mat4 view;
-    mat4 proj;
-} ModelBuffer3D;
 
 typedef struct {
     mat4 view;

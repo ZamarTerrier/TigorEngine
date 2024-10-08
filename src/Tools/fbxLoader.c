@@ -515,7 +515,7 @@ void ModelFBXUpdate(ModelObject3D* mo, uint32_t indx_node, void *data){
 
     RenderTexture *render = engine.current_render;
 
-    ModelBuffer3D mbo = {};
+    TransformBuffer mbo;
     vec3 cameraUp = {0.0f,1.0f, 0.0f};
     
     engine_fbx_node *node = &fbx->nodes[mo->nodes[indx_node].id_node];

@@ -254,9 +254,8 @@ void ModelObjUpdate(ModelObject3D* mo, uint32_t indx_node, void *data){
 
     RenderTexture *render = engine.current_render;
 
-    ModelBuffer3D mbo = {};
+    TransformBuffer mbo;
     vec3 cameraUp = {0.0f,1.0f, 0.0f};
-    
 
     mbo.model = m4_transform(mo->transform.position, mo->transform.scale, mo->transform.rotation);
     mbo.view = m4_look_at(cam->position, v3_add(cam->position, cam->rotation), cameraUp);

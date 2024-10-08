@@ -33,7 +33,7 @@ void GameObject3DDescriptorModelUpdate(GameObject3D* go, void *data)
 
     RenderTexture *render = engine.current_render;
 
-    ModelBuffer3D mbo = {};
+    TransformBuffer mbo = {};
     vec3 cameraUp = {0.0f,1.0f, 0.0f};
 
     go->transform.model = m4_transform(go->transform.position, go->transform.scale, go->transform.rotation);

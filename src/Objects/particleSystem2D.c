@@ -215,6 +215,8 @@ void Particle2DFind(ParticleObject2D *particle){
 
 void Particle2DDefaultUpdate(ParticleObject2D* particle, void *data){
 
+    Camera2D* cam = (Camera2D*) engine.cam2D;
+    
     uint32_t num_part = Patricle2DObjCount(particle);
 
     if(num_part == 0)
@@ -227,10 +229,10 @@ void Particle2DDefaultUpdate(ParticleObject2D* particle, void *data){
 
     Particle2DCopyToBuffer(particle);
 
-    TransformBuffer2D tbo = {};
-
-    vec2 posit = v2_subs(particle->go.transform.position, 1.0f);
-    tbo.model = m4_transform(vec3_f(posit.x, posit.y, 0), vec3_f(particle->go.transform.scale.x, particle->go.transform.scale.y, 0), vec3_f(particle->go.transform.rotation, 0, 0));
+    TransformBuffer tbo;
+    tbo.model = m4_transform2D(particle->go.transform.position, particle->go.transform.scale, particle->go.transform.rotation);
+    tbo.view = m4_transform2D(v2_muls(cam->position, -1), cam->scale, cam->angle) ;
+    tbo.proj = m4_ortho(0, engine.width, engine.height, 0, -1.0, 1.0f);
 
     memcpy(data, &tbo, sizeof(tbo));
 }
