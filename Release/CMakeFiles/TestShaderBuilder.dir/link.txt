@@ -1,3 +1,0 @@
-"C:\Program Files\CMake\bin\cmake.exe" -E rm -f CMakeFiles\TestShaderBuilder.dir/objects.a
-C:\msys64\mingw64\bin\ar.exe qc CMakeFiles\TestShaderBuilder.dir/objects.a @CMakeFiles\TestShaderBuilder.dir\objects1.rsp
-C:\msys64\mingw64\bin\gcc.exe -std=c99 -O3 -DNDEBUG -Wl,--whole-archive CMakeFiles\TestShaderBuilder.dir/objects.a -Wl,--no-whole-archive -o bin\TestShaderBuilder.exe -Wl,--out-implib,libTestShaderBuilder.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\TestShaderBuilder.dir\linklibs.rsp

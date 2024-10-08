@@ -1,3 +1,0 @@
-"C:\Program Files\CMake\bin\cmake.exe" -E rm -f CMakeFiles\TestMemory.dir/objects.a
-C:\msys64\mingw64\bin\ar.exe qc CMakeFiles\TestMemory.dir/objects.a @CMakeFiles\TestMemory.dir\objects1.rsp
-C:\msys64\mingw64\bin\gcc.exe -std=c99 -O3 -DNDEBUG -Wl,--whole-archive CMakeFiles\TestMemory.dir/objects.a -Wl,--no-whole-archive -o bin\TestMemory.exe -Wl,--out-implib,libTestMemory.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\TestMemory.dir\linklibs.rsp
