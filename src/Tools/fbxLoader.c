@@ -53,23 +53,37 @@ void read_mesh(engine_model_mesh *vBuffer, ufbx_mesh *mesh, FBXStruct *fbx)
 
     if(mesh->materials.count > 0){
         vBuffer->image = AllocateMemory(mesh->materials.count, sizeof(GameObjectImage));
+        vBuffer->normal = AllocateMemory(mesh->materials.count, sizeof(GameObjectImage));
 
         for(int i=0; i < mesh->materials.count;i++){
 
-            if(mesh->materials.data[i]->pbr.base_color.texture == NULL)
-                continue;
+            if(mesh->materials.data[i]->pbr.base_color.texture != NULL){
+                GameObjectImage *image = &vBuffer->image[vBuffer->num_images];
+                                
+                image->path = AllocateMemory(mesh->materials.data[i]->pbr.base_color.texture->name.length, sizeof(char));
+                memcpy(image->path, mesh->materials.data[i]->pbr.base_color.texture->name.data, sizeof(char) * mesh->materials.data[i]->pbr.base_color.texture->name.length);
 
-            GameObjectImage *image = &vBuffer->image[vBuffer->num_images];
-                            
-            image->path = AllocateMemory(mesh->materials.data[i]->pbr.base_color.texture->name.length, sizeof(char));
-            memcpy(image->path, mesh->materials.data[i]->pbr.base_color.texture->name.data, sizeof(char) * mesh->materials.data[i]->pbr.base_color.texture->name.length);
+                image->buffer = AllocateMemory(mesh->materials.data[i]->pbr.base_color.texture->content.size, sizeof(char));
+                memcpy(image->buffer, mesh->materials.data[i]->pbr.base_color.texture->content.data, mesh->materials.data[i]->pbr.base_color.texture->content.size * sizeof(char));
+                image->size = mesh->materials.data[i]->pbr.base_color.texture->content.size;
 
-            image->buffer = AllocateMemory(mesh->materials.data[i]->pbr.base_color.texture->content.size, sizeof(char));
-            memcpy(image->buffer, mesh->materials.data[i]->pbr.base_color.texture->content.data, mesh->materials.data[i]->pbr.base_color.texture->content.size * sizeof(char));
-            image->size = mesh->materials.data[i]->pbr.base_color.texture->content.size;
+                vBuffer->num_images++;
+            }
 
-            vBuffer->num_images++;
+            if(mesh->materials.data[i]->pbr.normal_map.texture != NULL){
+                GameObjectImage *image = &vBuffer->normal[vBuffer->num_normal];
+                                
+                image->path = AllocateMemory(mesh->materials.data[i]->pbr.normal_map.texture->name.length, sizeof(char));
+                memcpy(image->path, mesh->materials.data[i]->pbr.normal_map.texture->name.data, sizeof(char) * mesh->materials.data[i]->pbr.normal_map.texture->name.length);
+
+                image->buffer = AllocateMemory(mesh->materials.data[i]->pbr.normal_map.texture->content.size, sizeof(char));
+                memcpy(image->buffer, mesh->materials.data[i]->pbr.normal_map.texture->content.data, mesh->materials.data[i]->pbr.normal_map.texture->content.size * sizeof(char));
+                image->size = mesh->materials.data[i]->pbr.normal_map.texture->content.size;
+
+                vBuffer->num_normal++;
+            }
         }
+        
     }
 
     size_t num_tri_indices = mesh->max_face_triangles * 3;
@@ -447,6 +461,7 @@ void ModelFBXDestroy(ModelObject3D *mo){
     for(int i=0; i < fbx->num_meshes;i++)
     {
         FreeMemory(fbx->meshes[i].image);
+        FreeMemory(fbx->meshes[i].normal);
         FreeMemory(fbx->meshes[i].verts);
         FreeMemory(fbx->meshes[i].indices);
         FreeMemory(fbx->meshes[i].instance_node_indices);
@@ -577,6 +592,53 @@ void ModelFBXSetDefaultShader(GameObject3D *go)
     go->self.flags |= TIGOR_GAME_OBJECT_FLAG_SHADED;
 }
 
+void ModelFBXSetDefaultLightShader(GameObject3D *go)
+{    
+    if(go->self.flags & TIGOR_GAME_OBJECT_FLAG_SHADED)
+        return;
+
+    uint32_t num_pack = BluePrintInit(&go->graphObj.blueprints);
+    
+    ShaderBuilder *vert = go->self.vert;
+    ShaderBuilder *frag = go->self.frag;
+
+    ShadersMakeDeafult3DModelShaderWithLight(vert, frag, go->num_diffuses);
+
+    ShaderObject vert_shader, frag_shader;
+    memset(&vert_shader, 0, sizeof(ShaderObject));
+    memset(&frag_shader, 0, sizeof(ShaderObject));
+
+    vert_shader.code = (char *)vert->code;
+    vert_shader.size = vert->size * sizeof(uint32_t);
+    
+    frag_shader.code = (char *)frag->code;
+    frag_shader.size = frag->size * sizeof(uint32_t);
+
+    GraphicsObjectSetShaderWithUniform(&go->graphObj, &vert_shader, num_pack);
+    GraphicsObjectSetShaderWithUniform(&go->graphObj, &frag_shader, num_pack);
+    
+    GameObject3DSetDescriptorUpdate(go, num_pack, 0, (UpdateDescriptor)ModelFBXUpdate);
+    GameObject3DSetDescriptorUpdate(go, num_pack, 1, (UpdateDescriptor)ModelFBXInvMatrixBuffer);
+    GameObject3DSetDescriptorUpdate(go, num_pack, 2, (UpdateDescriptor)ModelLightDescriptorUpdate);
+
+    if(go->num_diffuses > 1)
+        GameObject3DSetDescriptorTextureArrayCreate(go, num_pack, 3, go->diffuses, go->num_diffuses);
+    else
+        GameObject3DSetDescriptorTextureCreate(go, num_pack, 3, go->num_diffuses > 0 ? go->diffuses : NULL);
+        
+    if(go->num_normals > 1)
+        GameObject3DSetDescriptorTextureArrayCreate(go, num_pack, 4, go->normals, go->num_normals);
+    else
+        GameObject3DSetDescriptorTextureCreate(go, num_pack, 4, go->num_normals > 0 ? go->normals : NULL);
+        
+    if(go->num_speculars > 1)
+        GameObject3DSetDescriptorTextureArrayCreate(go, num_pack, 5, go->speculars, go->num_speculars);
+    else
+        GameObject3DSetDescriptorTextureCreate(go, num_pack, 5, go->num_speculars > 0 ? go->speculars : NULL);
+        
+    go->self.flags |= TIGOR_GAME_OBJECT_FLAG_SHADED;
+}
+
 void Load3DFBXModel(ModelObject3D * mo, char *filepath, DrawParam *dParam)
 {
     
@@ -646,13 +708,24 @@ void Load3DFBXModel(ModelObject3D * mo, char *filepath, DrawParam *dParam)
                     mo->nodes[i].models->diffuses[j] = mesh->image[j];
 
                 mo->nodes[i].models->num_diffuses = mesh->num_images;
+
+                if(mesh->num_normal > 0){
+                    mo->nodes[i].models->normals = AllocateMemory(mesh->num_images, sizeof(GameObjectImage));
+                    
+                    for(int j=0;j < mesh->num_normal;j++)
+                        mo->nodes[i].models->normals[j] = mesh->normal[j];
+
+                        
+                    mo->nodes[i].models->num_normals = mesh->num_normal;
+                }
+
             }else{
                 GameObject3DInitTextures(mo->nodes[i].models, dParam);
             }
 
             GameObjectSetUpdateFunc((GameObject *)mo->nodes[i].models, NULL);
 
-            GameObjectSetShaderInitFunc(mo->nodes[i].models, ModelFBXSetDefaultShader);
+            GameObjectSetShaderInitFunc(mo->nodes[i].models, ModelFBXSetDefaultLightShader);
         }
     } 
 

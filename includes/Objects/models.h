@@ -45,6 +45,7 @@ typedef struct{
 } ModelObject3D;
 
 void ModelModelBufferUpdate(ModelObject3D* mo, uint32_t indx_node, void *data);
+void ModelLightDescriptorUpdate(ModelObject3D* mo, uint32_t indx_node, void *data);
 
 void ModelNextFrame(ModelObject3D *mo, double time, int num_animation);
 

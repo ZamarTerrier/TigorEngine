@@ -913,6 +913,21 @@ ShaderOperand *ShaderBuilderFindOperandByIndex(uint32_t index){
     return NULL;
 }
 
+uint32_t ShaderBuilderMakeExternalFunction(uint32_t *arg, uint32_t size, uint32_t ext_indx){
+
+    uint32_t arr[3 + size - 1];
+
+    arr[0] = arg[0];
+    arr[1] = 0x1;
+    arr[2] = ext_indx;
+
+    for(int i=1;i < size;i++){
+        arr[2 + i] = arg[i];
+    }
+
+    return ShaderBuilderAddOperand(arr, 3 + size - 1, SHADER_OPERAND_TYPE_EXT_INST);
+}
+
 void ShaderBuilderStoreValue(uint32_t *arr, uint32_t size){
 
     ShaderOperand *oper = &curr_label->operands[curr_label->num_operands];
@@ -1226,56 +1241,58 @@ uint32_t ShaderBuilderCompositeConstruct(uint32_t *arr_arg, uint32_t size_arr){
     return res;
 }
 
+uint32_t ShaderBuilderMakeNegative(uint32_t val_1, uint32_t indx_1, uint32_t arg, uint32_t res_type){
+
+    uint32_t var_type = ShaderBuilderGetType(res_type, arg, NULL);
+
+    uint32_t acc_1 = ShaderBuilderAcceptLoad(val_1, indx_1);
+    
+    uint32_t arr[] = { var_type, acc_1};
+    uint32_t res = ShaderBuilderAddOperand(arr, 2, SHADER_OPERAND_TYPE_NEGATIVE);
+
+    return res;
+}
+
+uint32_t ShaderBuilderMakeDotProduct(uint32_t val_1, uint32_t indx_1, uint32_t val_2, uint32_t indx_2){
+
+    uint32_t acc_1 = ShaderBuilderAcceptLoad(val_1, indx_1);
+    uint32_t acc_2 = ShaderBuilderAcceptLoad(val_2, indx_2);
+    
+    uint32_t res_type = ShaderBuilderAddFloat();
+
+    uint32_t arr[] = { res_type, acc_1, acc_2 };
+    uint32_t res = ShaderBuilderAddOperand(arr, 3, SHADER_OPERAND_TYPE_DOT);
+
+    return res;
+}
+
 uint32_t ShaderBuilderAddFuncDiv(uint32_t val_1, uint32_t indx_1, uint32_t type_1, uint32_t size_1,  uint32_t val_2, uint32_t indx_2, uint32_t type_2, uint32_t size_2, uint32_t res_size){
     uint32_t res = 0;
 
     uint32_t acc_1 = ShaderBuilderAcceptLoad(val_1, indx_1);
     uint32_t acc_2 = ShaderBuilderAcceptLoad(val_2, indx_2);
 
-    if(type_1 == SHADER_VARIABLE_TYPE_MATRIX && type_2 == SHADER_VARIABLE_TYPE_MATRIX){
-        uint32_t mat_type = ShaderBuilderAddMatrix(size_1, NULL);
-        uint32_t vec_type = ShaderBuilderAddVector(size_2, NULL);
+    if(type_1 == SHADER_VARIABLE_TYPE_VECTOR && type_2 == SHADER_VARIABLE_TYPE_VECTOR){
 
-        uint32_t arr[] = { mat_type, acc_1, acc_2 };
-        res = ShaderBuilderAddOperand(arr, 3, SHADER_OPERAND_TYPE_MATTIMEMAT);
-    }else if(type_1 == SHADER_VARIABLE_TYPE_MATRIX && type_2 == SHADER_VARIABLE_TYPE_VECTOR){
-        uint32_t mat_type = ShaderBuilderAddMatrix(size_1, NULL);
-        uint32_t vec_type = ShaderBuilderAddVector(size_2, NULL);
         uint32_t res_vec_type = ShaderBuilderAddVector(res_size, NULL);
 
-        float v_f = 1.0f;
-        uint32_t v_u = 0;
-        memcpy(&v_u, &v_f, sizeof(uint32_t));        
-        uint32_t cnst = ShaderBuilderAddConstant(SHADER_VARIABLE_TYPE_FLOAT, 0, v_u, 1);
-        uint32_t cnst2 = ShaderBuilderAddConstant(SHADER_VARIABLE_TYPE_FLOAT, 0, 0, 1);
-
-        if(size_2 == 2){
-                        
-            VectorExtract extr = ShaderBuilderGetElemenets(SHADER_VARIABLE_TYPE_FLOAT, acc_2, size_2, 0, size_2);
-
-            uint32_t arr[] = { res_vec_type, extr.elems[0], extr.elems[1], cnst2, cnst};
-            res = ShaderBuilderCompositeConstruct(arr, 5);
-
-        }else if(size_2 == 3){
-
-            VectorExtract extr = ShaderBuilderGetElemenets(SHADER_VARIABLE_TYPE_FLOAT, acc_2, size_2, 0, size_2);
-
-            uint32_t arr[] = { res_vec_type, extr.elems[0], extr.elems[1], extr.elems[2], cnst};
-            res = ShaderBuilderCompositeConstruct(arr, 5);
-        }else{
-            uint32_t arr[] = { res_vec_type, acc_1, acc_2 };
-            res = ShaderBuilderAddOperand(arr, 3, SHADER_OPERAND_TYPE_MATTIMEVEC);
-
-            return res;
+        uint32_t arr[] = { res_vec_type, acc_1, acc_2 };
+        res = ShaderBuilderAddOperand(arr, 3, SHADER_OPERAND_TYPE_DIV);
+    }else if(type_1 == SHADER_VARIABLE_TYPE_VECTOR && type_2 == SHADER_VARIABLE_TYPE_FLOAT){
+        
+        uint32_t args[size_1 + 1];
+        args[0] = ShaderBuilderAddVector(size_1, NULL);
+        for(int i=0;i < size_1;i++){
+            args[i + 1] = acc_2;
         }
-        
-        
-        uint32_t arr[] = { res_vec_type, acc_1, res };
-        res = ShaderBuilderAddOperand(arr, 3, SHADER_OPERAND_TYPE_MATTIMEVEC);
 
-    }else if(type_1 == SHADER_VARIABLE_TYPE_VECTOR && type_2 == SHADER_VARIABLE_TYPE_VECTOR){
+        res = ShaderBuilderCompositeConstruct(args, size_1 + 1);
 
-        uint32_t res_vec_type = ShaderBuilderAddVector(res_size, NULL);
+        res = ShaderBuilderAddFuncDiv(acc_1, 0, SHADER_VARIABLE_TYPE_VECTOR, size_1, res, 0, SHADER_VARIABLE_TYPE_VECTOR, size_1, size_1);
+
+    }else if(type_1 == SHADER_VARIABLE_TYPE_FLOAT && type_2 == SHADER_VARIABLE_TYPE_FLOAT){
+        
+        uint32_t res_vec_type = ShaderBuilderAddFloat();
 
         uint32_t arr[] = { res_vec_type, acc_1, acc_2 };
         res = ShaderBuilderAddOperand(arr, 3, SHADER_OPERAND_TYPE_DIV);
@@ -1386,6 +1403,12 @@ uint32_t ShaderBuilderAddFuncMult(uint32_t val_1, uint32_t indx_1, uint32_t type
 
             return res;
         }
+    }else if(type_1 == SHADER_VARIABLE_TYPE_VECTOR && type_2 == SHADER_VARIABLE_TYPE_FLOAT){
+        
+        uint32_t res_vec_type = ShaderBuilderAddVector(res_size, NULL);
+        
+        res = ShaderBuilderAddOperand((uint32_t []){ res_vec_type, acc_1, acc_2 }, 3, SHADER_OPERAND_TYPE_VECTIMES);
+        
     }else if(type_1 == SHADER_VARIABLE_TYPE_FLOAT && type_2 == SHADER_VARIABLE_TYPE_FLOAT){
         
         uint32_t res_vec_type = ShaderBuilderAddFloat();
@@ -1397,7 +1420,7 @@ uint32_t ShaderBuilderAddFuncMult(uint32_t val_1, uint32_t indx_1, uint32_t type
     return res;
 }
 
-uint32_t ShaderBuilderAddFuncAdd(uint32_t val_1, uint32_t indx_1, uint32_t type_1, uint32_t size_1,  uint32_t val_2, uint32_t indx_2, uint32_t type_2, uint32_t size_2, uint32_t res_size){
+uint32_t ShaderBuilderSimpleFuncBase(uint32_t val_1, uint32_t indx_1, uint32_t type_1, uint32_t size_1,  uint32_t val_2, uint32_t indx_2, uint32_t type_2, uint32_t size_2, uint32_t res_size, ShaderOperandType op_type){
 
     uint32_t res = 0;
 
@@ -1413,7 +1436,7 @@ uint32_t ShaderBuilderAddFuncAdd(uint32_t val_1, uint32_t indx_1, uint32_t type_
             VectorExtract extr = ShaderBuilderGetElemenets(SHADER_VARIABLE_TYPE_VECTOR, acc_1, 4, i, 1);
             VectorExtract extr2 = ShaderBuilderGetElemenets(SHADER_VARIABLE_TYPE_VECTOR, acc_2, 4, i, 1);
 
-            arr[i] = ShaderBuilderAddOperand((uint32_t []){vec_type, extr.elems[0], extr2.elems[0]}, 3, SHADER_OPERAND_TYPE_ADD);
+            arr[i] = ShaderBuilderAddOperand((uint32_t []){vec_type, extr.elems[0], extr2.elems[0]}, 3, op_type);
         }
 
         res = ShaderBuilderCompositeConstruct((uint32_t []){ mat_type, arr[0], arr[1], arr[2], arr[3] }, 5);
@@ -1444,55 +1467,58 @@ uint32_t ShaderBuilderAddFuncAdd(uint32_t val_1, uint32_t indx_1, uint32_t type_
                 res = ShaderBuilderCompositeConstruct(arr, 5);
             }else{
                 uint32_t arr[] = { res_vec_type, acc_1, acc_2 };
-                res = ShaderBuilderAddOperand(arr, 3, SHADER_OPERAND_TYPE_MUL);
+                res = ShaderBuilderAddOperand(arr, 3, op_type);
 
                 return res;
             }
 
             uint32_t arr[] = { res_vec_type, acc_1, res };
-            res = ShaderBuilderAddOperand(arr, 3, SHADER_OPERAND_TYPE_ADD);
+            res = ShaderBuilderAddOperand(arr, 3, op_type);
         }else{
             uint32_t arr[] = { res_vec_type, acc_1, acc_2 };
-            res = ShaderBuilderAddOperand(arr, 3, SHADER_OPERAND_TYPE_ADD);
+            res = ShaderBuilderAddOperand(arr, 3, op_type);
 
             return res;
         }
+    }else if(type_1 == SHADER_VARIABLE_TYPE_VECTOR && type_2 == SHADER_VARIABLE_TYPE_FLOAT){
+        
+        uint32_t args[size_1 + 1];
+        args[0] = ShaderBuilderAddVector(size_1, NULL);
+        for(int i=0;i < size_1;i++){
+            args[i + 1] = acc_2;
+        }
+
+        res = ShaderBuilderCompositeConstruct(args, size_1 + 1);
+
+        res = op_type == SHADER_OPERAND_TYPE_ADD ? ShaderBuilderAddFuncAdd(acc_1, 0, SHADER_VARIABLE_TYPE_VECTOR, size_1, res, 0, SHADER_VARIABLE_TYPE_VECTOR, size_1, size_1) : ShaderBuilderAddFuncSub(acc_1, 0, SHADER_VARIABLE_TYPE_VECTOR, size_1, res, 0, SHADER_VARIABLE_TYPE_VECTOR, size_1, size_1);
+
     }else if(type_1 == SHADER_VARIABLE_TYPE_FLOAT && type_2 == SHADER_VARIABLE_TYPE_FLOAT){
         
         uint32_t res_vec_type = ShaderBuilderAddFloat();
 
         uint32_t arr[] = { res_vec_type, acc_1, acc_2 };
-        res = ShaderBuilderAddOperand(arr, 3, SHADER_OPERAND_TYPE_ADD);
+        res = ShaderBuilderAddOperand(arr, 3, op_type);
+    }else if(type_1 == SHADER_VARIABLE_TYPE_INT && type_2 == SHADER_VARIABLE_TYPE_INT){
+        
+        uint32_t res_vec_type = ShaderBuilderAddInt(1);
+
+        uint32_t arr[] = { res_vec_type, acc_1, acc_2 };
+
+        if(op_type == SHADER_OPERAND_TYPE_ADD)
+            res = ShaderBuilderAddOperand(arr, 3, SHADER_OPERAND_TYPE_IADD);
+        else if(op_type == SHADER_OPERAND_TYPE_SUB)
+            res = ShaderBuilderAddOperand(arr, 3, SHADER_OPERAND_TYPE_ISUB);
     }
 
     return res;
 }
 
-uint32_t ShaderBuilderAddFuncMultS(uint32_t val_indx, uint32_t single_indx, uint32_t size){
+uint32_t ShaderBuilderAddFuncAdd(uint32_t val_1, uint32_t indx_1, uint32_t type_1, uint32_t size_1,  uint32_t val_2, uint32_t indx_2, uint32_t type_2, uint32_t size_2, uint32_t res_size){
+    return ShaderBuilderSimpleFuncBase(val_1, indx_1, type_1, size_1,  val_2, indx_2, type_2, size_2, res_size, SHADER_OPERAND_TYPE_ADD);
+}
 
-    uint32_t res = 0;
-
-    uint32_t func_indx = ShaderBuilderAddPointer(SHADER_VARIABLE_TYPE_FLOAT, 0, SHADER_DATA_FLAG_FUNCTION);
-
-    uint32_t vec3_indx = ShaderBuilderAddVector(3, NULL);
-
-    uint32_t arr[] = {func_indx, 7 /*Function*/};
-    uint32_t variable = ShaderBuilderAddOperand(arr, 2, SHADER_OPERAND_TYPE_VARIABLE);
-
-    VectorExtract vector = ShaderBuilderGetElemenets(SHADER_VARIABLE_TYPE_FLOAT, single_indx, 4, 0, 1);
-
-    uint32_t arr2[] = { variable, vector.elems[0] };
-    ShaderBuilderStoreValue(arr2, 2);
-
-    uint32_t var_type = ShaderBuilderGetType(SHADER_VARIABLE_TYPE_FLOAT, 0, NULL);
-
-    uint32_t val1 = ShaderBuilderAcceptLoad(vec3_indx, val_indx);
-    uint32_t val2 = ShaderBuilderAcceptLoad(var_type, variable);
-
-    uint32_t arr3[] = { vec3_indx, val1, val2};
-    res = ShaderBuilderAddOperand(arr3, 3, SHADER_OPERAND_TYPE_VECTIMES);
-    
-    return res;
+uint32_t ShaderBuilderAddFuncSub(uint32_t val_1, uint32_t indx_1, uint32_t type_1, uint32_t size_1,  uint32_t val_2, uint32_t indx_2, uint32_t type_2, uint32_t size_2, uint32_t res_size){
+    return ShaderBuilderSimpleFuncBase(val_1, indx_1, type_1, size_1,  val_2, indx_2, type_2, size_2, res_size, SHADER_OPERAND_TYPE_SUB);
 }
 
 ShaderLabel *ShaderBuilderAddLabel(uint32_t func_indx, int will_return){
@@ -1522,8 +1548,10 @@ uint32_t ShaderBuilderMakeTransition(uint32_t indx_label){
     ShaderBuilderSetCurrentLabel(indx_label);
 }
 
-uint32_t ShaderBuilderNextLabel(int will_return){
+uint32_t ShaderBuilderNextLabel(int will_return, uint32_t num_label){
     ShaderLabel *label = ShaderBuilderAddLabel(0, will_return);
+
+    label->num_label = num_label;
 
     return label->index;
 }
@@ -1549,6 +1577,12 @@ void ShaderBuilderMakeBranchConditional(ConditionalType cond_type, uint32_t *val
             break;
         case SHADER_CONDITIONAL_TYPE_FGREAT_THAN:
             res = ShaderBuilderAddOperand((uint32_t []){type_bool, vals[0], vals[1]}, 3, SHADER_OPERAND_TYPE_FGREATTHAN);
+            break;
+        case SHADER_CONDITIONAL_TYPE_EQUAL:
+            res = ShaderBuilderAddOperand((uint32_t []){type_bool, vals[0], vals[1]}, 3, SHADER_OPERAND_TYPE_IEQUAL);
+            break;
+        case SHADER_CONDITIONAL_TYPE_NOT_EQUAL:
+            res = ShaderBuilderAddOperand((uint32_t []){type_bool, vals[0], vals[1]}, 3, SHADER_OPERAND_TYPE_INOTEQUAL);
             break;
     }
     
@@ -1674,16 +1708,18 @@ uint32_t DecoratingUniforStruct(ShaderVariable *str_elm, uint32_t *offset){
             ShaderVariable *arr_elm = ShaderBuilderFindVar(var_elm->args[0]);
             ShaderVariable *count_elm = ShaderBuilderFindVar(var_elm->args[1]);
 
+            uint32_t t_off = 0;
             if(arr_elm->type == SHADER_VARIABLE_TYPE_STRUCT){
-                uint32_t t_off = 0;
                 DecoratingUniforStruct(arr_elm, &t_off);
+            }else if(arr_elm->type == SHADER_VARIABLE_TYPE_MATRIX){
+                ShaderVariable *mat_elem = ShaderBuilderFindVar(arr_elm->args[0]);
+                t_off = 4 * arr_elm->values[0] * mat_elem->values[0];
             }
             
-            uint32_t size = ReturnSizeStruct(var_elm);
             ShaderBuilderAddOp(SpvOpDecorate, 4);
             ShaderBuilderAddValue(var_elm->indx );
             ShaderBuilderAddValue(SpvDecorationArrayStride );
-            ShaderBuilderAddValue(size);
+            ShaderBuilderAddValue( t_off);
 
             if(arr_elm->type == SHADER_VARIABLE_TYPE_MATRIX){
                 ShaderBuilderAddOp(SpvOpMemberDecorate, 4);
@@ -1700,14 +1736,16 @@ uint32_t DecoratingUniforStruct(ShaderVariable *str_elm, uint32_t *offset){
 
             
             if(arr_elm->type == SHADER_VARIABLE_TYPE_MATRIX){
+                ShaderVariable *mat_elem = ShaderBuilderFindVar(arr_elm->args[0]);
+
                 ShaderBuilderAddOp(SpvOpMemberDecorate, 5);
                 ShaderBuilderAddValue(str_elm->indx );
                 ShaderBuilderAddValue(j );
                 ShaderBuilderAddValue(SpvDecorationMatrixStride );
-                ShaderBuilderAddValue(16);
+                ShaderBuilderAddValue(4 * mat_elem->values[0]);
             }
 
-            *offset += size * count_elm->values[0] /*count*/;
+            *offset += t_off * count_elm->values[0] /*count*/;
 
         }else if(var_elm->type == SHADER_VARIABLE_TYPE_MATRIX){
             
@@ -1759,6 +1797,14 @@ uint32_t DecoratingUniforStruct(ShaderVariable *str_elm, uint32_t *offset){
             *offset += 4;
         }
 
+        if(j < str_elm->num_args - 1)
+        {
+            ShaderVariable *next_elm = ShaderBuilderFindVar(str_elm->args[j + 1]);
+
+            if(next_elm->type == SHADER_VARIABLE_TYPE_INT || next_elm->type == SHADER_VARIABLE_TYPE_FLOAT)
+                continue;
+        }
+
         uint32_t res = *offset;
         while(res % 16)
             res++;
@@ -1792,6 +1838,15 @@ void ShaderBuilderCheckThatLabel(ShaderLabel *label){
         operand = &label->operands[l];
 
             switch(operand->op_type){
+                case SHADER_OPERAND_TYPE_EXT_INST:
+                    ShaderBuilderAddOp(SpvOpExtInst, 5 + operand->num_vars - 3);
+                    ShaderBuilderAddValue(operand->var_indx[0]);
+                    ShaderBuilderAddValue(operand->indx);
+                    ShaderBuilderAddValue(operand->var_indx[1]);
+                    ShaderBuilderAddValue(operand->var_indx[2]);
+                    for(iter=3;iter<operand->num_vars;iter++)
+                        ShaderBuilderAddValue(operand->var_indx[iter]);
+                    break;
                 case SHADER_OPERAND_TYPE_ACCESS:
                     ShaderBuilderAddOp(SpvOpAccessChain, 4 + operand->num_vars - 2);
                     ShaderBuilderAddValue(operand->var_indx[0]);
@@ -1853,8 +1908,42 @@ void ShaderBuilderCheckThatLabel(ShaderLabel *label){
                     ShaderBuilderAddValue(operand->var_indx[1]);
                     ShaderBuilderAddValue(0);
                     break;
+                case SHADER_OPERAND_TYPE_NEGATIVE:
+                    ShaderBuilderAddOp(SpvOpFNegate, 4);
+                    ShaderBuilderAddValue(operand->var_indx[0]);
+                    ShaderBuilderAddValue(operand->indx);
+                    ShaderBuilderAddValue(operand->var_indx[1]);
+                    break;
+                case SHADER_OPERAND_TYPE_DOT:
+                    ShaderBuilderAddOp(SpvOpDot, 5);
+                    ShaderBuilderAddValue(operand->var_indx[0]);
+                    ShaderBuilderAddValue(operand->indx);
+                    ShaderBuilderAddValue(operand->var_indx[1]);
+                    ShaderBuilderAddValue(operand->var_indx[2]);
+                    break;
                 case SHADER_OPERAND_TYPE_ADD:
                     ShaderBuilderAddOp(SpvOpFAdd, 5);
+                    ShaderBuilderAddValue(operand->var_indx[0]);
+                    ShaderBuilderAddValue(operand->indx);
+                    ShaderBuilderAddValue(operand->var_indx[1]);
+                    ShaderBuilderAddValue(operand->var_indx[2]);
+                    break;
+                case SHADER_OPERAND_TYPE_IADD:
+                    ShaderBuilderAddOp(SpvOpIAdd, 5);
+                    ShaderBuilderAddValue(operand->var_indx[0]);
+                    ShaderBuilderAddValue(operand->indx);
+                    ShaderBuilderAddValue(operand->var_indx[1]);
+                    ShaderBuilderAddValue(operand->var_indx[2]);
+                    break;
+                case SHADER_OPERAND_TYPE_SUB:
+                    ShaderBuilderAddOp(SpvOpFSub, 5);
+                    ShaderBuilderAddValue(operand->var_indx[0]);
+                    ShaderBuilderAddValue(operand->indx);
+                    ShaderBuilderAddValue(operand->var_indx[1]);
+                    ShaderBuilderAddValue(operand->var_indx[2]);
+                    break;
+                case SHADER_OPERAND_TYPE_ISUB:
+                    ShaderBuilderAddOp(SpvOpISub, 5);
                     ShaderBuilderAddValue(operand->var_indx[0]);
                     ShaderBuilderAddValue(operand->indx);
                     ShaderBuilderAddValue(operand->var_indx[1]);
@@ -1911,6 +2000,12 @@ void ShaderBuilderCheckThatLabel(ShaderLabel *label){
                     for(iter=3;iter<operand->num_vars;iter++)
                         ShaderBuilderAddValue(operand->var_indx[iter]);
                     break;  
+                case SHADER_OPERAND_TYPE_TRANSPOSE:
+                    ShaderBuilderAddOp(SpvOpTranspose, 4);
+                    ShaderBuilderAddValue(operand->var_indx[0]);
+                    ShaderBuilderAddValue(operand->indx);
+                    ShaderBuilderAddValue(operand->var_indx[1]);
+                    break;    
                 case SHADER_OPERAND_TYPE_SLESSTHAN:
                     ShaderBuilderAddOp(SpvOpSLessThan, 5);
                     ShaderBuilderAddValue(operand->var_indx[0]);
@@ -1938,6 +2033,20 @@ void ShaderBuilderCheckThatLabel(ShaderLabel *label){
                     ShaderBuilderAddValue(operand->indx);
                     ShaderBuilderAddValue(operand->var_indx[1]);
                     ShaderBuilderAddValue(operand->var_indx[2]);
+                    break; 
+                case SHADER_OPERAND_TYPE_IEQUAL:
+                    ShaderBuilderAddOp(SpvOpIEqual, 5);
+                    ShaderBuilderAddValue(operand->var_indx[0]);
+                    ShaderBuilderAddValue(operand->indx);
+                    ShaderBuilderAddValue(operand->var_indx[1]);
+                    ShaderBuilderAddValue(operand->var_indx[2]);
+                    break; 
+                case SHADER_OPERAND_TYPE_INOTEQUAL:
+                    ShaderBuilderAddOp(SpvOpINotEqual, 5);
+                    ShaderBuilderAddValue(operand->var_indx[0]);
+                    ShaderBuilderAddValue(operand->indx);
+                    ShaderBuilderAddValue(operand->var_indx[1]);
+                    ShaderBuilderAddValue(operand->var_indx[2]);
                     break;   
                 case SHADER_OPERAND_TYPE_CONVERT_FTOS:
                     ShaderBuilderAddOp(SpvOpConvertFToS, 4);
@@ -1945,6 +2054,18 @@ void ShaderBuilderCheckThatLabel(ShaderLabel *label){
                     ShaderBuilderAddValue(operand->indx);
                     ShaderBuilderAddValue(operand->var_indx[1]);
                     break; 
+                case SHADER_OPERAND_TYPE_DPDX:
+                    ShaderBuilderAddOp(SpvOpDPdx, 4);
+                    ShaderBuilderAddValue(operand->var_indx[0]);
+                    ShaderBuilderAddValue(operand->indx);
+                    ShaderBuilderAddValue(operand->var_indx[1]);
+                    break;   
+                case SHADER_OPERAND_TYPE_DPDY:
+                    ShaderBuilderAddOp(SpvOpDPdy, 4);
+                    ShaderBuilderAddValue(operand->var_indx[0]);
+                    ShaderBuilderAddValue(operand->indx);
+                    ShaderBuilderAddValue(operand->var_indx[1]);
+                    break;   
                 case SHADER_OPERAND_TYPE_KILL:
                     ShaderBuilderAddOp(SpvOpKill, 1);
                     break;  
@@ -1952,7 +2073,26 @@ void ShaderBuilderCheckThatLabel(ShaderLabel *label){
     }
 }
 
+void ShaderBuilderSortLabel(){
+    ShaderLabel labels[32];
+
+    memcpy(labels, curr_builder->main_point_index->labels, sizeof(ShaderLabel) * curr_builder->main_point_index->num_labels);
+
+    for(int i=0; i < curr_builder->main_point_index->num_labels;i++){
+        
+        for(int j=0; j < curr_builder->main_point_index->num_labels;j++){
+            if(labels[j].num_label == i){
+                curr_builder->main_point_index->labels[i] = labels[j];
+                break;
+            }
+        }
+
+    }
+}
+
 void ShaderBuilderMake(){
+
+    ShaderBuilderSortLabel();
 
     if(curr_builder->main_point_index->num_labels == 1)
         curr_builder->main_point_index->labels[0].will_return = true;
@@ -2137,7 +2277,7 @@ void ShaderBuilderMake(){
                 ShaderBuilderAddOp(SpvOpDecorate, 4);
                 ShaderBuilderAddValue(curr_builder->ioData[i].indx );
                 ShaderBuilderAddValue(SpvDecorationDescriptorSet );
-                ShaderBuilderAddValue(curr_builder->ioData[i].descr_set);   
+                ShaderBuilderAddValue(0);   
             }else{     
                 ShaderVariable *v = ShaderBuilderFindVar(curr_builder->ioData[i].orig_indx);    
 
@@ -2700,6 +2840,14 @@ uint32_t ReturnSizeStruct(ShaderVariable *str_elm){
         }else if(var_elm->type == SHADER_VARIABLE_TYPE_STRUCT){
                 size += ReturnSizeStruct(var_elm);
         }
+
+        if(j < str_elm->num_args - 1)
+        {
+            ShaderVariable *next_elm = ShaderBuilderFindVar(str_elm->args[j + 1]);
+
+            if(next_elm->type == SHADER_VARIABLE_TYPE_INT || next_elm->type == SHADER_VARIABLE_TYPE_FLOAT)
+                continue;
+        }
         
         if(biggest_value < temp_size)
             biggest_value = temp_size;
@@ -2749,12 +2897,14 @@ void ShaderBuilderMakeUniformsFromShader(ShaderBuilder *builder, uint32_t *code,
                     if(var_orig->type == SHADER_VARIABLE_TYPE_STRUCT){
                         size_buffer += ReturnSizeStruct(var_orig);
                         
-
                         uint32_t binding = 0;
                         for(int i=0;i < curr_builder->num_decorations;i++){
                             if(curr_builder->decors[i].type == SpvDecorationBinding && curr_builder->decors[i].indx == currVar->indx)
                                 binding = curr_builder->decors[i].val;
                         }
+
+                        while(size_buffer % 16)
+                            size_buffer++;
                         
                         BluePrintAddUniformObjectC(blueprints, indx_pack, size_buffer, curr_builder->type == SHADER_TYPE_VERTEX ? VK_SHADER_STAGE_VERTEX_BIT : VK_SHADER_STAGE_FRAGMENT_BIT, binding);
 

@@ -15,18 +15,80 @@ Camera3D cam3D;
 
 PrimitiveObject po;
 
+PrimitiveObject light_point;
+
 ShapeObject shape;
 
 vec3 dir, l_pos;
+
+extern TEngine engine;
 
 void Update(float dTime){
 
     double time = TEngineGetTime();
 
-    dir.x = l_pos.x = 3 * cos(time);
-    dir.y = l_pos.y = 3 * sin(time);
-    dir.z = l_pos.z = 3 * sin(time);
+    l_pos.x = 3 * cos(time);
+    l_pos.y = 3 * sin(time);
+    l_pos.z = 3 * sin(time);
+
+    dir.x = cos(time);
+    dir.y = sin(time);
+    dir.z = sin(time);
+
+    //dir = Camera3DGetRotation();
+
+    engine.lights.lights[0].color = vec3_f(0.01, 0.01, 0.01);
+    engine.lights.lights[0].position = l_pos;
+    engine.lights.lights[0].direction = dir;
+    engine.lights.lights[0].type = 0;
+    engine.lights.lights[0].intensity = 1;
+    engine.lights.lights[0].cutoff = 0.5f;
+    
+    engine.lights.lights[1].color = vec3_f(0, 1, 0);
+    engine.lights.lights[1].position = v3_muls(l_pos, -1);
+    engine.lights.lights[1].direction = v3_muls(dir, -1);
+    engine.lights.lights[1].type = 0;
+    engine.lights.lights[1].intensity = 1;
+    engine.lights.lights[1].cutoff = 0.5;
+
+    
+    engine.lights.lights[2].color = vec3_f(0, 0, 1);
+    engine.lights.lights[2].position = vec3_f(0,0,0);
+    engine.lights.lights[2].direction = Camera3DGetRotation();
+    engine.lights.lights[2].direction = v3_muls(engine.lights.lights[2].direction, -1);
+    engine.lights.lights[2].type = 2;
+    engine.lights.lights[2].intensity = 1;
+    engine.lights.lights[2].cutoff = 0.5;
+
+    
+    engine.lights.lights[3].color = vec3_f(0, 0, 1);
+    engine.lights.lights[3].position = vec3_f(0,0,0);//l_pos;c
+    engine.lights.lights[3].direction = v3_muls(dir, -1);
+    engine.lights.lights[3].direction.z *= cos(time);
+    engine.lights.lights[3].type = 2;
+    engine.lights.lights[3].intensity = 1;
+    engine.lights.lights[3].cutoff = 0.5f;
+
+    engine.lights.size = 2;
+
+    char buff[125];
+    sprintf(buff,"%0.2f, %0.2f, %0.2f", dir.x, dir.y, dir.z);
+    GUIAddText(600, 30, vec3_f(0, 0, 0), 7, buff);
+
+    Transform3DSetPosition(&light_point, l_pos.x, l_pos.y, l_pos.z);
 }
+
+void LightUpdate(GameObject3D* go, void *data)
+{
+    LightBuffer lbo = {};
+    memset(&lbo, 0, sizeof(LightBuffer));
+
+    memcpy(lbo.lights, engine.lights.lights, sizeof(LightObject) * engine.lights.size );
+    lbo.num_lights = engine.lights.size;    
+
+    memcpy(data, (char *)&lbo, sizeof(lbo));
+}
+
 
 int main(){
 
@@ -41,13 +103,24 @@ int main(){
     memset(&dParam, 0, sizeof(DrawParam));
 
     dParam.diffuse = "res\\texture.jpg";
+    dParam.normal = "res\\normal.jpg";
 
     QuadParams params;
     params.size = 100;
     params.color = vec3_f(1, 1, 1);
 
     PrimitiveObjectInit(&po, &dParam, TIGOR_PRIMITIVE3D_CUBE, NULL);
-    Transform3DSetPosition(&po, 0, 0, 10);
+    Transform3DSetPosition(&po, 0, 0, 7);
+    Transform3DSetScale(&po, 5, 5, 5);
+    GameObject3DEnableLight(&po, true);
+
+    SphereParam sParam;
+    sParam.radius = 1;
+    sParam.sectorCount = 10;
+    sParam.stackCount = 10;
+
+    PrimitiveObjectInit(&light_point, &dParam, TIGOR_PRIMITIVE3D_SPHERE, &sParam);
+
 
     QuadParams param;
     param.size = 100;
@@ -81,12 +154,14 @@ int main(){
         GUIAddText(30, 70, vec3_f(1, 0, 0), 9, "Entscheidungsschwierigkeiten");
 
         TEngineDraw(&po);
-        TEngineDraw(&shape);
+        TEngineDraw(&light_point);
+        //TEngineDraw(&shape);
 
         TEngineRender();
     }
     
     GameObjectDestroy((GameObject *)&po);
+    GameObjectDestroy((GameObject *)&light_point);
     GameObjectDestroy((GameObject *)&shape);
     
     EngineDeviceWaitIdle();

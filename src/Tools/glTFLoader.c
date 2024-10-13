@@ -806,6 +806,56 @@ void ModelglTFSetDefaultShader(GameObject3D *go)
     go->self.flags |= TIGOR_GAME_OBJECT_FLAG_SHADED;
 }
 
+void ModelglTFSetDefaultLightShader(GameObject3D *go)
+{    
+    if(go->self.flags & TIGOR_GAME_OBJECT_FLAG_SHADED)
+        return;
+
+    uint32_t num_pack = BluePrintInit(&go->graphObj.blueprints);
+    
+    ShaderBuilder *vert = go->self.vert;
+    ShaderBuilder *frag = go->self.frag;
+
+    ShadersMakeDeafult3DModelShaderWithLight(vert, frag, go->num_diffuses > 0);
+
+    ShaderObject vert_shader, frag_shader;
+    memset(&vert_shader, 0, sizeof(ShaderObject));
+    memset(&frag_shader, 0, sizeof(ShaderObject));
+
+    vert_shader.code = (char *)vert->code;
+    vert_shader.size = vert->size * sizeof(uint32_t);
+    
+    frag_shader.code = (char *)frag->code;
+    frag_shader.size = frag->size * sizeof(uint32_t);
+
+    GraphicsObjectSetShaderWithUniform(&go->graphObj, &vert_shader, num_pack);
+    GraphicsObjectSetShaderWithUniform(&go->graphObj, &frag_shader, num_pack);
+    
+    GameObject3DSetDescriptorUpdate(go, num_pack, 0, (UpdateDescriptor)ModelModelBufferUpdate);
+    GameObject3DSetDescriptorUpdate(go, num_pack, 1, (UpdateDescriptor)ModelglTFnvMatrixBuffer);
+    GameObject3DSetDescriptorUpdate(go, num_pack, 2, (UpdateDescriptor)ModelLightDescriptorUpdate);
+    
+    if(go->num_diffuses > 1)
+        GameObject3DSetDescriptorTextureArrayCreate(go, num_pack, 3, go->diffuses, go->num_diffuses);
+    else
+        GameObject3DSetDescriptorTextureCreate(go, num_pack, 3, go->num_diffuses > 0 ? go->diffuses : NULL);
+        
+    if(go->num_normals > 1)
+        GameObject3DSetDescriptorTextureArrayCreate(go, num_pack, 4, go->normals, go->num_normals);
+    else
+        GameObject3DSetDescriptorTextureCreate(go, num_pack, 4, go->num_normals > 0 ? go->normals : NULL);
+        
+    if(go->num_speculars > 1)
+        GameObject3DSetDescriptorTextureArrayCreate(go, num_pack, 5, go->speculars, go->num_speculars);
+    else
+        GameObject3DSetDescriptorTextureCreate(go, num_pack, 5, go->num_speculars > 0 ? go->speculars : NULL);
+    
+    //uint32_t flags = BluePrintGetSettingsValue(&go->graphObj.blueprints, 0, 3);
+    //BluePrintSetSettingsValue(&go->graphObj.blueprints, 0, 3, flags | TIGOR_PIPELINE_FLAG_FACE_CLOCKWISE);
+    
+    go->self.flags |= TIGOR_GAME_OBJECT_FLAG_SHADED;
+}
+
 void Load3DglTFModel(void *model, char *path, char *name, uint8_t type, DrawParam *dParam){
 
     ModelObject3D *mo = (ModelObject3D *)model;
@@ -946,7 +996,7 @@ void Load3DglTFModel(void *model, char *path, char *name, uint8_t type, DrawPara
 
                         GameObjectSetUpdateFunc((GameObject *)model, NULL);
 
-                        GameObjectSetShaderInitFunc((GameObject *)model, ModelglTFSetDefaultShader);
+                        GameObjectSetShaderInitFunc((GameObject *)model, ModelglTFSetDefaultLightShader);
                     }
 
                     iter++;

@@ -66,6 +66,19 @@ void ModelModelBufferUpdate(ModelObject3D* mo, uint32_t indx_node, void *data)
     memcpy(data, (char *)&mbo, sizeof(mbo));
 }
 
+void ModelLightDescriptorUpdate(ModelObject3D* mo, uint32_t indx_node, void *data){
+
+    LightBuffer lbo = {};
+    memset(&lbo, 0, sizeof(LightBuffer));
+
+    memcpy(lbo.lights, engine.lights.lights, sizeof(LightObject) * engine.lights.size );
+    lbo.num_lights = engine.lights.size;    
+
+    lbo.light_enable = mo->self.flags & TIGOR_GAME_OBJECT_FLAG_LIGHT;
+
+    memcpy(data, (char *)&lbo, sizeof(lbo));
+}
+
 void ModelUpdateModel(ModelObject3D *mo, GameObject3D *model, uint32_t model_indx){
     
     TDevice *device = (TDevice *)engine.device;

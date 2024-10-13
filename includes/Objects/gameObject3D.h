@@ -29,15 +29,7 @@ typedef struct GameObject3D{
 } GameObject3D;
 
 void GameObject3DDescriptorModelUpdate      (GameObject3D* go, void *data);
-void GameObject3DDirLightModelUpdate        (GameObject3D* go, void *data);
-void GameObject3DSpotLightModelUpdate       (GameObject3D* go, void *data);
-void GameObject3DOmniLightModelUpdate       (GameObject3D* go, void *data);
-void GameObject3DDescriptorLghtMatrixUpdate (GameObject3D* go, void *data);
-void GameObject3DDescriptorDirLightsUpdate  (GameObject3D* go, void *data);
-void GameObject3DDescriptorPointLightsUpdate(GameObject3D* go, void *data);
-void GameObject3DDescriptorSpotLightsUpdate (GameObject3D* go, void *data);
-void GameObject3DLigtStatusBufferUpdate     (GameObject3D* go, void *data);
-void GameObject3DSDFBufferUpdate            (GameObject3D* go, void *data);
+void GameObject3DDescriptorLightUpdate      (GameObject3D* go, void *data);
 
 void GameObject3DDefaultUpdate(GameObject3D* go);
 void GameObject3DDefaultDraw(GameObject3D* go);
@@ -69,6 +61,8 @@ int GameObject3DInitTextures(GameObject3D *go, DrawParam *dParam);
 void GameObject3DInit(GameObject3D *go, GameObjectType type);
 void GameObject3DInitInstances(GameObject3D *go);
 void GameObject3DUpdateInstances(GameObject3D *go);
+
+void GameObject3DEnableLight(GameObject3D *go, bool enable);
 
 #ifdef __cplusplus
 }

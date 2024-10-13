@@ -49,13 +49,29 @@ struct TWindow_T;
 struct TDevice_T;
 struct TSwapChain_T;
 
+
+typedef struct LightObject {
+    vec3 position __attribute__ ((aligned (16)));
+    vec3 color __attribute__ ((aligned (16)));
+    vec3 direction __attribute__ ((aligned (16))); // Для направленного и фонарного света
+    float intensity;
+    int type; // 0: point, 1: directional, 2: spotlight
+    float cutoff; // Угол освещения фонарного света
+} LightObject;
+
+typedef struct LightBuffer {
+    LightObject lights[10];
+    int num_lights;
+    int light_enable;
+} LightBuffer;
+
 typedef struct{
     struct RenderTexture *objects[MAX_DRAW_OBJECTS];
     uint32_t size;
 } EngineRenderItems;
 
 typedef struct{
-    void **lights[MAX_DRAW_OBJECTS];
+    LightObject lights[10];
     uint32_t size;
 } EngineLightItems;
 
@@ -92,6 +108,7 @@ typedef struct{
     struct TSwapChain_T *swapchain;
 
     EngineRenderItems renders;
+    EngineLightItems  lights;
 
     EngineGameObjects gameObjects;    
 

@@ -59,6 +59,11 @@ EIVertexInputAttributeDescription cubeAttributeDescription[] = {
     {
         .binding = 0,
         .location = 2,
+        .format = VK_FORMAT_R32G32B32_SFLOAT,
+        .offset = offsetof(Vertex3D, color) },
+    {
+        .binding = 0,
+        .location = 3,
         .format = VK_FORMAT_R32G32_SFLOAT,
         .offset = offsetof(Vertex3D, texCoord) }
 };
@@ -74,9 +79,15 @@ EIVertexInputAttributeDescription instanceAttributeDescription[] = {
         .location = 1,
         .format = VK_FORMAT_R32G32B32_SFLOAT,
         .offset = offsetof(Vertex3D, normal) },
+        
     {
         .binding = 0,
         .location = 2,
+        .format = VK_FORMAT_R32G32B32_SFLOAT,
+        .offset = offsetof(Vertex3D, color) },
+    {
+        .binding = 0,
+        .location = 3,
         .format = VK_FORMAT_R32G32_SFLOAT,
         .offset = offsetof(Vertex3D, texCoord) },
     //-----------------------------------------------------

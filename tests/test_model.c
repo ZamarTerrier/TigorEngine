@@ -15,6 +15,53 @@ Camera3D cam3D;
 
 ModelObject3D model;
 
+extern TEngine engine;
+
+vec3 dir, l_pos;
+
+void Update(float dTime){
+
+    double time = TEngineGetTime();
+
+    l_pos.x = 3 * cos(time);
+    l_pos.y = 3 * sin(time);
+    l_pos.z = 3 * sin(time);
+
+    dir.x = cos(time);
+    dir.y = sin(time);
+    dir.z = sin(time);
+
+    /*engine.lights.lights[0].color = vec3_f(1, 0, 0);
+    engine.lights.lights[0].position = vec3_f(0,0,0);//l_pos;
+    engine.lights.lights[0].direction = Camera3DGetRotation();
+    engine.lights.lights[0].direction = v3_muls(engine.lights.lights[0].direction, -1);
+    engine.lights.lights[0].type = 2;
+    engine.lights.lights[0].intensity = 1;
+    engine.lights.lights[0].cutoff = 0.5;*/
+
+    engine.lights.lights[0].color = vec3_f(0.1, 0.1, 0.1);
+    engine.lights.lights[0].position = l_pos;
+    engine.lights.lights[0].direction = dir;
+    engine.lights.lights[0].type = 0;
+    engine.lights.lights[0].intensity = 1;
+    
+    /*engine.lights.lights[1].color = vec3_f(0, 1, 0);
+    engine.lights.lights[1].position = v3_muls(l_pos, -1);
+    engine.lights.lights[1].type = 0;
+    engine.lights.lights[1].intensity = 1;
+    
+    engine.lights.lights[2].color = vec3_f(0, 0, 1);
+    engine.lights.lights[2].position.x = 3 * cos(time);;
+    engine.lights.lights[2].position.y = 3 * cos(time);;
+    engine.lights.lights[2].position.z = 3 * sin(time);;
+    engine.lights.lights[2].type = 0;
+    engine.lights.lights[2].intensity = 2*/;
+
+    engine.lights.size = 1;
+
+    //Transform3DSetPosition(&light_point, l_pos.x, l_pos.y, l_pos.z);
+}
+
 int main(){
 
     TEngineInitSystem(800, 600, "Test");
@@ -29,17 +76,21 @@ int main(){
    
     //dParam.diffuse = "res\\secretary_tex.png";
 
-    Load3DglTFModel(&model, "res\\", "Little_Tokyo", 2, &dParam);
-    //Load3DFBXModel(&model, "res\\Taunt.fbx", &dParam);
+    //Load3DglTFModel(&model, "res\\", "Little_Tokyo", 2, &dParam);
+    Load3DFBXModel(&model, "res\\Thoughtful Head Shake.fbx", &dParam);
 
     Transform3DSetScaleT(&model.transform, 0.1, 0.1, -0.1);
 
     //Load3DObjModel(&model, "res\\rabochiy_i_kolkhoznitsa_lou_poli.obj", &dParam);
 
+    ModelSetLightEnable(&model, true);
+
     float ticker = 0;
     while (!TEngineWindowIsClosed())
     {
         TEnginePoolEvents();
+
+        Update(0.1);
 
         Camera3DMovementUpdate(0.1);
         Camera3DRotationUpdate(0.1);
@@ -48,7 +99,7 @@ int main(){
         
         TEngineRender();
 
-        ModelNextFrame(&model, 0.02, 0);
+        ModelNextFrame(&model, 0.01, 0);
     }
         
     GameObjectDestroy(&model);

@@ -46,6 +46,19 @@ void GameObject3DDescriptorModelUpdate(GameObject3D* go, void *data)
     memcpy(data, (char *)&mbo, sizeof(mbo));
 }
 
+void GameObject3DDescriptorLightUpdate(GameObject3D* go, void *data)
+{
+    LightBuffer lbo = {};
+    memset(&lbo, 0, sizeof(LightBuffer));
+
+    memcpy(lbo.lights, engine.lights.lights, sizeof(LightObject) * engine.lights.size );
+    lbo.num_lights = engine.lights.size;    
+
+    lbo.light_enable = go->self.flags & TIGOR_GAME_OBJECT_FLAG_LIGHT;
+
+    memcpy(data, (char *)&lbo, sizeof(lbo));
+}
+
 void GameObject3DDefaultUpdate(GameObject3D* go) {
 
     TDevice *device = (TDevice *)engine.device;
@@ -281,6 +294,52 @@ void GameObject3DInitDefaultShader(GameObject3D *go){
     go->self.flags |= TIGOR_GAME_OBJECT_FLAG_SHADED;
 }
 
+void GameObject3DInitDefaultLightShader(GameObject3D *go){    
+    
+    if(go->self.flags & TIGOR_GAME_OBJECT_FLAG_SHADED)
+        return;
+
+    uint32_t num_pack = BluePrintInit(&go->graphObj.blueprints);
+    
+    ShaderBuilder *vert = go->self.vert;
+    ShaderBuilder *frag = go->self.frag;
+
+    ShadersMakeDeafult3DShaderWithLight(vert, frag, go->num_diffuses > 0);
+
+    ShaderObject vert_shader, frag_shader;
+    memset(&vert_shader, 0, sizeof(ShaderObject));
+    memset(&frag_shader, 0, sizeof(ShaderObject));
+
+    vert_shader.code = (char *)vert->code;
+    vert_shader.size = vert->size * sizeof(uint32_t);
+    
+    frag_shader.code = (char *)frag->code;
+    frag_shader.size = frag->size * sizeof(uint32_t);
+
+    GraphicsObjectSetShaderWithUniform(&go->graphObj, &vert_shader, num_pack);
+    GraphicsObjectSetShaderWithUniform(&go->graphObj, &frag_shader, num_pack);
+    
+    GameObject3DSetDescriptorUpdate(go, num_pack, 0, (UpdateDescriptor)GameObject3DDescriptorModelUpdate);
+    GameObject3DSetDescriptorUpdate(go, num_pack, 1, (UpdateDescriptor)GameObject3DDescriptorLightUpdate);
+    
+    if(go->num_diffuses > 0)
+        GameObject3DSetDescriptorTextureCreate(go, num_pack, 2,  go->diffuses);
+    else
+        GameObject3DSetDescriptorTextureCreate(go, num_pack, 2,  NULL);
+        
+    if(go->num_normals > 0)
+        GameObject3DSetDescriptorTextureCreate(go, num_pack, 3,  go->normals);
+    else
+        GameObject3DSetDescriptorTextureCreate(go, num_pack, 3,  NULL);
+
+    if(go->num_speculars > 0)
+        GameObject3DSetDescriptorTextureCreate(go, num_pack, 4,  go->speculars);
+    else
+        GameObject3DSetDescriptorTextureCreate(go, num_pack, 4,  NULL);
+    
+    go->self.flags |= TIGOR_GAME_OBJECT_FLAG_SHADED;
+}
+
 void GameObject3DInitDraw(GameObject3D *go){
 
     if(!(go->self.flags & TIGOR_GAME_OBJECT_FLAG_SHADED))
@@ -332,35 +391,41 @@ void GameObject3DDestroy(GameObject3D* go){
     
     GraphicsObjectDestroy(&go->graphObj);
 
-    for(int i=0;i < go->num_diffuses;i++)
-    {
-        FreeMemory(go->diffuses[i].path);
+    if(go->num_diffuses > 0){
+        for(int i=0;i < go->num_diffuses;i++)
+        {
+            FreeMemory(go->diffuses[i].path);
 
-        if(go->diffuses[i].size > 0)
-            FreeMemory(go->diffuses[i].buffer);
+            if(go->diffuses[i].size > 0)
+                FreeMemory(go->diffuses[i].buffer);
+        }
+
+        FreeMemory(go->diffuses);
     }
-
-    FreeMemory(go->diffuses);
     
-    for(int i=0;i < go->num_normals;i++)
-    {
-        FreeMemory(go->normals[i].path);
+    if(go->num_normals > 0){
+        for(int i=0;i < go->num_normals;i++)
+        {
+            FreeMemory(go->normals[i].path);
 
-        if(go->normals[i].size > 0)
-            FreeMemory(go->normals[i].buffer);
+            if(go->normals[i].size > 0)
+                FreeMemory(go->normals[i].buffer);
+        }
+
+        FreeMemory(go->normals);
     }
-
-    FreeMemory(go->normals);
     
-    for(int i=0;i < go->num_speculars;i++)
-    {
-        FreeMemory(go->speculars[i].path);
+    if(go->num_speculars > 0){
+        for(int i=0;i < go->num_speculars;i++)
+        {
+            FreeMemory(go->speculars[i].path);
 
-        if(go->speculars[i].size > 0)
-            FreeMemory(go->speculars[i].buffer);
+            if(go->speculars[i].size > 0)
+                FreeMemory(go->speculars[i].buffer);
+        }
+
+        FreeMemory(go->speculars);
     }
-
-    FreeMemory(go->speculars);
 
     for(int i=0; i < go->graphObj.num_shapes; i++)
     {
@@ -478,7 +543,7 @@ void GameObject3DInit(GameObject3D *go, GameObjectType type){
     GameObjectSetRecreateFunc((GameObject *)go, (void *)GameObject3DRecreate);
     GameObjectSetDestroyFunc((GameObject *)go, (void *)GameObject3DDestroy);
     
-    GameObjectSetShaderInitFunc((GameObject *)go, (void *)GameObject3DInitDefaultShader);
+    GameObjectSetShaderInitFunc((GameObject *)go, (void *)GameObject3DInitDefaultLightShader);
 
 
     go->self.obj_type = type;

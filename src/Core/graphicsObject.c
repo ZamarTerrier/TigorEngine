@@ -38,7 +38,7 @@ void GraphicsObjectInit(GraphicsObject* graphObj, uint32_t type)
         case TIGOR_VERTEX_TYPE_3D_OBJECT:
             graphObj->shapes[0].bindingDescription = &Bind3DDescription;
             graphObj->shapes[0].attr = cubeAttributeDescription;
-            graphObj->shapes[0].countAttr = 3;
+            graphObj->shapes[0].countAttr = 4;
             graphObj->shapes[0].countBind = 1;
             graphObj->shapes[0].type = type;
             break;
@@ -47,7 +47,7 @@ void GraphicsObjectInit(GraphicsObject* graphObj, uint32_t type)
             graphObj->shapes[0].bindingDescription[0] = Bind3DDescription;
             graphObj->shapes[0].bindingDescription[1] = Bind3DInstanceDescription;
             graphObj->shapes[0].attr = instanceAttributeDescription;
-            graphObj->shapes[0].countAttr = 6;
+            graphObj->shapes[0].countAttr = 7;
             graphObj->shapes[0].countBind = 2;
             graphObj->shapes[0].type = type;
             break;
