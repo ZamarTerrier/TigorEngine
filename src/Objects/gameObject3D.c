@@ -305,7 +305,7 @@ void GameObject3DInitDefaultLightShader(GameObject3D *go){
     ShaderBuilder *vert = go->self.vert;
     ShaderBuilder *frag = go->self.frag;
 
-    ShadersMakeDeafult3DShaderWithLight(vert, frag, go->num_diffuses > 0);
+    ShadersMakeDeafult3DShaderWithLight(vert, frag, go->num_diffuses > 0, go->num_normals > 0, go->num_speculars > 0);
 
     ShaderObject vert_shader, frag_shader;
     memset(&vert_shader, 0, sizeof(ShaderObject));
@@ -330,13 +330,9 @@ void GameObject3DInitDefaultLightShader(GameObject3D *go){
         
     if(go->num_normals > 0)
         GameObject3DSetDescriptorTextureCreate(go, num_pack, 3,  go->normals);
-    else
-        GameObject3DSetDescriptorTextureCreate(go, num_pack, 3,  NULL);
 
     if(go->num_speculars > 0)
         GameObject3DSetDescriptorTextureCreate(go, num_pack, 4,  go->speculars);
-    else
-        GameObject3DSetDescriptorTextureCreate(go, num_pack, 4,  NULL);
     
     go->self.flags |= TIGOR_GAME_OBJECT_FLAG_SHADED;
 }

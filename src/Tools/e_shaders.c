@@ -298,51 +298,56 @@ void MakeBaseLightCode(uint32_t texture, uint32_t normal, uint32_t indx_mat_num,
             tex_res = ShaderBuilderCompositeConstruct((uint32_t []){ type_vec3,  extr.elems[0], extr.elems[1], extr.elems[2]}, 4);                
             ShaderBuilderStoreValue((uint32_t []){ v_textureColor,  tex_res}, 2);
             
-            tex_res = ShaderBuilderGetTexture(normal, fragTexCoord, indx_mat_num);        
-            extr = ShaderBuilderGetElemenets(SHADER_VARIABLE_TYPE_FLOAT, tex_res, 4, 0, 3);        
-            tex_res = ShaderBuilderCompositeConstruct((uint32_t []){ type_vec3,  extr.elems[0], extr.elems[1], extr.elems[2]}, 4);  
+            if(normal > 0){
+                tex_res = ShaderBuilderGetTexture(normal, fragTexCoord, indx_mat_num);        
+                extr = ShaderBuilderGetElemenets(SHADER_VARIABLE_TYPE_FLOAT, tex_res, 4, 0, 3);        
+                tex_res = ShaderBuilderCompositeConstruct((uint32_t []){ type_vec3,  extr.elems[0], extr.elems[1], extr.elems[2]}, 4);  
 
+                v = 2.0f;
+                memcpy(&c, &v, sizeof(uint32_t));
+                uint32_t t_const = ShaderBuilderAddConstant(SHADER_VARIABLE_TYPE_FLOAT, 0, c, 1);
+                
+                tex_res = ShaderBuilderAddFuncMult(tex_res, 0, SHADER_VARIABLE_TYPE_VECTOR, 3, t_const, 0, SHADER_VARIABLE_TYPE_FLOAT, 0, 3);
+                tex_res = ShaderBuilderAddFuncSub(tex_res, 0, SHADER_VARIABLE_TYPE_VECTOR, 3, c_3, 0, SHADER_VARIABLE_TYPE_FLOAT, 0, 3);  
 
-            v = 2.0f;
-            memcpy(&c, &v, sizeof(uint32_t));
-            uint32_t t_const = ShaderBuilderAddConstant(SHADER_VARIABLE_TYPE_FLOAT, 0, c, 1);
-            
-            tex_res = ShaderBuilderAddFuncMult(tex_res, 0, SHADER_VARIABLE_TYPE_VECTOR, 3, t_const, 0, SHADER_VARIABLE_TYPE_FLOAT, 0, 3);
-            tex_res = ShaderBuilderAddFuncSub(tex_res, 0, SHADER_VARIABLE_TYPE_VECTOR, 3, c_3, 0, SHADER_VARIABLE_TYPE_FLOAT, 0, 3);  
+                uint32_t type_vec2 = ShaderBuilderAddVector(2, NULL);
 
-            uint32_t type_vec2 = ShaderBuilderAddVector(2, NULL);
+                uint32_t acc_1 = ShaderBuilderAcceptLoad(fragPos, 0);
+                uint32_t acc_2 = ShaderBuilderAcceptLoad(fragTexCoord, 0);
+                uint32_t acc_3 = ShaderBuilderAcceptLoad(fragNormal, 0);
+                uint32_t q1 = ShaderBuilderAddOperand((uint32_t []){ type_vec3, acc_1 }, 2, SHADER_OPERAND_TYPE_DPDX);
+                uint32_t q2 = ShaderBuilderAddOperand((uint32_t []){ type_vec3, acc_1 }, 2, SHADER_OPERAND_TYPE_DPDY);
+                uint32_t st1 = ShaderBuilderAddOperand((uint32_t []){ type_vec2, acc_2 }, 2, SHADER_OPERAND_TYPE_DPDX);
+                uint32_t st2 = ShaderBuilderAddOperand((uint32_t []){ type_vec2, acc_2 }, 2, SHADER_OPERAND_TYPE_DPDY);
 
-            uint32_t acc_1 = ShaderBuilderAcceptLoad(fragPos, 0);
-            uint32_t acc_2 = ShaderBuilderAcceptLoad(fragTexCoord, 0);
-            uint32_t acc_3 = ShaderBuilderAcceptLoad(fragNormal, 0);
-            uint32_t q1 = ShaderBuilderAddOperand((uint32_t []){ type_vec3, acc_1 }, 2, SHADER_OPERAND_TYPE_DPDX);
-            uint32_t q2 = ShaderBuilderAddOperand((uint32_t []){ type_vec3, acc_1 }, 2, SHADER_OPERAND_TYPE_DPDY);
-            uint32_t st1 = ShaderBuilderAddOperand((uint32_t []){ type_vec2, acc_2 }, 2, SHADER_OPERAND_TYPE_DPDX);
-            uint32_t st2 = ShaderBuilderAddOperand((uint32_t []){ type_vec2, acc_2 }, 2, SHADER_OPERAND_TYPE_DPDY);
+                uint32_t type_float = ShaderBuilderAddFloat();
 
-            uint32_t type_float = ShaderBuilderAddFloat();
+                uint32_t N = ShaderBuilderMakeExternalFunction((uint32_t []){type_vec3, acc_3}, 2, GLSLstd450Normalize);
 
-            uint32_t N = ShaderBuilderMakeExternalFunction((uint32_t []){type_vec3, acc_3}, 2, GLSLstd450Normalize);
+                VectorExtract extr_1 = ShaderBuilderGetElemenets(SHADER_VARIABLE_TYPE_FLOAT, st1, 3, 1, 1);
+                VectorExtract extr_2 = ShaderBuilderGetElemenets(SHADER_VARIABLE_TYPE_FLOAT, st2, 3, 1, 1);
 
-            VectorExtract extr_1 = ShaderBuilderGetElemenets(SHADER_VARIABLE_TYPE_FLOAT, st1, 3, 1, 1);
-            VectorExtract extr_2 = ShaderBuilderGetElemenets(SHADER_VARIABLE_TYPE_FLOAT, st2, 3, 1, 1);
+                uint32_t t_res_1 = ShaderBuilderAddFuncMult(q1, 0, SHADER_VARIABLE_TYPE_VECTOR, 3, extr_1.elems[0], 0, SHADER_VARIABLE_TYPE_FLOAT, 0, 3);
+                uint32_t t_res_2 = ShaderBuilderAddFuncMult(q2, 0, SHADER_VARIABLE_TYPE_VECTOR, 3, extr_2.elems[0], 0, SHADER_VARIABLE_TYPE_FLOAT, 0, 3);
 
-            uint32_t t_res_1 = ShaderBuilderAddFuncMult(q1, 0, SHADER_VARIABLE_TYPE_VECTOR, 3, extr_1.elems[0], 0, SHADER_VARIABLE_TYPE_FLOAT, 0, 3);
-            uint32_t t_res_2 = ShaderBuilderAddFuncMult(q2, 0, SHADER_VARIABLE_TYPE_VECTOR, 3, extr_2.elems[0], 0, SHADER_VARIABLE_TYPE_FLOAT, 0, 3);
+                uint32_t T = ShaderBuilderAddFuncSub(t_res_1, 0, SHADER_VARIABLE_TYPE_VECTOR, 3, t_res_2, 0, SHADER_VARIABLE_TYPE_VECTOR, 3, 3);
+                T = ShaderBuilderMakeExternalFunction((uint32_t []){type_vec3, T}, 2, GLSLstd450Normalize);
 
-            uint32_t T = ShaderBuilderAddFuncSub(t_res_1, 0, SHADER_VARIABLE_TYPE_VECTOR, 3, t_res_2, 0, SHADER_VARIABLE_TYPE_VECTOR, 3, 3);
-            T = ShaderBuilderMakeExternalFunction((uint32_t []){type_vec3, T}, 2, GLSLstd450Normalize);
+                uint32_t B = ShaderBuilderMakeExternalFunction((uint32_t []){type_vec3, N, T}, 3, GLSLstd450Cross);
+                B = ShaderBuilderMakeExternalFunction((uint32_t []){type_vec3, B}, 2, GLSLstd450Normalize);
+                B = ShaderBuilderMakeNegative(B, 0, 3, SHADER_VARIABLE_TYPE_VECTOR);
 
-            uint32_t B = ShaderBuilderMakeExternalFunction((uint32_t []){type_vec3, N, T}, 3, GLSLstd450Cross);
-            B = ShaderBuilderMakeExternalFunction((uint32_t []){type_vec3, B}, 2, GLSLstd450Normalize);
-            B = ShaderBuilderMakeNegative(B, 0, 3, SHADER_VARIABLE_TYPE_VECTOR);
+                uint32_t type_mat3 = ShaderBuilderAddMatrix(3, NULL);
 
-            uint32_t type_mat3 = ShaderBuilderAddMatrix(3, NULL);
+                uint32_t TBN = ShaderBuilderCompositeConstruct((uint32_t []){ type_mat3, T, B, N }, 4);
 
-            uint32_t TBN = ShaderBuilderCompositeConstruct((uint32_t []){ type_mat3, T, B, N }, 4);
-
-            tex_res = ShaderBuilderAddFuncMult(TBN, 0, SHADER_VARIABLE_TYPE_MATRIX, 3, tex_res, 0, SHADER_VARIABLE_TYPE_VECTOR, 3, 3);              
-            ShaderBuilderStoreValue((uint32_t []){ v_normal,  tex_res}, 2);
+                tex_res = ShaderBuilderAddFuncMult(TBN, 0, SHADER_VARIABLE_TYPE_MATRIX, 3, tex_res, 0, SHADER_VARIABLE_TYPE_VECTOR, 3, 3);              
+                ShaderBuilderStoreValue((uint32_t []){ v_normal,  tex_res}, 2);
+            }else{
+                uint32_t acc_1 = ShaderBuilderAcceptLoad(fragNormal, 0);
+                            
+                ShaderBuilderStoreValue((uint32_t []){ v_normal,  acc_1}, 2);
+            }
 
             uint32_t arr4[] = { v_result,  c_c2};
             ShaderBuilderStoreValue(arr4, 2);
@@ -593,7 +598,7 @@ void MakeBaseLightCode(uint32_t texture, uint32_t normal, uint32_t indx_mat_num,
             
 }
 
-void ShadersMakeDeafult3DShaderWithLight(ShaderBuilder *vert, ShaderBuilder *frag, bool hasTexture){
+void ShadersMakeDeafult3DShaderWithLight(ShaderBuilder *vert, ShaderBuilder *frag, bool hasTexture, bool hasNormal, bool hasSpecular){
     memset(vert, 0, sizeof(ShaderBuilder));
     memset(frag, 0, sizeof(ShaderBuilder));
 
@@ -693,8 +698,13 @@ void ShadersMakeDeafult3DShaderWithLight(ShaderBuilder *vert, ShaderBuilder *fra
     uint32_t outColor = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_VECTOR, SHADER_DATA_FLAG_OUTPUT, NULL, 4, "outColor", 0, 0);
 
     uint32_t texture = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_IMAGE, SHADER_DATA_FLAG_UNIFORM_CONSTANT, NULL, 0, "diffuse", 0, 3);
-    uint32_t normal = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_IMAGE, SHADER_DATA_FLAG_UNIFORM_CONSTANT, NULL, 0, "normal", 0, 4);
-    uint32_t specular = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_IMAGE, SHADER_DATA_FLAG_UNIFORM_CONSTANT, NULL, 0, "specular", 0, 5);
+    uint32_t normal = 0, specular = 0;
+    
+    if(hasNormal)
+        normal = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_IMAGE, SHADER_DATA_FLAG_UNIFORM_CONSTANT, NULL, 0, "normal", 0, 4);
+
+    if(hasSpecular)
+        specular = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_IMAGE, SHADER_DATA_FLAG_UNIFORM_CONSTANT, NULL, 0, "specular", 0, 5);
 
     if(!hasTexture)
     {
@@ -889,7 +899,7 @@ void ShadersMakeDefault3DModelShader(ShaderBuilder *vert, ShaderBuilder *frag, u
     }
 }
 
-void ShadersMakeDeafult3DModelShaderWithLight(ShaderBuilder *vert, ShaderBuilder *frag, uint32_t count_texture){
+void ShadersMakeDeafult3DModelShaderWithLight(ShaderBuilder *vert, ShaderBuilder *frag, uint32_t count_texture, uint32_t count_normal, uint32_t count_specular){
 
     memset(vert, 0, sizeof(ShaderBuilder));
     memset(frag, 0, sizeof(ShaderBuilder));
@@ -1045,7 +1055,7 @@ void ShadersMakeDeafult3DModelShaderWithLight(ShaderBuilder *vert, ShaderBuilder
         };
 
         ShaderStructConstr light_arr[] = {
-            {SHADER_VARIABLE_TYPE_ARRAY, 10, 0, "lights", light_str, 7, "LightsStruct"},
+            {SHADER_VARIABLE_TYPE_ARRAY, 10, 0, "lights", light_str, 8, "LightsStruct"},
             {SHADER_VARIABLE_TYPE_INT, 0, 0, "num_lights" , NULL, 0, NULL},
             {SHADER_VARIABLE_TYPE_INT, 0, 0, "light_enable" , NULL, 0, NULL},
         };
@@ -1060,7 +1070,7 @@ void ShadersMakeDeafult3DModelShaderWithLight(ShaderBuilder *vert, ShaderBuilder
 
         uint32_t outColor = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_VECTOR, SHADER_DATA_FLAG_OUTPUT, NULL, 4, "outColor", 0, 0);
 
-        uint32_t diffuse = 0;
+        uint32_t diffuse = 0, normal = 0, specular = 0;
         
         if(count_texture > 1){
             
@@ -1072,9 +1082,24 @@ void ShadersMakeDeafult3DModelShaderWithLight(ShaderBuilder *vert, ShaderBuilder
         }else
             diffuse = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_IMAGE, SHADER_DATA_FLAG_UNIFORM_CONSTANT, NULL, 0, "diffuse", 0, 4);
 
-        uint32_t normal = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_IMAGE, SHADER_DATA_FLAG_UNIFORM_CONSTANT, NULL, 0, "normal", 0, 5);
-        uint32_t specular = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_IMAGE, SHADER_DATA_FLAG_UNIFORM_CONSTANT, NULL, 0, "specular", 0, 6);
+        if(count_normal > 1){
+            
+            ShaderStructConstr arr_textures[] = {                
+                {SHADER_VARIABLE_TYPE_IMAGE, 0, 0, "textures", NULL, 0, NULL},
+            };
+            normal = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_IMAGE, SHADER_DATA_FLAG_UNIFORM_CONSTANT, arr_textures, count_normal, "normal", 0, 5);
+        }else if(count_normal > 0)
+            normal = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_IMAGE, SHADER_DATA_FLAG_UNIFORM_CONSTANT, NULL, 0, "normal", 0, 5);
 
+            
+        if(count_specular > 1){
+            
+            ShaderStructConstr arr_textures[] = {                
+                {SHADER_VARIABLE_TYPE_IMAGE, 0, 0, "textures", NULL, 0, NULL},
+            };
+            specular = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_IMAGE, SHADER_DATA_FLAG_UNIFORM_CONSTANT, arr_textures, count_specular, "specular", 0, 6);
+        }else if(count_specular > 0)
+            specular = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_IMAGE, SHADER_DATA_FLAG_UNIFORM_CONSTANT, NULL, 0, "specular", 0, 6);
 
         /*if(count_texture > 0){
             

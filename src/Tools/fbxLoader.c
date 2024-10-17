@@ -602,7 +602,7 @@ void ModelFBXSetDefaultLightShader(GameObject3D *go)
     ShaderBuilder *vert = go->self.vert;
     ShaderBuilder *frag = go->self.frag;
 
-    ShadersMakeDeafult3DModelShaderWithLight(vert, frag, go->num_diffuses);
+    ShadersMakeDeafult3DModelShaderWithLight(vert, frag, go->num_diffuses, go->num_normals, go->num_speculars);
 
     ShaderObject vert_shader, frag_shader;
     memset(&vert_shader, 0, sizeof(ShaderObject));
@@ -623,18 +623,18 @@ void ModelFBXSetDefaultLightShader(GameObject3D *go)
 
     if(go->num_diffuses > 1)
         GameObject3DSetDescriptorTextureArrayCreate(go, num_pack, 3, go->diffuses, go->num_diffuses);
-    else
-        GameObject3DSetDescriptorTextureCreate(go, num_pack, 3, go->num_diffuses > 0 ? go->diffuses : NULL);
+    else if(go->num_diffuses > 0)
+        GameObject3DSetDescriptorTextureCreate(go, num_pack, 3, go->diffuses);
         
     if(go->num_normals > 1)
         GameObject3DSetDescriptorTextureArrayCreate(go, num_pack, 4, go->normals, go->num_normals);
-    else
-        GameObject3DSetDescriptorTextureCreate(go, num_pack, 4, go->num_normals > 0 ? go->normals : NULL);
+    else if(go->num_normals > 0)
+        GameObject3DSetDescriptorTextureCreate(go, num_pack, 4, go->normals);
         
     if(go->num_speculars > 1)
         GameObject3DSetDescriptorTextureArrayCreate(go, num_pack, 5, go->speculars, go->num_speculars);
-    else
-        GameObject3DSetDescriptorTextureCreate(go, num_pack, 5, go->num_speculars > 0 ? go->speculars : NULL);
+    else if(go->num_speculars > 0)
+        GameObject3DSetDescriptorTextureCreate(go, num_pack, 5, go->speculars);
         
     go->self.flags |= TIGOR_GAME_OBJECT_FLAG_SHADED;
 }

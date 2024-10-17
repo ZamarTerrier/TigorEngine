@@ -49,7 +49,6 @@ void Update(float dTime){
     LightObjectSetPosition(light4, s_pos.x, s_pos.y, s_pos.z);
     vec3 s_dir = v3_muls(Camera3DGetRotation(), -1);
     LightObjectSetDirection(light4, s_dir.x, s_dir.y, s_dir.z);
-    LightObjectSetRadius(light4, 200.0f);
 
     char buff[125];
     sprintf(buff,"%0.2f, %0.2f, %0.2f", dir.x, dir.y, dir.z);
@@ -68,10 +67,13 @@ int main(){
     light1 = LightObjectAdd(TIGOR_LIGHT_OBJECT_TYPE_DIRECTIONAL_LIGHT);
     light2 = LightObjectAdd(TIGOR_LIGHT_OBJECT_TYPE_POINT_LIGHT);
     LightObjectSetColor(light2, 0, 1, 0);
+    LightObjectSetRadius(light2, 10.0f);
     light3 = LightObjectAdd(TIGOR_LIGHT_OBJECT_TYPE_POINT_LIGHT);
     LightObjectSetColor(light3, 0, 0, 1);
+    LightObjectSetRadius(light3, 10.0f);
     light4 = LightObjectAdd(TIGOR_LIGHT_OBJECT_TYPE_SPOT_LIGHT);
     LightObjectSetColor(light4, 1, 0, 0);
+    LightObjectSetRadius(light4, 200.0f);
 
     Camera2DInit(&cam2D);
     Camera3DInit(&cam3D);
@@ -80,7 +82,7 @@ int main(){
     memset(&dParam, 0, sizeof(DrawParam));
 
     dParam.diffuse = "res\\texture.jpg";
-    dParam.normal = "res\\normal.jpg";
+    //dParam.normal = "res\\normal.jpg";
 
     QuadParams params;
     params.size = 100;

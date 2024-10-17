@@ -18,7 +18,7 @@ int main(){
     memset(&vert, 0, sizeof(ShaderBuilder));
     memset(&frag, 0, sizeof(ShaderBuilder));
 
-    ShadersMakeDeafult3DShaderWithLight(&vert, &frag, true);
+    ShadersMakeDeafult3DModelShaderWithLight(&vert, &frag, 2, 1, 0);
     
     char *currPath = DirectGetCurrectFilePath();
     int len = strlen(currPath);

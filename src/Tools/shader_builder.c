@@ -829,7 +829,7 @@ uint32_t ShaderBuilderAddIOData(ShaderVariableType type, ShaderDataFlags flags, 
 
     ShaderDataFlags tflags = 0;
 
-    curr_builder->ioData[curr_builder->num_io_data].type = type == SHADER_VARIABLE_TYPE_IMAGE ? SHADER_VARIABLE_TYPE_UNIFORM_CONSTANT : type;
+    curr_builder->ioData[curr_builder->num_io_data].type = type == SHADER_VARIABLE_TYPE_IMAGE || flags & SHADER_DATA_FLAG_UNIFORM_CONSTANT ? SHADER_VARIABLE_TYPE_UNIFORM_CONSTANT : type;
     curr_builder->ioData[curr_builder->num_io_data].indx = res;
     curr_builder->ioData[curr_builder->num_io_data].orig_indx = orig_indx;
     curr_builder->ioData[curr_builder->num_io_data].location = location;
