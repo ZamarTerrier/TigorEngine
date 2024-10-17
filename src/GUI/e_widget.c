@@ -91,16 +91,9 @@ void WidgetRemoveStack(EWidget* ew){
         }
     }
 
-    if(child->next != NULL && before != NULL){
-
-    }
-
     if((ew->widget_flags & TIGOR_FLAG_WIDGET_ALLOCATED))
         FreeMemory(ew);
-
-    if(before == NULL && child->next != NULL){
-        gui.first_widget = child->next;
-    }
+        
     child->node = NULL;
     FreeMemory(child);
 }

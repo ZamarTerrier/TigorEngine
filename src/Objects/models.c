@@ -11,6 +11,8 @@
 #include "Core/pipeline.h"
 #include "Core/e_texture.h"
 
+#include "Objects/light_object.h"
+
 #include "math.h"
 
 #include "Tools/e_math.h"
@@ -71,7 +73,7 @@ void ModelLightDescriptorUpdate(ModelObject3D* mo, uint32_t indx_node, void *dat
     LightBuffer lbo = {};
     memset(&lbo, 0, sizeof(LightBuffer));
 
-    memcpy(lbo.lights, engine.lights.lights, sizeof(LightObject) * engine.lights.size );
+    LightObjectSetLights(lbo.lights);
     lbo.num_lights = engine.lights.size;    
 
     lbo.light_enable = mo->self.flags & TIGOR_GAME_OBJECT_FLAG_LIGHT;

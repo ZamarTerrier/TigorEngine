@@ -9,6 +9,7 @@
 #include "Core/e_device.h"
 
 #include "Objects/render_texture.h"
+#include "Objects/light_object.h"
 
 #include "GUI/GUIManager.h"
 
@@ -502,6 +503,8 @@ void TEngineCleanUp(){
     BuffersClearAll();
     DescriptorClearAll();
     PipelineClearAll();
+
+    LightObjectClear();
 
     vkDestroyDevice(device->e_device, NULL);
 

@@ -6,9 +6,12 @@
 
 #include <Objects/render_texture.h>
 #include <Objects/primitiveObject.h>
+#include <Objects/light_object.h>
 #include <Objects/shape_object.h>
 
 #include "Tools/e_math.h"
+
+LightObject *light1, *light2, *light3, *light4;
 
 Camera2D cam2D;
 Camera3D cam3D;
@@ -29,47 +32,24 @@ void Update(float dTime){
 
     l_pos.x = 3 * cos(time);
     l_pos.y = 3 * sin(time);
-    l_pos.z = 3 * sin(time);
+    l_pos.z = 0;//3 * sin(time);
 
-    dir.x = cos(time);
-    dir.y = sin(time);
-    dir.z = sin(time);
+    dir.x = cos(time * M_PI / 2 / 10);
+    dir.y = sin(time * M_PI / 2 / 10);
+    dir.z = sin(time * M_PI / 2 / 10);
 
     //dir = Camera3DGetRotation();
 
-    engine.lights.lights[0].color = vec3_f(0.01, 0.01, 0.01);
-    engine.lights.lights[0].position = l_pos;
-    engine.lights.lights[0].direction = dir;
-    engine.lights.lights[0].type = 0;
-    engine.lights.lights[0].intensity = 1;
-    engine.lights.lights[0].cutoff = 0.5f;
-    
-    engine.lights.lights[1].color = vec3_f(0, 1, 0);
-    engine.lights.lights[1].position = v3_muls(l_pos, -1);
-    engine.lights.lights[1].direction = v3_muls(dir, -1);
-    engine.lights.lights[1].type = 0;
-    engine.lights.lights[1].intensity = 1;
-    engine.lights.lights[1].cutoff = 0.5;
+    LightObjectSetDirection(light1, dir.x, dir.y, dir.z);
 
-    
-    engine.lights.lights[2].color = vec3_f(0, 0, 1);
-    engine.lights.lights[2].position = vec3_f(0,0,0);
-    engine.lights.lights[2].direction = Camera3DGetRotation();
-    engine.lights.lights[2].direction = v3_muls(engine.lights.lights[2].direction, -1);
-    engine.lights.lights[2].type = 2;
-    engine.lights.lights[2].intensity = 1;
-    engine.lights.lights[2].cutoff = 0.5;
+    LightObjectSetPosition(light2, l_pos.x, l_pos.y, l_pos.z);
+    LightObjectSetPosition(light3, l_pos.x * -1, l_pos.y * -1, l_pos.z * -1);
 
-    
-    engine.lights.lights[3].color = vec3_f(0, 0, 1);
-    engine.lights.lights[3].position = vec3_f(0,0,0);//l_pos;c
-    engine.lights.lights[3].direction = v3_muls(dir, -1);
-    engine.lights.lights[3].direction.z *= cos(time);
-    engine.lights.lights[3].type = 2;
-    engine.lights.lights[3].intensity = 1;
-    engine.lights.lights[3].cutoff = 0.5f;
-
-    engine.lights.size = 2;
+    vec3 s_pos = Camera3DGetPosition();
+    LightObjectSetPosition(light4, s_pos.x, s_pos.y, s_pos.z);
+    vec3 s_dir = v3_muls(Camera3DGetRotation(), -1);
+    LightObjectSetDirection(light4, s_dir.x, s_dir.y, s_dir.z);
+    LightObjectSetRadius(light4, 200.0f);
 
     char buff[125];
     sprintf(buff,"%0.2f, %0.2f, %0.2f", dir.x, dir.y, dir.z);
@@ -78,23 +58,20 @@ void Update(float dTime){
     Transform3DSetPosition(&light_point, l_pos.x, l_pos.y, l_pos.z);
 }
 
-void LightUpdate(GameObject3D* go, void *data)
-{
-    LightBuffer lbo = {};
-    memset(&lbo, 0, sizeof(LightBuffer));
-
-    memcpy(lbo.lights, engine.lights.lights, sizeof(LightObject) * engine.lights.size );
-    lbo.num_lights = engine.lights.size;    
-
-    memcpy(data, (char *)&lbo, sizeof(lbo));
-}
-
 
 int main(){
 
     TEngineInitSystem(800, 600, "Test");
 
     //TEngineSetFont("res\\arial.ttf");
+
+    light1 = LightObjectAdd(TIGOR_LIGHT_OBJECT_TYPE_DIRECTIONAL_LIGHT);
+    light2 = LightObjectAdd(TIGOR_LIGHT_OBJECT_TYPE_POINT_LIGHT);
+    LightObjectSetColor(light2, 0, 1, 0);
+    light3 = LightObjectAdd(TIGOR_LIGHT_OBJECT_TYPE_POINT_LIGHT);
+    LightObjectSetColor(light3, 0, 0, 1);
+    light4 = LightObjectAdd(TIGOR_LIGHT_OBJECT_TYPE_SPOT_LIGHT);
+    LightObjectSetColor(light4, 1, 0, 0);
 
     Camera2DInit(&cam2D);
     Camera3DInit(&cam3D);
@@ -120,7 +97,6 @@ int main(){
     sParam.stackCount = 10;
 
     PrimitiveObjectInit(&light_point, &dParam, TIGOR_PRIMITIVE3D_SPHERE, &sParam);
-
 
     QuadParams param;
     param.size = 100;

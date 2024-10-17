@@ -14,6 +14,7 @@
 #include "Core/e_texture.h"
 
 #include "Objects/render_texture.h"
+#include "Objects/light_object.h"
 
 #include "Tools/e_math.h"
 #include "Tools/e_tools.h"
@@ -51,7 +52,7 @@ void GameObject3DDescriptorLightUpdate(GameObject3D* go, void *data)
     LightBuffer lbo = {};
     memset(&lbo, 0, sizeof(LightBuffer));
 
-    memcpy(lbo.lights, engine.lights.lights, sizeof(LightObject) * engine.lights.size );
+    LightObjectSetLights(lbo.lights);
     lbo.num_lights = engine.lights.size;    
 
     lbo.light_enable = go->self.flags & TIGOR_GAME_OBJECT_FLAG_LIGHT;

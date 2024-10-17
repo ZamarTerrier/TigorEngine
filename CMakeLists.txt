@@ -52,6 +52,7 @@ target_sources(${PROJECT_NAME} PRIVATE
 				src/Objects/gameObject.c
 				src/Objects/gameObject2D.c
 				src/Objects/gameObject3D.c
+				src/Objects/light_object.c
 				src/Objects/particleSystem2D.c
 				src/Objects/particleSystem3D.c
 				src/Objects/marchingcube_object.c
