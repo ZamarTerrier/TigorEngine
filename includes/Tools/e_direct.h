@@ -12,4 +12,8 @@
 char* DirectGetCurrectFilePath();
 int DirectIsFileExist(const char *path);
 
+char *DirectGetFileExt(const char *name_file);
+char *DirectGetFileWithoutExt(const char *name_file);
+char *DirectGetFileName(const char *name_file);
+
 #endif // E_DIRECT_H

@@ -858,7 +858,7 @@ void ModelglTFSetDefaultLightShader(GameObject3D *go)
     go->self.flags |= TIGOR_GAME_OBJECT_FLAG_SHADED;
 }
 
-void Load3DglTFModel(void *model, char *path, char *name, uint8_t type, DrawParam *dParam){
+void Load3DglTFModel(void *model, char *path, DrawParam *dParam){
 
     ModelObject3D *mo = (ModelObject3D *)model;
 
@@ -867,6 +867,8 @@ void Load3DglTFModel(void *model, char *path, char *name, uint8_t type, DrawPara
     currPath[len] = '\\';
     
     char *full_path = ToolsMakeString(currPath, path);
+    
+    FreeMemory(currPath);
         
     mo->type = TIGOR_MODEL_TYPE_GLTF;
 
@@ -887,20 +889,9 @@ void Load3DglTFModel(void *model, char *path, char *name, uint8_t type, DrawPara
 
     glTF->path = full_path;
 
-    char *some_file[256];
-    ToolsAddStrings(some_file, 256, full_path, name);
+    glTF->name = DirectGetFileName(path);
 
-    FreeMemory(full_path);            
-    FreeMemory(currPath);
-
-    len = strlen(name);
-    glTF->name = AllocateMemory(len + 1, sizeof(char));
-    memcpy(glTF->name, name, len);
-    glTF->name[len] = '\0';
-
-    char *ascii[256];
-    char *binary[256];
-
+    /*
     switch (type) {
         case 0://(models)
             ToolsAddStrings(ascii, 256, some_file, ".gltf");
@@ -916,28 +907,22 @@ void Load3DglTFModel(void *model, char *path, char *name, uint8_t type, DrawPara
             break;
         default:
             break;
-    }
+    }*/
     
-    if(!DirectIsFileExist(ascii)){
+    if(!DirectIsFileExist(full_path)){
         GameObjectDestroy(model);
         FreeMemory(glTF->name);
         return;
     }
-    
-    if(!DirectIsFileExist(binary)){
-        GameObjectDestroy(model);
-        FreeMemory(glTF->name);
-        return;
-    }
-    
+        
     GameObjectSetDestroyFunc((GameObject *)mo, (void *)ModelglTFDestroy);
   
     cgltf_options options = {0};
     cgltf_data* data = NULL;
-    cgltf_result result = cgltf_parse_file(&options, ascii, &data);
+    cgltf_result result = cgltf_parse_file(&options, full_path, &data);
     if (result == cgltf_result_success)
     {
-        result = cgltf_load_buffers(&options, data, binary);
+        result = cgltf_load_buffers(&options, data, full_path);
 
         if (result == cgltf_result_success)
         {
@@ -1006,6 +991,8 @@ void Load3DglTFModel(void *model, char *path, char *name, uint8_t type, DrawPara
 
             }
         }
+
+        FreeMemory(full_path);
 
         /* TODO make awesome stuff */
         cgltf_free(data);

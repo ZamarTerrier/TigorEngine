@@ -60,7 +60,7 @@ typedef struct{
 } glTFStruct;
 
 void Load3DglTFNextFrame(void *ptr, double time, int num_animation);
-void Load3DglTFModel(void *ptr, char *path, char *name, uint8_t type, DrawParam *dParam);
+void Load3DglTFModel(void *ptr, char *path, DrawParam *dParam);
 
 #ifdef __cplusplus
 }

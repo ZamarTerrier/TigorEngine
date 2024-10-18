@@ -252,7 +252,7 @@ void BluePrintAddRenderImageArray(Blueprints *blueprints, uint32_t indx_pack, vo
 
 void BluePrintAddRenderImageVector(Blueprints *blueprints, uint32_t indx_pack, void *obj, uint32_t size)
 {
-    TSwapChain *swapchain = (TSwapChain *)engine.swapchain;
+    /*TSwapChain *swapchain = (TSwapChain *)engine.swapchain;
 
     RenderTexture **renders = obj;
 
@@ -265,7 +265,7 @@ void BluePrintAddRenderImageVector(Blueprints *blueprints, uint32_t indx_pack, v
     descriptor->stageflag = VK_SHADER_STAGE_FRAGMENT_BIT;
     descriptor->flags = TIGOR_BLUE_PRINT_FLAG_LINKED_TEXTURE;
 
-    Texture2D **textures = (Texture2D **)descriptor->textures;
+    Texture2D *textures = descriptor->textures;
 
     for(int i=0;i < engine.imagesCount;i++)
     {
@@ -285,7 +285,7 @@ void BluePrintAddRenderImageVector(Blueprints *blueprints, uint32_t indx_pack, v
         }
     }
 
-    blueprints->blue_print_packs[indx_pack].num_descriptors ++;
+    blueprints->blue_print_packs[indx_pack].num_descriptors ++;*/
 }
 
 void BluePrintAddRenderImageCube(Blueprints *blueprints, uint32_t indx_pack, uint32_t indx_cube, void *obj)
@@ -332,6 +332,7 @@ void BluePrintAddRenderImage(Blueprints *blueprints, uint32_t indx_pack, void *o
     descriptor->count = 1;
     descriptor->stageflag = VK_SHADER_STAGE_FRAGMENT_BIT;
     descriptor->flags = 0;
+    descriptor->textures = AllocateMemory(engine.imagesCount, sizeof(Texture2D));
 
     for(int i=0;i < engine.imagesCount;i++)
     {

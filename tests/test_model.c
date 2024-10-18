@@ -61,7 +61,7 @@ int main(){
    
     //dParam.diffuse = "res\\secretary_tex.png";
 
-    Load3DglTFModel(&model, "res\\", "Little_Tokyo", 2, &dParam);
+    Load3DglTFModel(&model, "res\\Little_Tokyo.glb", &dParam);
     //Load3DFBXModel(&model, "res\\Thoughtful Head Shake.fbx", &dParam);
 
     Transform3DSetScaleT(&model.transform, 0.1, 0.1, -0.1);
