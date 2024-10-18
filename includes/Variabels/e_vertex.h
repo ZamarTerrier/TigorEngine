@@ -13,7 +13,6 @@ typedef enum{
     TIGOR_VERTEX_TYPE_2D_PARTICLE,
     TIGOR_VERTEX_TYPE_3D_PARTICLE,
     TIGOR_VERTEX_TYPE_TERRAIN,
-    TIGOR_VERTEX_TYPE_SKY,
 } VertexType;
 
 typedef struct {

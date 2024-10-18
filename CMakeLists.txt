@@ -61,6 +61,7 @@ target_sources(${PROJECT_NAME} PRIVATE
 				src/Objects/render_texture.c
 				src/Objects/shape_object.c
 				src/Objects/sprite_object.c
+				src/Objects/terrain_object.c
 				src/Tools/e_direct.c
 				src/Tools/e_math.c
 				src/Tools/e_shaders.c

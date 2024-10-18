@@ -81,20 +81,6 @@ void GraphicsObjectInit(GraphicsObject* graphObj, uint32_t type)
             graphObj->shapes[0].countBind = 1;
             graphObj->shapes[0].type = type;
             break;
-        case TIGOR_VERTEX_TYPE_TERRAIN:
-            graphObj->shapes[0].bindingDescription = &BindTerrainDescription;
-            graphObj->shapes[0].attr = TerrainAttributeDescription;
-            graphObj->shapes[0].countAttr = 3;
-            graphObj->shapes[0].countBind = 1;
-            graphObj->shapes[0].type = type;
-            break;
-        case TIGOR_VERTEX_TYPE_SKY:
-            graphObj->shapes[0].bindingDescription = &BindSkyDescription;
-            graphObj->shapes[0].attr = SkyAttributeDescription;
-            graphObj->shapes[0].countAttr = 2;
-            graphObj->shapes[0].countBind = 1;
-            graphObj->shapes[0].type = type;
-            break;
         default:
             graphObj->shapes[0].type = 0;
             break;
@@ -153,7 +139,27 @@ void GraphicsObjectSetShaderWithUniform(GraphicsObject* graphObj, ShaderObject *
 
     PipelineSetting* setting = (PipelineSetting *)&graphObj->blueprints.blue_print_packs[pack_indx].setting;
 
-    PipelineSettingSetShader(setting, shader, temp->type == SHADER_TYPE_VERTEX ? VK_SHADER_STAGE_VERTEX_BIT : VK_SHADER_STAGE_FRAGMENT_BIT);
+    uint32_t type = 0;
+
+    switch(temp->type){
+        case SHADER_TYPE_VERTEX:
+            type = VK_SHADER_STAGE_VERTEX_BIT;
+            break;
+        case SHADER_TYPE_FRAGMENT:
+            type = VK_SHADER_STAGE_FRAGMENT_BIT;
+            break;
+        case SHADER_TYPE_COMPUTED:
+            type = VK_SHADER_STAGE_COMPUTE_BIT;
+            break;
+        case SHADER_TYPE_TESELLATION_CONTROL:
+            type = VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT;
+            break;
+        case SHADER_TYPE_TESELLATION_EVALUATION:
+            type = VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
+            break;
+    }
+
+    PipelineSettingSetShader(setting, shader, type);
 
     FreeMemory(temp);
 }

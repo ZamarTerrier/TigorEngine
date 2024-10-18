@@ -39,10 +39,10 @@ void Update(float dTime){
     LightObjectSetPosition(light2, l_pos.x, l_pos.y, l_pos.z);
     LightObjectSetPosition(light3, l_pos.x * -1, l_pos.y * -1, l_pos.z * -1);
 
-    vec3 s_pos = Camera3DGetPosition();
+    /*vec3 s_pos = Camera3DGetPosition();
     LightObjectSetPosition(light4, s_pos.x, s_pos.y, s_pos.z);
     vec3 s_dir = v3_muls(Camera3DGetRotation(), -1);
-    LightObjectSetDirection(light4, s_dir.x, s_dir.y, s_dir.z);
+    LightObjectSetDirection(light4, s_dir.x, s_dir.y, s_dir.z);*/
 
     //Transform3DSetPosition(&light_point, l_pos.x, l_pos.y, l_pos.z);
 }
@@ -78,9 +78,9 @@ int main(){
     light3 = LightObjectAdd(TIGOR_LIGHT_OBJECT_TYPE_POINT_LIGHT);
     LightObjectSetColor(light3, 0, 0, 1);
     LightObjectSetRadius(light3, 10.0f);
-    light4 = LightObjectAdd(TIGOR_LIGHT_OBJECT_TYPE_SPOT_LIGHT);
+    /*light4 = LightObjectAdd(TIGOR_LIGHT_OBJECT_TYPE_SPOT_LIGHT);
     LightObjectSetColor(light4, 1, 0, 0);
-    LightObjectSetRadius(light4, 200.0f);
+    LightObjectSetRadius(light4, 200.0f);*/
 
     float ticker = 0;
     while (!TEngineWindowIsClosed())

@@ -6,6 +6,8 @@
 #include "Tools/e_shaders.h"
    
 ShaderBuilder frag;
+ShaderBuilder tesc;
+ShaderBuilder tese;
 ShaderBuilder vert;
 
 ShaderBuilder temp;
@@ -13,33 +15,32 @@ ShaderBuilder temp2;
 
 PrimitiveObject po;
 
-int main(){
+void WriteSomeShader(ShaderBuilder *shader, char *path){
 
-    memset(&vert, 0, sizeof(ShaderBuilder));
-    memset(&frag, 0, sizeof(ShaderBuilder));
-
-    ShadersMakeDeafult3DModelShaderWithLight(&vert, &frag, 2, 1, 0);
-    
     char *currPath = DirectGetCurrectFilePath();
     int len = strlen(currPath);
     
-    char *full_path_vert = ToolsMakeString(currPath, "\\vert.spv");
-    char *full_path_frag = ToolsMakeString(currPath, "\\frag.spv");
-
-    DeleteFileA(full_path_vert);
+    char *full_path = ToolsMakeString(currPath, path);
     
-    Sleep(500); 
+    ShaderBuilderWriteToFile(shader, full_path);
     
-    DeleteFileA(full_path_frag);
-
-    Sleep(500);    
-    
-    ShaderBuilderWriteToFile(&vert, full_path_vert);
-    ShaderBuilderWriteToFile(&frag, full_path_frag);
-
     FreeMemory(currPath);
-    FreeMemory(full_path_vert);
-    FreeMemory(full_path_frag);
+    FreeMemory(full_path);
+}
+
+int main(){
+
+    memset(&vert, 0, sizeof(ShaderBuilder));
+    memset(&tesc, 0, sizeof(ShaderBuilder));
+    memset(&tese, 0, sizeof(ShaderBuilder));
+    memset(&frag, 0, sizeof(ShaderBuilder));
+
+    ShadersMakeTerrainShader(&vert, &tesc, &tese, &frag);
+    
+    WriteSomeShader(&vert, "\\vert.spv");
+    WriteSomeShader(&tesc, "\\tesc.spv");
+    WriteSomeShader(&tese, "\\tese.spv");
+    WriteSomeShader(&frag, "\\frag.spv");
 
     return 0;
 }

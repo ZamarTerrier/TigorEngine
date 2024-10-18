@@ -51,10 +51,10 @@ void EngineCreateSilent(){
 
 void EngineInitVulkan(){
     createInstance();
-    setupDebugMessenger();
     createSurface();
     pickPhysicalDevice();
     createLogicalDevice();
+    setupDebugMessenger();
     SwapChainCreate();
     SwapChainCreateImageViews();
     BuffersCreateCommandPool();

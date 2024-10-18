@@ -70,7 +70,7 @@ void BluePrintRecreateUniform(BluePrintPack *pack);
 
 BluePrintDescriptor *BluePrintAddTextureC(Blueprints *blueprints, uint32_t indx_pack, uint32_t stage_bit, uint32_t binding);
 void BluePrintSetTextureImage(Blueprints *blueprints, uint32_t indx_pack, Texture2D *texture, uint32_t bind_indx);
-void BluePrintSetTextureImageCreate(Blueprints *blueprints, uint32_t indx_pack, GameObjectImage *image, uint32_t bind_indx);
+BluePrintDescriptor *BluePrintSetTextureImageCreate(Blueprints *blueprints, uint32_t indx_pack, GameObjectImage *image, uint32_t bind_indx);
 
 void BluePrintAddRenderImageCube(Blueprints *blueprints, uint32_t indx_pack, uint32_t indx_cube, void *obj);
 void BluePrintAddRenderImageVector(Blueprints *blueprints, uint32_t indx_pack, void *obj, uint32_t size);

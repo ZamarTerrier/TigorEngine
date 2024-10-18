@@ -400,7 +400,7 @@ void BluePrintSetTextureImage(Blueprints *blueprints, uint32_t indx_pack, Textur
     }
 }
 
-void BluePrintSetTextureImageCreate(Blueprints *blueprints, uint32_t indx_pack, GameObjectImage *image, uint32_t bind_indx){
+BluePrintDescriptor *BluePrintSetTextureImageCreate(Blueprints *blueprints, uint32_t indx_pack, GameObjectImage *image, uint32_t bind_indx){
 
     BluePrintPack *pack = &blueprints->blue_print_packs[indx_pack];
 
@@ -452,6 +452,7 @@ void BluePrintSetTextureImageCreate(Blueprints *blueprints, uint32_t indx_pack, 
     }else
         printf("Error : Texture is not found!\n");
 
+    return descriptor;
 }
 
 BluePrintDescriptor *BluePrintAddTextureImage(Blueprints *blueprints, uint32_t indx_pack, GameObjectImage *image, uint32_t stage_bit)
