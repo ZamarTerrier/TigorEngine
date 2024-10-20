@@ -42,6 +42,8 @@ typedef enum{
     SHADER_VARIABLE_TYPE_STRUCT,
     SHADER_VARIABLE_TYPE_VARIABLE,
     SHADER_VARIABLE_TYPE_CONSTANT,
+    SHADER_VARIABLE_TYPE_CONSTANT_FALSE,
+    SHADER_VARIABLE_TYPE_CONSTANT_TRUE,
     SHADER_VARIABLE_TYPE_CONSTANT_COMPOSITE,
     SHADER_VARIABLE_TYPE_POINTER,
     SHADER_VARIABLE_TYPE_FUNCTION,
@@ -63,6 +65,8 @@ typedef struct ShaderStructConstr{
 typedef enum{
     SHADER_OPERAND_TYPE_ACCESS,
     SHADER_OPERAND_TYPE_EXT_INST,
+    SHADER_OPERAND_TYPE_FUNC_CALL,
+    SHADER_OPERAND_TYPE_FUNCTION_PARAM,
     SHADER_OPERAND_TYPE_LOAD,
     SHADER_OPERAND_TYPE_STORE,
     SHADER_OPERAND_TYPE_BRANCH,
@@ -97,6 +101,7 @@ typedef enum{
     SHADER_OPERAND_TYPE_DPDX,
     SHADER_OPERAND_TYPE_DPDY,
     SHADER_OPERAND_TYPE_KILL,
+    SHADER_OPERAND_TYPE_RETURN_VALUE
 } ShaderOperandType;
 
 typedef enum{
@@ -168,6 +173,9 @@ typedef struct{
     uint32_t num_params;
     ShaderLabel labels[32];
     uint32_t num_labels;
+    uint32_t args[10];
+    uint32_t arg_indxs[10];
+    uint32_t num_args;
 } ShaderFunc;
 
 typedef struct{
@@ -210,6 +218,7 @@ void ShaderBuilderInit(ShaderBuilder *builder, ShaderType type);
 void ShaderBuilderMake();
 void ShaderBuilderWriteToFile(ShaderBuilder *builder, const char *path);
 
+void ShaderBuilderSetCurrentFunc(uint32_t func_indx);
 void ShaderBuilderSetCurrentLabel(uint32_t label_indx);
 
 uint32_t ShaderBuilderAddPointer(ShaderVariableType point_type, uint32_t size, ShaderDataFlags flags);
@@ -225,8 +234,10 @@ uint32_t ShaderBuilderAcceptAccess(uint32_t val_indx, ShaderVariableType var_typ
 uint32_t ShaderBuilderAcceptLoad(uint32_t val_indx, uint32_t struct_indx);
 
 uint32_t ShaderBuilderMakeExternalFunction(uint32_t *arg, uint32_t size, uint32_t ext_indx);
+uint32_t ShaderBuilderMakeFunctionCalling(ShaderVariableType type, uint32_t type_arg, uint32_t func_indx, uint32_t *args, uint32_t size);
 
-uint32_t ShaderBuilderMakeTransition(uint32_t indx_label);
+uint32_t ShaderBuilderMakeReturnValue(uint32_t ret_val);
+void ShaderBuilderMakeTransition(uint32_t indx_label);
 uint32_t ShaderBuilderNextLabel(int will_return, uint32_t num_label);
 
 uint32_t ShaderBuilderMutateVector(uint32_t val_indx, uint32_t val_size, uint32_t res_size);
@@ -241,6 +252,8 @@ void ShaderBuilderMakeBranchConditional(ConditionalType cond_type, uint32_t *val
 
 uint32_t ShaderBuilderMakeNegative(uint32_t val_1, uint32_t indx_1, uint32_t arg, uint32_t res_type);
 uint32_t ShaderBuilderMakeDotProduct(uint32_t val_1, uint32_t indx_1, uint32_t val_2, uint32_t indx_2);
+
+ShaderFunc *ShaderBuilderAddFunction(ShaderVariableType output, uint32_t type_arg, char *name, uint32_t *args, uint32_t size);
 
 uint32_t ShaderBuilderAddFuncDiv(uint32_t val_1, uint32_t indx_1, uint32_t type_1, uint32_t size_1,  uint32_t val_2, uint32_t indx_2, uint32_t type_2, uint32_t size_2, uint32_t res_size);
 uint32_t ShaderBuilderAddFuncMult(uint32_t val_1, uint32_t indx_1, uint32_t type_1, uint32_t size_1,  uint32_t val_2, uint32_t indx_2, uint32_t type_2, uint32_t size_2, uint32_t res_size);

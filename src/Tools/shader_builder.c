@@ -10,8 +10,12 @@
 #include <sys/types.h>
 
 ShaderBuilder *curr_builder;
+ShaderFunc *curr_func;
 ShaderLabel *curr_label;
 
+uint32_t ShaderBuilderAddVariable(ShaderVariableType type, uint32_t flags, uint32_t *args, uint32_t num_args, uint32_t *vals,  uint32_t num_vals);
+
+uint32_t ShaderBuilderAddVoid();
 uint32_t ShaderBuilderAddImage();
 uint32_t ShaderBuilderAddFloat();
 uint32_t ShaderBuilderAddInt(uint32_t sign);
@@ -22,15 +26,19 @@ uint32_t ShaderBuilderAddConstant(ShaderVariableType var_type, ShaderDataFlags f
 
 void ShaderBuilderSetCurrent(ShaderBuilder *builder){
     curr_builder = builder;
+
+    curr_func = curr_builder->main_point_index;
+
+    curr_label = &curr_func->labels[0];
 }
 
 ShaderLabel *ShaderBuilderFindLabel(uint32_t label_indx){
 
     ShaderLabel *label = NULL;
 
-    for(int i=0;i < curr_builder->main_point_index->num_labels;i++){
-        if(curr_builder->main_point_index->labels[i].index == label_indx)
-            label = &curr_builder->main_point_index->labels[i];
+    for(int i=0;i < curr_func->num_labels;i++){
+        if(curr_func->labels[i].index == label_indx)
+            label = &curr_func->labels[i];
     }
 
     return label;
@@ -44,6 +52,31 @@ void ShaderBuilderSetCurrentLabel(uint32_t label_indx){
         return;
 
     curr_label = label;
+}
+
+ShaderFunc *ShaderBuilderFindFunc(uint32_t func_indx){
+
+    ShaderFunc *func = NULL;
+
+    for(int i=0;i < curr_builder->num_functions;i++){
+        if(curr_builder->functions[i].indx == func_indx)
+            func = &curr_builder->functions[i];
+    }
+
+    return func;
+}
+
+void ShaderBuilderSetCurrentFunc(uint32_t func_indx){
+
+    ShaderFunc *func = ShaderBuilderFindFunc(func_indx);
+
+    if(func == NULL)
+        return;
+        
+    curr_label = &func->labels[0];
+
+    curr_func = func;
+
 }
 
 ShaderVariable *ShaderBuilderAllocateVariabel(ShaderBuilder *builder){
@@ -218,6 +251,12 @@ uint32_t ShaderBuilderGetType(ShaderVariableType type, uint32_t type_arg, char *
     uint32_t type_indx = 0;
 
     switch(type){
+        case SHADER_VARIABLE_TYPE_VOID:
+            type_indx = ShaderBuilderAddVariable(SHADER_VARIABLE_TYPE_VOID, 0, NULL, 0, NULL, 0);
+            break;
+        case SHADER_VARIABLE_TYPE_BOOL:
+            type_indx = ShaderBuilderAddVariable(SHADER_VARIABLE_TYPE_BOOL, 0, NULL, 0, NULL, 0);
+            break;
         case SHADER_VARIABLE_TYPE_FLOAT:
             type_indx = ShaderBuilderAddFloat();
             break;
@@ -408,38 +447,36 @@ uint32_t ShaderBuilderCheckConstans(uint32_t type_indx, uint32_t valu){
 
 uint32_t ShaderBuilderAddConstant(ShaderVariableType var_type, ShaderDataFlags flags,  uint32_t valu, uint32_t sign){
 
-    uint32_t arr[] = { 32, sign };
-    uint32_t type_indx = ShaderBuilderCheckVariable(var_type, arr, 2);
+    uint32_t res = 0;
 
-    if(!type_indx){
+    if(var_type == SHADER_VARIABLE_TYPE_BOOL){
 
-        switch (var_type) {
-            case SHADER_VARIABLE_TYPE_INT:
-                type_indx = ShaderBuilderAddInt(sign);
-                break;
-            case SHADER_VARIABLE_TYPE_FLOAT:
-                type_indx = ShaderBuilderAddFloat();
-                break;
+        uint32_t type_bool = ShaderBuilderAddVariable(SHADER_VARIABLE_TYPE_BOOL, 0, NULL, 0, NULL, 0);
+        
+        if(sign){            
+            res = ShaderBuilderAddVariable(SHADER_VARIABLE_TYPE_CONSTANT_TRUE, 0, (uint32_t []){ type_bool }, 1, NULL, 0);
+        }else{
+            res = ShaderBuilderAddVariable(SHADER_VARIABLE_TYPE_CONSTANT_FALSE, 0, (uint32_t []){ type_bool }, 1, NULL, 0);
         }
-    }
 
-    uint32_t res = ShaderBuilderCheckConstans(type_indx, valu);
 
-    if(!res){
-        ShaderVariable *variable = ShaderBuilderAllocateVariabel(curr_builder);
+    }else{
+        uint32_t arr[] = { 32, sign };
+        uint32_t type_indx = ShaderBuilderCheckVariable(var_type, arr, 2);
 
-        variable->type = SHADER_VARIABLE_TYPE_CONSTANT;
-        variable->indx = curr_builder->current_index + 1;
-        variable->args[0] = type_indx;
-        variable->values[0] = valu;
+        if(!type_indx){
 
-        variable->num_args = 1;
-        variable->num_values = 1;
-        variable->flags = flags;
+            switch (var_type) {
+                case SHADER_VARIABLE_TYPE_INT:
+                    type_indx = ShaderBuilderAddInt(sign);
+                    break;
+                case SHADER_VARIABLE_TYPE_FLOAT:
+                    type_indx = ShaderBuilderAddFloat();
+                    break;
+            }
+        }
 
-        curr_builder->current_index++;
-
-        return curr_builder->current_index;
+        res = ShaderBuilderAddVariable(SHADER_VARIABLE_TYPE_CONSTANT, flags, (uint32_t []){type_indx}, 1, (uint32_t []){ valu }, 1);
     }
 
     return res;
@@ -947,6 +984,19 @@ uint32_t ShaderBuilderMakeExternalFunction(uint32_t *arg, uint32_t size, uint32_
     return ShaderBuilderAddOperand(arr, 3 + size - 1, SHADER_OPERAND_TYPE_EXT_INST);
 }
 
+uint32_t ShaderBuilderMakeFunctionCalling(ShaderVariableType type, uint32_t type_arg, uint32_t func_indx, uint32_t *args, uint32_t size){
+    uint32_t res_type = ShaderBuilderGetType(type, type_arg, NULL);
+
+    char arr[size + 2];
+    arr[0] = res_type;
+    arr[1] = func_indx;
+
+    for(int i=0;i < size;i++)
+        arr[i + 2] = args[i];
+
+    return ShaderBuilderAddOperand(arr, size + 2, SHADER_OPERAND_TYPE_FUNC_CALL);
+}
+
 void ShaderBuilderStoreValue(uint32_t *arr, uint32_t size){
 
     ShaderOperand *oper = &curr_label->operands[curr_label->num_operands];
@@ -1075,10 +1125,11 @@ uint32_t ShaderBuilderAcceptLoad(uint32_t val_indx, uint32_t struct_indx){
         if(variable == NULL){
             ShaderOperand *op = ShaderBuilderFindOperandByIndex(val_indx);
           
-            if(op == NULL)
+            if(op == NULL){                
                 return val_indx;
+            }
 
-            if(op->op_type != SHADER_OPERAND_TYPE_VARIABLE)
+            if(op->op_type != SHADER_OPERAND_TYPE_VARIABLE && op->op_type != SHADER_OPERAND_TYPE_FUNCTION_PARAM)
                 return val_indx;
 
             ShaderVariable *point = ShaderBuilderFindVar(op->var_indx[0]);
@@ -1552,7 +1603,20 @@ ShaderLabel *ShaderBuilderAddLabel(uint32_t func_indx, int will_return){
     return &curr_builder->functions[func_indx].labels[num_labels];
 }
 
-uint32_t ShaderBuilderMakeTransition(uint32_t indx_label){
+uint32_t ShaderBuilderMakeReturnValue(uint32_t ret_val){
+    
+    ShaderOperand *oper = NULL;
+    
+    oper = &curr_label->operands[curr_label->num_operands];
+
+    oper->num_vars = 1;
+    oper->op_type = SHADER_OPERAND_TYPE_RETURN_VALUE;
+    oper->var_indx[0] = ret_val;
+
+    curr_label->num_operands++;
+}
+
+void ShaderBuilderMakeTransition(uint32_t indx_label){
 
     ShaderOperand *oper = NULL;
     
@@ -1611,29 +1675,51 @@ void ShaderBuilderMakeBranchConditional(ConditionalType cond_type, uint32_t *val
     ShaderBuilderAddOperandF((uint32_t []){res, true_label, false_label}, 3, SHADER_OPERAND_TYPE_BRANCH_CONDITIONAL);
 }
 
-ShaderFunc *ShaderBuilderAddFunction(ShaderVariableType output, char *name){
+ShaderFunc *ShaderBuilderAddFunction(ShaderVariableType output, uint32_t type_arg, char *name, uint32_t *args, uint32_t size){
 
-    uint32_t void_type, func_type;
+    uint32_t ret_type, func_type;
 
-    int res = ShaderBuilderCheckVariable(SHADER_VARIABLE_TYPE_FUNCTION, NULL, 0);
+    uint32_t  res = 0;
 
-    if(!res){
+    {
+        res = ShaderBuilderGetType(output,  type_arg, NULL);
 
-        res = ShaderBuilderCheckVariable(output,  NULL, 0);
+        ret_type = res;
 
-        if(!res)
-            res = ShaderBuilderAddVariable(output, 0, NULL, 0, NULL, 0);
+        if(size == 0){
+            uint32_t arr[] = {res};
 
-        void_type = res;
+            res = ShaderBuilderAddVariable(SHADER_VARIABLE_TYPE_FUNCTION, 0, arr, 1, NULL, 0);
+        }else{                
+            uint32_t arr[size + 1];
+            arr[0] = res;
 
-        uint32_t arr[] = {res};
+            for(int i=0;i < size;i++){
+                arr[i + 1] = ShaderBuilderAddVariable(SHADER_VARIABLE_TYPE_POINTER, SHADER_DATA_FLAG_FUNCTION, (uint32_t []){ args[i] }, 1, NULL, 0);
 
-        res = ShaderBuilderAddVariable(SHADER_VARIABLE_TYPE_FUNCTION, 0, arr, 1, NULL, 0);
+                curr_builder->functions[curr_builder->num_functions].args[i] = arr[i + 1];
+                curr_builder->functions[curr_builder->num_functions].arg_indxs[i] = curr_builder->current_index + 1;
+                curr_builder->functions[curr_builder->num_functions].num_args = size;
+
+                
+                ShaderOperand *oper = &curr_label->operands[curr_label->num_operands];
+
+                oper->var_indx[0] = arr[i + 1];
+                oper->num_vars = 1;
+                oper->op_type = SHADER_OPERAND_TYPE_FUNCTION_PARAM;
+                oper->indx = curr_builder->current_index + 1;
+
+                curr_label->num_operands++;                
+                curr_builder->current_index++;
+            }
+
+            res = ShaderBuilderAddVariable(SHADER_VARIABLE_TYPE_FUNCTION, 0, arr, size + 1, NULL, 0);
+        }
     }
 
     func_type = res;
 
-    curr_builder->functions[curr_builder->num_functions].result_type_indx = void_type;
+    curr_builder->functions[curr_builder->num_functions].result_type_indx = ret_type;
     curr_builder->functions[curr_builder->num_functions].func_type_indx = func_type;
     curr_builder->functions[curr_builder->num_functions].indx = curr_builder->current_index + 1;
 
@@ -1677,9 +1763,9 @@ void ShaderBuilderInit(ShaderBuilder *builder, ShaderType type){
 
     ShaderBuilderAddVariable(SHADER_VARIABLE_TYPE_EXTENDED_IMPORT, 0, NULL, 0, NULL, 0);
 
-    curr_builder->main_point_index = ShaderBuilderAddFunction(SHADER_VARIABLE_TYPE_VOID, "main");
+    curr_builder->main_point_index = ShaderBuilderAddFunction(SHADER_VARIABLE_TYPE_VOID, 0, "main", NULL, 0);
 
-    ShaderBuilderSetCurrentLabel(curr_builder->main_point_index->labels[0].index);
+    ShaderBuilderSetCurrentFunc(curr_builder->main_point_index->indx);
 
     if(type == SHADER_TYPE_VERTEX){
 
@@ -1696,18 +1782,6 @@ void ShaderBuilderInit(ShaderBuilder *builder, ShaderType type){
 
         curr_builder->gl_struct_indx = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_STRUCT, SHADER_DATA_FLAG_OUTPUT | SHADER_DATA_FLAG_SYSTEM, struct_arr, 4, "gl_PerVertex", 0, 0);
     }
-
-}
-
-
-void ShaderBuilderWriteFuncType(ShaderVariable *variable){
-
-    ShaderBuilderAddOp(SpvOpTypeFunction, 3);
-
-    ShaderBuilderAddValue(variable->indx);
-
-    for(int i=0;i < variable->num_args;i++)
-        ShaderBuilderAddValue(variable->args[i]);
 
 }
 
@@ -1953,6 +2027,14 @@ void ShaderBuilderCheckThatLabel(ShaderLabel *label){
                     for(iter=2;iter<operand->num_vars;iter++)
                         ShaderBuilderAddValue(operand->var_indx[iter]);
                     break;
+                case SHADER_OPERAND_TYPE_FUNC_CALL:
+                    ShaderBuilderAddOp(SpvOpAccessChain, 4 + operand->num_vars - 2);
+                    ShaderBuilderAddValue(operand->var_indx[0]);
+                    ShaderBuilderAddValue(operand->indx);
+                    ShaderBuilderAddValue(operand->var_indx[1]);
+                    for(iter=2;iter<operand->num_vars;iter++)
+                        ShaderBuilderAddValue(operand->var_indx[iter]);
+                    break;
                 case SHADER_OPERAND_TYPE_COMPOSITE_EXTRACT:
                     ShaderBuilderAddOp(SpvOpCompositeExtract, 4 + 1);
                     ShaderBuilderAddValue(operand->var_indx[0]);
@@ -2167,20 +2249,24 @@ void ShaderBuilderCheckThatLabel(ShaderLabel *label){
                 case SHADER_OPERAND_TYPE_KILL:
                     ShaderBuilderAddOp(SpvOpKill, 1);
                     break;  
+                case SHADER_OPERAND_TYPE_RETURN_VALUE:
+                    ShaderBuilderAddOp(SpvOpReturnValue, 2);
+                    ShaderBuilderAddValue(operand->var_indx[0]);
+                    break;  
             }
     }
 }
 
-void ShaderBuilderSortLabel(){
+void ShaderBuilderSortLabel(ShaderFunc *func){
     ShaderLabel labels[32];
 
-    memcpy(labels, curr_builder->main_point_index->labels, sizeof(ShaderLabel) * curr_builder->main_point_index->num_labels);
+    memcpy(labels, func->labels, sizeof(ShaderLabel) * func->num_labels);
 
-    for(int i=0; i < curr_builder->main_point_index->num_labels;i++){
+    for(int i=0; i < func->num_labels;i++){
         
-        for(int j=0; j < curr_builder->main_point_index->num_labels;j++){
+        for(int j=0; j < func->num_labels;j++){
             if(labels[j].num_label == i){
-                curr_builder->main_point_index->labels[i] = labels[j];
+                func->labels[i] = labels[j];
                 break;
             }
         }
@@ -2189,8 +2275,6 @@ void ShaderBuilderSortLabel(){
 }
 
 void ShaderBuilderMake(){
-
-    ShaderBuilderSortLabel();
 
     if(curr_builder->main_point_index->num_labels == 1)
         curr_builder->main_point_index->labels[0].will_return = true;
@@ -2459,7 +2543,10 @@ void ShaderBuilderMake(){
                     ShaderBuilderAddValue(variable->indx);
                     break;
                 case SHADER_VARIABLE_TYPE_FUNCTION:
-                    ShaderBuilderWriteFuncType(variable);
+                    ShaderBuilderAddOp(SpvOpTypeFunction, 3 + variable->num_args - 1);
+                    ShaderBuilderAddValue(variable->indx);
+                    for(j=0;j < variable->num_args;j++)
+                        ShaderBuilderAddValue(variable->args[j]);
                     break;
                 case SHADER_VARIABLE_TYPE_INT:
                     ShaderBuilderAddOp(SpvOpTypeInt, 4);
@@ -2500,7 +2587,16 @@ void ShaderBuilderMake(){
                     ShaderBuilderAddValue(variable->indx);
                     ShaderBuilderAddValue(variable->values[0]);
                     break;
-                    
+                case SHADER_VARIABLE_TYPE_CONSTANT_FALSE:
+                    ShaderBuilderAddOp(SpvOpConstantFalse, 3);
+                    ShaderBuilderAddValue(variable->args[0]);
+                    ShaderBuilderAddValue(variable->indx);
+                    break;
+                case SHADER_VARIABLE_TYPE_CONSTANT_TRUE:
+                    ShaderBuilderAddOp(SpvOpConstantTrue, 3);
+                    ShaderBuilderAddValue(variable->args[0]);
+                    ShaderBuilderAddValue(variable->indx);
+                    break;                    
                 case SHADER_VARIABLE_TYPE_CONSTANT_COMPOSITE:
                     ShaderBuilderAddOp(SpvOpConstantComposite, 3 + variable->num_values);
                     ShaderBuilderAddValue(variable->args[0]);
@@ -2552,26 +2648,36 @@ void ShaderBuilderMake(){
 
         for(int i=0;i < curr_builder->num_functions;i++)
         {
-            ShaderBuilderAddOp(SpvOpFunction, 5);
-            ShaderBuilderAddValue(curr_builder->functions[i].result_type_indx);
-            ShaderBuilderAddValue(curr_builder->functions[i].indx);
-            ShaderBuilderAddValue(curr_builder->functions[i].function_control);
-            ShaderBuilderAddValue(curr_builder->functions[i].func_type_indx);
+            ShaderFunc *func = &curr_builder->functions[i];
 
-            for(int j=0;j < curr_builder->functions[i].num_labels;j++)
+            ShaderBuilderAddOp(SpvOpFunction, 5);
+            ShaderBuilderAddValue(func->result_type_indx);
+            ShaderBuilderAddValue(func->indx);
+            ShaderBuilderAddValue(func->function_control);
+            ShaderBuilderAddValue(func->func_type_indx);
+    
+            for(int j=0;j < func->num_args;j++){
+                ShaderBuilderAddOp(SpvOpFunctionParameter, 3);
+                ShaderBuilderAddValue(func->args[j]);
+                ShaderBuilderAddValue(func->arg_indxs[j]);
+            }
+                        
+            ShaderBuilderSortLabel(&curr_builder->functions[i]);
+
+            for(int j=0;j < func->num_labels;j++)
             {
-                if(curr_builder->functions[i].labels[j].will_return)
+                if(func->labels[j].will_return)
                     continue;               
 
-                ShaderBuilderCheckThatLabel(&curr_builder->functions[i].labels[j]);
+                ShaderBuilderCheckThatLabel(&func->labels[j]);
             }
 
-            for(int j=0;j < curr_builder->functions[i].num_labels;j++)
+            for(int j=0;j < func->num_labels;j++)
             {
-                if(!curr_builder->functions[i].labels[j].will_return)
+                if(!func->labels[j].will_return)
                     continue;
 
-                ShaderBuilderCheckThatLabel(&curr_builder->functions[i].labels[j]);
+                ShaderBuilderCheckThatLabel(&func->labels[j]);
 
                 ShaderBuilderAddOp(SpvOpReturn, 1);
             }

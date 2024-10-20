@@ -1432,6 +1432,11 @@ void ShadersMakeTerrainShader(ShaderBuilder *vert, ShaderBuilder *tesc, ShaderBu
     //------------------------------------------------------
     {
         ShaderBuilderInit(tesc, SHADER_TYPE_TESELLATION_CONTROL);
+        
+        uint32_t vec_type4 = ShaderBuilderAddVector(4, NULL);
+
+        ShaderFunc *screenSpaceTessFactor = ShaderBuilderAddFunction(SHADER_VARIABLE_TYPE_FLOAT, 0, "screenSpaceTessFactor", (uint32_t []){vec_type4, vec_type4}, 2);
+        ShaderFunc *frustrumCheck = ShaderBuilderAddFunction(SHADER_VARIABLE_TYPE_BOOL, 0, "frustrumCheck", NULL, 0);
 
         ShaderStructConstr uniform_arr[] = {
             {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "model", NULL, 0, NULL},
@@ -1504,7 +1509,94 @@ void ShadersMakeTerrainShader(ShaderBuilder *vert, ShaderBuilder *tesc, ShaderBu
         
         uint32_t nrm_out = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_ARRAY, SHADER_DATA_FLAG_OUTPUT, norm_str, 4, "outNormal", 0, 0);
         uint32_t txt_out = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_ARRAY, SHADER_DATA_FLAG_OUTPUT, uv_str, 4, "outUv", 1, 0);
+        
+        ShaderBuilderSetCurrentFunc(screenSpaceTessFactor->indx);
 
+        uint32_t var1 = ShaderBuilderAcceptLoad(screenSpaceTessFactor->arg_indxs[0], 0);
+        uint32_t var2 = ShaderBuilderAcceptLoad(screenSpaceTessFactor->arg_indxs[1], 0);
+        
+        float f = 0.5f;
+        uint32_t c = 0;
+        memcpy(&c, &f, sizeof(uint32_t));
+        uint32_t c_1 = ShaderBuilderAddConstant(SHADER_VARIABLE_TYPE_FLOAT, 0, c, 0);
+
+        uint32_t midPoint = ShaderBuilderAddFuncAdd(var1, 0, SHADER_VARIABLE_TYPE_VECTOR, 4, var2, 0, SHADER_VARIABLE_TYPE_VECTOR, 4, 4);
+        midPoint = ShaderBuilderAddFuncMult(midPoint, 0, SHADER_VARIABLE_TYPE_VECTOR, 4, c_1, 0, SHADER_VARIABLE_TYPE_FLOAT, 0, 4);
+
+        uint32_t type_float = ShaderBuilderAddFloat();
+
+        f = 2.0f;
+        c = 0;
+        memcpy(&c, &f, sizeof(uint32_t));
+        uint32_t c_2 = ShaderBuilderAddConstant(SHADER_VARIABLE_TYPE_FLOAT, 0, c, 0);
+
+        uint32_t radius = ShaderBuilderMakeExternalFunction((uint32_t []){type_float, var1, var2}, 3, GLSLstd450Distance);
+        radius = ShaderBuilderAddFuncDiv(radius, 0, SHADER_VARIABLE_TYPE_FLOAT, 0, c_2, 0, SHADER_VARIABLE_TYPE_FLOAT, 0, 4);
+
+        uint32_t v0 = ShaderBuilderAddFuncMult(uniform, 0, SHADER_VARIABLE_TYPE_MATRIX, 4, uniform, 1, SHADER_VARIABLE_TYPE_MATRIX, 4, 4);
+        v0 = ShaderBuilderAddFuncMult(v0, 0, SHADER_VARIABLE_TYPE_MATRIX, 4, midPoint, 0, SHADER_VARIABLE_TYPE_VECTOR, 4, 4);
+        
+        uint32_t c_3 = ShaderBuilderAddConstant(SHADER_VARIABLE_TYPE_FLOAT, 0, 0, 0);
+
+        uint32_t t_vec = ShaderBuilderCompositeConstruct((uint32_t []){ vec_type4, radius, radius, radius, c_3 }, 5);
+
+        uint32_t clip0 = ShaderBuilderAddFuncSub(v0, 0, SHADER_VARIABLE_TYPE_VECTOR, 4, t_vec, 0, SHADER_VARIABLE_TYPE_VECTOR, 4, 4);
+        clip0 = ShaderBuilderAddFuncMult(uniform, 2, SHADER_VARIABLE_TYPE_MATRIX, 4, clip0, 0, SHADER_VARIABLE_TYPE_VECTOR, 4, 4);
+        
+        uint32_t clip1 = ShaderBuilderAddFuncSub(v0, 0, SHADER_VARIABLE_TYPE_VECTOR, 4, t_vec, 0, SHADER_VARIABLE_TYPE_VECTOR, 4, 4);
+        clip1 = ShaderBuilderAddFuncMult(uniform, 2, SHADER_VARIABLE_TYPE_MATRIX, 4, clip1, 0, SHADER_VARIABLE_TYPE_VECTOR, 4, 4);
+
+        VectorExtract extr = ShaderBuilderGetElemenets(SHADER_VARIABLE_TYPE_FLOAT, clip0, 4, 3, 1);
+        clip0 = ShaderBuilderAddFuncDiv(clip0, 0, SHADER_VARIABLE_TYPE_VECTOR, 4, extr.elems[0], 0, SHADER_VARIABLE_TYPE_FLOAT, 0, 4);
+        
+        extr = ShaderBuilderGetElemenets(SHADER_VARIABLE_TYPE_FLOAT, clip1, 4, 3, 1);
+        clip1 = ShaderBuilderAddFuncDiv(clip1, 0, SHADER_VARIABLE_TYPE_VECTOR, 4, extr.elems[0], 0, SHADER_VARIABLE_TYPE_FLOAT, 0, 4);
+
+        uint32_t vec_type2 = ShaderBuilderAddVector(2, NULL);
+
+        uint32_t shuf_clip = ShaderBuilderAddOperand((uint32_t []){ vec_type2, clip0, clip0, 0, 1}, 5, SHADER_OPERAND_TYPE_VECSHUFFLE);
+        shuf_clip = ShaderBuilderAddFuncMult(shuf_clip, 0, SHADER_VARIABLE_TYPE_VECTOR, 2, uniform2, 4, SHADER_VARIABLE_TYPE_VECTOR, 2, 2);
+
+        extr = ShaderBuilderGetElemenets(SHADER_VARIABLE_TYPE_FLOAT, clip0, 4, 2, 2);
+        VectorExtract extr2 = ShaderBuilderGetElemenets(SHADER_VARIABLE_TYPE_FLOAT, shuf_clip, 2, 0, 2);
+        clip0 = ShaderBuilderCompositeConstruct((uint32_t []){ vec_type4, extr.elems[0], extr.elems[1], extr2.elems[0], extr2.elems[1] }, 5);
+
+        shuf_clip = ShaderBuilderAddOperand((uint32_t []){ vec_type2, clip1, clip1, 0, 1}, 5, SHADER_OPERAND_TYPE_VECSHUFFLE);
+        shuf_clip = ShaderBuilderAddFuncMult(shuf_clip, 0, SHADER_VARIABLE_TYPE_VECTOR, 2, uniform2, 4, SHADER_VARIABLE_TYPE_VECTOR, 2, 2);
+
+        extr = ShaderBuilderGetElemenets(SHADER_VARIABLE_TYPE_FLOAT, clip1, 4, 2, 2);
+        extr2 = ShaderBuilderGetElemenets(SHADER_VARIABLE_TYPE_FLOAT, shuf_clip, 2, 0, 2);
+        clip1 = ShaderBuilderCompositeConstruct((uint32_t []){ vec_type4, extr.elems[0], extr.elems[1], extr2.elems[0], extr2.elems[1] }, 5);
+
+        uint32_t res = ShaderBuilderMakeExternalFunction((uint32_t []){ type_float, clip0, clip1 }, 3, GLSLstd450Distance);
+        res = ShaderBuilderAddFuncDiv(res, 0, SHADER_VARIABLE_TYPE_FLOAT, 0, uniform2, 5, SHADER_VARIABLE_TYPE_FLOAT, 0, 0);
+        res = ShaderBuilderAddFuncMult(res, 0, SHADER_VARIABLE_TYPE_FLOAT, 0, uniform2, 3, SHADER_VARIABLE_TYPE_FLOAT, 0, 0);
+        
+        f = 1.0f;
+        c = 0;
+        memcpy(&c, &f, sizeof(uint32_t));
+        uint32_t c_4 = ShaderBuilderAddConstant(SHADER_VARIABLE_TYPE_FLOAT, 0, c, 0);
+        
+        f = 64.0f;
+        c = 0;
+        memcpy(&c, &f, sizeof(uint32_t));
+        uint32_t c_5 = ShaderBuilderAddConstant(SHADER_VARIABLE_TYPE_FLOAT, 0, c, 0);
+        
+        res = ShaderBuilderMakeExternalFunction((uint32_t []){ type_float, res, c_4, c_5 }, 4, GLSLstd450FClamp);
+
+        ShaderBuilderMakeReturnValue(res);
+        
+        //------------------------------------------------------------------------------------------------------------------------------------
+        
+        ShaderBuilderSetCurrentFunc(frustrumCheck->indx);
+
+        res = ShaderBuilderAddConstant(SHADER_VARIABLE_TYPE_BOOL, 0, 0, 1);
+
+        ShaderBuilderMakeReturnValue(res);
+
+        //------------------------------------------------------------------------------------------------------------------------------------
+        
+        ShaderBuilderSetCurrentFunc(tesc->main_point_index->indx);
 
         ShaderBuilderMake();
     }
