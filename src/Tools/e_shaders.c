@@ -30,7 +30,7 @@ void ShadersMakeDefault2DShader(ShaderBuilder *vert, ShaderBuilder *frag, bool h
         res = ShaderBuilderAddFuncMult(uniform, 2, SHADER_VARIABLE_TYPE_MATRIX, 4, res, 0, SHADER_VARIABLE_TYPE_MATRIX, 4, 4);
         res = ShaderBuilderAddFuncMult(res, 0, SHADER_VARIABLE_TYPE_MATRIX, 4, posit, 0, SHADER_VARIABLE_TYPE_VECTOR, 2, 4);
 
-        uint32_t acc = ShaderBuilderAcceptAccess(vert->gl_struct_indx, SHADER_VARIABLE_TYPE_VECTOR, 4, (uint32_t []){ 0 }, 1, false);
+        uint32_t acc = ShaderBuilderAcceptAccess(vert->gl_struct_indx, SHADER_VARIABLE_TYPE_VECTOR, 4, (uint32_t []){ 0 }, 1, SHADER_DATA_FLAG_OUTPUT);
         ShaderBuilderStoreValue((uint32_t []){ acc, res }, 2);
 
         ShaderBuilderAddFuncMove(clr_indx, 3, clr_dst, 3);
@@ -121,13 +121,13 @@ void ShaderMakeDefaultParticle2DShader(ShaderBuilder *vert, ShaderBuilder *frag)
         uint32_t cons = ShaderBuilderAddConstant(SHADER_VARIABLE_TYPE_FLOAT, 0, c, 1);
 
         uint32_t res = ShaderBuilderAddFuncMult(cons, 0, SHADER_VARIABLE_TYPE_FLOAT, 0, p_size, 0, SHADER_VARIABLE_TYPE_FLOAT, 0, 0);
-        uint32_t acc = ShaderBuilderAcceptAccess(vert->gl_struct_indx, SHADER_VARIABLE_TYPE_FLOAT, 0, (uint32_t []){ 1 }, 1, false);
+        uint32_t acc = ShaderBuilderAcceptAccess(vert->gl_struct_indx, SHADER_VARIABLE_TYPE_FLOAT, 0, (uint32_t []){ 1 }, 1, SHADER_DATA_FLAG_OUTPUT);
         ShaderBuilderStoreValue((uint32_t []){ acc,  res}, 2);
 
         res = ShaderBuilderAddFuncMult(uniform, 1, SHADER_VARIABLE_TYPE_MATRIX, 4, uniform, 0, SHADER_VARIABLE_TYPE_MATRIX, 4, 4);
         res = ShaderBuilderAddFuncMult(uniform, 2, SHADER_VARIABLE_TYPE_MATRIX, 4, res, 0, SHADER_VARIABLE_TYPE_MATRIX, 4, 4);
         res = ShaderBuilderAddFuncMult(res, 0, SHADER_VARIABLE_TYPE_MATRIX, 4, posit, 0, SHADER_VARIABLE_TYPE_VECTOR, 2, 4);
-        acc = ShaderBuilderAcceptAccess(vert->gl_struct_indx, SHADER_VARIABLE_TYPE_VECTOR, 4, (uint32_t []){ 0 }, 1, false);
+        acc = ShaderBuilderAcceptAccess(vert->gl_struct_indx, SHADER_VARIABLE_TYPE_VECTOR, 4, (uint32_t []){ 0 }, 1, SHADER_DATA_FLAG_OUTPUT);
         ShaderBuilderStoreValue((uint32_t []){ acc,  res}, 2);
 
         ShaderBuilderAddFuncMove(clr_indx, 3, clr_dst, 3);
@@ -201,7 +201,7 @@ void ShadersMakeDefault3DShader(ShaderBuilder *vert, ShaderBuilder *frag, bool h
     res = ShaderBuilderAddFuncMult(uniform, 2,  SHADER_VARIABLE_TYPE_MATRIX, 4, res, 0, SHADER_VARIABLE_TYPE_MATRIX, 4, 4);
     res = ShaderBuilderAddFuncMult(res, 0,  SHADER_VARIABLE_TYPE_MATRIX, 4, posit, 0, SHADER_VARIABLE_TYPE_VECTOR, 3, 4);
     
-    uint32_t glPos = ShaderBuilderAcceptAccess(vert->gl_struct_indx, SHADER_VARIABLE_TYPE_VECTOR, 4, (uint32_t []){ 0 }, 1, false);
+    uint32_t glPos = ShaderBuilderAcceptAccess(vert->gl_struct_indx, SHADER_VARIABLE_TYPE_VECTOR, 4, (uint32_t []){ 0 }, 1, SHADER_DATA_FLAG_OUTPUT);
     ShaderBuilderStoreValue((uint32_t []){ glPos, res}, 2);
     
     ShaderBuilderAddFuncMove(clr_indx, 3, clr_dst, 3);
@@ -376,7 +376,7 @@ void MakeBaseLightCode(uint32_t texture, uint32_t normal, uint32_t indx_mat_num,
             uint32_t label1 = ShaderBuilderNextLabel(false, 3);
             uint32_t ret_label = ShaderBuilderNextLabel(true, 17);
 
-            uint32_t res = ShaderBuilderAcceptAccess(lights, SHADER_VARIABLE_TYPE_INT, 1, (uint32_t []){ 2 }, 1, true);
+            uint32_t res = ShaderBuilderAcceptAccess(lights, SHADER_VARIABLE_TYPE_INT, 1, (uint32_t []){ 2 }, 1, SHADER_DATA_FLAG_LOAD);
 
             ShaderBuilderMakeBranchConditional(SHADER_CONDITIONAL_TYPE_EQUAL, (uint32_t []){ res, c_2 }, 2, ret_label, just_color, label1);  
             
@@ -400,7 +400,7 @@ void MakeBaseLightCode(uint32_t texture, uint32_t normal, uint32_t indx_mat_num,
     //-------------------------------------------------------------------------------------------------------------------------------------------
             uint32_t acc = ShaderBuilderAcceptLoad(i_iter, 0);
 
-            res = ShaderBuilderAcceptAccess(lights, SHADER_VARIABLE_TYPE_INT, 1, (uint32_t []){ 1 }, 1, true);
+            res = ShaderBuilderAcceptAccess(lights, SHADER_VARIABLE_TYPE_INT, 1, (uint32_t []){ 1 }, 1, SHADER_DATA_FLAG_LOAD);
 
             ShaderBuilderMakeBranchConditional(SHADER_CONDITIONAL_TYPE_SLESS_THAN, (uint32_t []){ acc, res }, 2, 0, label2, end_label);
     //-------------------------------------------------------------------------------------------------------------------------------------------
@@ -408,8 +408,8 @@ void MakeBaseLightCode(uint32_t texture, uint32_t normal, uint32_t indx_mat_num,
             
             acc = ShaderBuilderAcceptLoad(i_iter, 0);
 
-            uint32_t var1 = ShaderBuilderAcceptAccess(lights, SHADER_VARIABLE_TYPE_VECTOR, 3, (uint32_t []){ 0, acc, 1 }, 3, true);
-            uint32_t var2 = ShaderBuilderAcceptAccess(lights, SHADER_VARIABLE_TYPE_FLOAT, 0, (uint32_t []){ 0, acc, 3 }, 3, true);
+            uint32_t var1 = ShaderBuilderAcceptAccess(lights, SHADER_VARIABLE_TYPE_VECTOR, 3, (uint32_t []){ 0, acc, 1 }, 3, SHADER_DATA_FLAG_LOAD);
+            uint32_t var2 = ShaderBuilderAcceptAccess(lights, SHADER_VARIABLE_TYPE_FLOAT, 0, (uint32_t []){ 0, acc, 3 }, 3, SHADER_DATA_FLAG_LOAD);
 
             res = ShaderBuilderAddFuncMult(var1, 0, SHADER_VARIABLE_TYPE_VECTOR, 3, var2, 0, SHADER_VARIABLE_TYPE_FLOAT, 0, 3);
 
@@ -417,7 +417,7 @@ void MakeBaseLightCode(uint32_t texture, uint32_t normal, uint32_t indx_mat_num,
             ShaderBuilderStoreValue((uint32_t []){f_diff, c_1}, 2);
             ShaderBuilderStoreValue((uint32_t []){f_lightResult, c_3}, 2);
 
-            var1 = ShaderBuilderAcceptAccess(lights, SHADER_VARIABLE_TYPE_INT, 1, (uint32_t []){ 0, acc, 4 }, 3, true);
+            var1 = ShaderBuilderAcceptAccess(lights, SHADER_VARIABLE_TYPE_INT, 1, (uint32_t []){ 0, acc, 4 }, 3, SHADER_DATA_FLAG_LOAD);
             uint32_t sel_merg = ShaderBuilderNextLabel(false, 14);
             uint32_t label6 = ShaderBuilderNextLabel(false, 6);
             uint32_t label7 = ShaderBuilderNextLabel(false, 7);
@@ -426,7 +426,7 @@ void MakeBaseLightCode(uint32_t texture, uint32_t normal, uint32_t indx_mat_num,
             ShaderBuilderSetCurrentLabel(label6);
                      
             acc = ShaderBuilderAcceptLoad(i_iter, 0);
-            var1 = ShaderBuilderAcceptAccess(lights, SHADER_VARIABLE_TYPE_VECTOR, 3, (uint32_t []){ 0, acc, 0 }, 3, true);        
+            var1 = ShaderBuilderAcceptAccess(lights, SHADER_VARIABLE_TYPE_VECTOR, 3, (uint32_t []){ 0, acc, 0 }, 3, SHADER_DATA_FLAG_LOAD);        
             var2 = ShaderBuilderAcceptLoad(fragPos, 0);       
 
             res = ShaderBuilderAddFuncSub(var1, 0, SHADER_VARIABLE_TYPE_VECTOR, 3, var2, 0, SHADER_VARIABLE_TYPE_VECTOR, 3, 3);
@@ -448,7 +448,7 @@ void MakeBaseLightCode(uint32_t texture, uint32_t normal, uint32_t indx_mat_num,
                 var1 = ShaderBuilderAcceptLoad(fragPos, 0);
 
                 acc = ShaderBuilderAcceptLoad(i_iter, 0);
-                var2 = ShaderBuilderAcceptAccess(lights, SHADER_VARIABLE_TYPE_VECTOR, 3, (uint32_t []){ 0, acc, 0 }, 3, true);
+                var2 = ShaderBuilderAcceptAccess(lights, SHADER_VARIABLE_TYPE_VECTOR, 3, (uint32_t []){ 0, acc, 0 }, 3, SHADER_DATA_FLAG_LOAD);
 
                 res = ShaderBuilderAddFuncSub(var2, 0, SHADER_VARIABLE_TYPE_VECTOR, 3, var1, 0, SHADER_VARIABLE_TYPE_VECTOR, 3, 3); 
 
@@ -456,7 +456,7 @@ void MakeBaseLightCode(uint32_t texture, uint32_t normal, uint32_t indx_mat_num,
 
                 uint32_t att =  ShaderBuilderAddFuncMult(res, 0, SHADER_VARIABLE_TYPE_FLOAT, 0, res, 0, SHADER_VARIABLE_TYPE_FLOAT, 0, 3); 
 
-                var1 = ShaderBuilderAcceptAccess(lights, SHADER_VARIABLE_TYPE_FLOAT, 3, (uint32_t []){ 0, acc, 7 }, 3, true);
+                var1 = ShaderBuilderAcceptAccess(lights, SHADER_VARIABLE_TYPE_FLOAT, 3, (uint32_t []){ 0, acc, 7 }, 3, SHADER_DATA_FLAG_LOAD);
                 
                 att = ShaderBuilderAddFuncDiv(var1, 0, SHADER_VARIABLE_TYPE_FLOAT, 0, att, 0, SHADER_VARIABLE_TYPE_FLOAT, 0, 3);
 
@@ -476,7 +476,7 @@ void MakeBaseLightCode(uint32_t texture, uint32_t normal, uint32_t indx_mat_num,
             uint32_t label_t_2 = ShaderBuilderNextLabel(false, 12);
             uint32_t label_t_3 = ShaderBuilderNextLabel(false, 11);
             acc = ShaderBuilderAcceptLoad(i_iter, 0);
-            var1 = ShaderBuilderAcceptAccess(lights, SHADER_VARIABLE_TYPE_INT, 1, (uint32_t []){ 0, acc, 4 }, 3, true);
+            var1 = ShaderBuilderAcceptAccess(lights, SHADER_VARIABLE_TYPE_INT, 1, (uint32_t []){ 0, acc, 4 }, 3, SHADER_DATA_FLAG_LOAD);
             ShaderBuilderMakeBranchConditional(SHADER_CONDITIONAL_TYPE_EQUAL, (uint32_t []){ var1, cnst_2 }, 2, label_t_1, label8, label9);  
     //-------------------------------------------------------------------------------
             ShaderBuilderSetCurrentLabel(label_t_1);
@@ -484,7 +484,7 @@ void MakeBaseLightCode(uint32_t texture, uint32_t normal, uint32_t indx_mat_num,
     //-------------------------------------------------------------------------------
             ShaderBuilderSetCurrentLabel(label8);
             acc = ShaderBuilderAcceptLoad(i_iter, 0);
-            res = ShaderBuilderAcceptAccess(lights, SHADER_VARIABLE_TYPE_VECTOR, 3, (uint32_t []){ 0, acc, 2 }, 3, true);
+            res = ShaderBuilderAcceptAccess(lights, SHADER_VARIABLE_TYPE_VECTOR, 3, (uint32_t []){ 0, acc, 2 }, 3, SHADER_DATA_FLAG_LOAD);
             res = ShaderBuilderMakeExternalFunction((uint32_t []){ type_vec3, res}, 2, GLSLstd450Normalize);
             ShaderBuilderStoreValue((uint32_t []){v_lightDir, res}, 2);
 
@@ -508,7 +508,7 @@ void MakeBaseLightCode(uint32_t texture, uint32_t normal, uint32_t indx_mat_num,
             
             uint32_t label10 = ShaderBuilderNextLabel(false, 10);
             acc = ShaderBuilderAcceptLoad(i_iter, 0);
-            var1 = ShaderBuilderAcceptAccess(lights, SHADER_VARIABLE_TYPE_INT, 1, (uint32_t []){ 0, acc, 4 }, 3, true);
+            var1 = ShaderBuilderAcceptAccess(lights, SHADER_VARIABLE_TYPE_INT, 1, (uint32_t []){ 0, acc, 4 }, 3, SHADER_DATA_FLAG_LOAD);
             ShaderBuilderMakeBranchConditional(SHADER_CONDITIONAL_TYPE_EQUAL, (uint32_t []){ var1, cnst_2 }, 2, label_t_2, label10, label_t_2);  
 
     //-------------------------------------------------------------------------------
@@ -520,7 +520,7 @@ void MakeBaseLightCode(uint32_t texture, uint32_t normal, uint32_t indx_mat_num,
     //-------------------------------------------------------------------------------
             ShaderBuilderSetCurrentLabel(label10);
             acc = ShaderBuilderAcceptLoad(i_iter, 0);
-            var1 = ShaderBuilderAcceptAccess(lights, SHADER_VARIABLE_TYPE_VECTOR, 3, (uint32_t []){ 0, acc, 0 }, 3, true);
+            var1 = ShaderBuilderAcceptAccess(lights, SHADER_VARIABLE_TYPE_VECTOR, 3, (uint32_t []){ 0, acc, 0 }, 3, SHADER_DATA_FLAG_LOAD);
             var2 = ShaderBuilderAcceptLoad(fragPos, 0);
 
             res = ShaderBuilderAddFuncSub(var1, 0, SHADER_VARIABLE_TYPE_VECTOR, 3, var2, 0, SHADER_VARIABLE_TYPE_VECTOR, 3, 3);
@@ -535,15 +535,15 @@ void MakeBaseLightCode(uint32_t texture, uint32_t normal, uint32_t indx_mat_num,
             ShaderBuilderStoreValue((uint32_t []){f_diff, res}, 2);
             
             var1 = ShaderBuilderAcceptLoad(v_lightDir, 0);
-            var2 = ShaderBuilderAcceptAccess(lights, SHADER_VARIABLE_TYPE_VECTOR, 3, (uint32_t []){ 0, acc, 2 }, 3, true);
+            var2 = ShaderBuilderAcceptAccess(lights, SHADER_VARIABLE_TYPE_VECTOR, 3, (uint32_t []){ 0, acc, 2 }, 3, SHADER_DATA_FLAG_LOAD);
             var2 = ShaderBuilderMakeNegative(var2, 0, 3, SHADER_VARIABLE_TYPE_VECTOR);
             var2 = ShaderBuilderMakeExternalFunction((uint32_t []){ type_vec3, var2}, 2, GLSLstd450Normalize);
             uint32_t theta = ShaderBuilderMakeDotProduct(var1, 0, var2, 0);
             ShaderBuilderStoreValue((uint32_t []){f_theta, theta}, 2);
 
             {
-                var1 = ShaderBuilderAcceptAccess(lights, SHADER_VARIABLE_TYPE_FLOAT, 3, (uint32_t []){ 0, acc, 5 }, 3, true);
-                var2 = ShaderBuilderAcceptAccess(lights, SHADER_VARIABLE_TYPE_FLOAT, 3, (uint32_t []){ 0, acc, 6 }, 3, true);
+                var1 = ShaderBuilderAcceptAccess(lights, SHADER_VARIABLE_TYPE_FLOAT, 3, (uint32_t []){ 0, acc, 5 }, 3, SHADER_DATA_FLAG_LOAD);
+                var2 = ShaderBuilderAcceptAccess(lights, SHADER_VARIABLE_TYPE_FLOAT, 3, (uint32_t []){ 0, acc, 6 }, 3, SHADER_DATA_FLAG_LOAD);
                 uint32_t t_att = ShaderBuilderAddFuncSub(var1, 0, SHADER_VARIABLE_TYPE_FLOAT, 0, var2, 0, SHADER_VARIABLE_TYPE_FLOAT, 0, 3); 
                 uint32_t att = ShaderBuilderAddFuncSub(theta, 0, SHADER_VARIABLE_TYPE_FLOAT, 0, var2, 0, SHADER_VARIABLE_TYPE_FLOAT, 0, 3); 
                 att = ShaderBuilderAddFuncDiv(att, 0, SHADER_VARIABLE_TYPE_FLOAT, 0, t_att, 0, SHADER_VARIABLE_TYPE_FLOAT, 0, 3);
@@ -557,7 +557,7 @@ void MakeBaseLightCode(uint32_t texture, uint32_t normal, uint32_t indx_mat_num,
                 var1 = ShaderBuilderAcceptLoad(fragPos, 0);
 
                 acc = ShaderBuilderAcceptLoad(i_iter, 0);
-                var2 = ShaderBuilderAcceptAccess(lights, SHADER_VARIABLE_TYPE_VECTOR, 3, (uint32_t []){ 0, acc, 0 }, 3, true);
+                var2 = ShaderBuilderAcceptAccess(lights, SHADER_VARIABLE_TYPE_VECTOR, 3, (uint32_t []){ 0, acc, 0 }, 3, SHADER_DATA_FLAG_LOAD);
 
                 res = ShaderBuilderAddFuncSub(var2, 0, SHADER_VARIABLE_TYPE_VECTOR, 3, var1, 0, SHADER_VARIABLE_TYPE_VECTOR, 3, 3); 
 
@@ -565,7 +565,7 @@ void MakeBaseLightCode(uint32_t texture, uint32_t normal, uint32_t indx_mat_num,
 
                 uint32_t att =  ShaderBuilderAddFuncMult(res, 0, SHADER_VARIABLE_TYPE_FLOAT, 0, res, 0, SHADER_VARIABLE_TYPE_FLOAT, 0, 3); 
 
-                var1 = ShaderBuilderAcceptAccess(lights, SHADER_VARIABLE_TYPE_FLOAT, 3, (uint32_t []){ 0, acc, 7 }, 3, true);
+                var1 = ShaderBuilderAcceptAccess(lights, SHADER_VARIABLE_TYPE_FLOAT, 3, (uint32_t []){ 0, acc, 7 }, 3, SHADER_DATA_FLAG_LOAD);
                 
                 att = ShaderBuilderAddFuncDiv(var1, 0, SHADER_VARIABLE_TYPE_FLOAT, 0, att, 0, SHADER_VARIABLE_TYPE_FLOAT, 0, 3);
 
@@ -657,7 +657,7 @@ void ShadersMakeDeafult3DShaderWithLight(ShaderBuilder *vert, ShaderBuilder *fra
         res = ShaderBuilderAddFuncMult(uniform, 2,  SHADER_VARIABLE_TYPE_MATRIX, 4, res, 0, SHADER_VARIABLE_TYPE_MATRIX, 4, 4);
         res = ShaderBuilderAddFuncMult(res, 0,  SHADER_VARIABLE_TYPE_MATRIX, 4, posit, 0, SHADER_VARIABLE_TYPE_VECTOR, 3, 4);
         
-        uint32_t glPos = ShaderBuilderAcceptAccess(vert->gl_struct_indx, SHADER_VARIABLE_TYPE_VECTOR, 4, (uint32_t []){ 0 }, 1, false);
+        uint32_t glPos = ShaderBuilderAcceptAccess(vert->gl_struct_indx, SHADER_VARIABLE_TYPE_VECTOR, 4, (uint32_t []){ 0 }, 1, SHADER_DATA_FLAG_OUTPUT);
         ShaderBuilderStoreValue((uint32_t []){ glPos, res}, 2);
 
         res = ShaderBuilderAddFuncMult(uniform, 0, SHADER_VARIABLE_TYPE_MATRIX, 4, posit, 0, SHADER_VARIABLE_TYPE_VECTOR, 3, 4);
@@ -671,7 +671,7 @@ void ShadersMakeDeafult3DShaderWithLight(ShaderBuilder *vert, ShaderBuilder *fra
         uint32_t arr[] = {frg_pos, res};
         ShaderBuilderStoreValue(arr, sizeof(arr));
         
-        uint32_t acc = ShaderBuilderAcceptAccess(uniform, SHADER_VARIABLE_TYPE_MATRIX, 4, (uint32_t []){ 0 }, 1, true);
+        uint32_t acc = ShaderBuilderAcceptAccess(uniform, SHADER_VARIABLE_TYPE_MATRIX, 4, (uint32_t []){ 0 }, 1, SHADER_DATA_FLAG_LOAD);
 
         VectorExtract extr2 = ShaderBuilderGetElemenets(SHADER_VARIABLE_TYPE_VECTOR, acc, 4, 0, 3);
 
@@ -808,11 +808,11 @@ void ShadersMakeDefault3DModelShader(ShaderBuilder *vert, ShaderBuilder *frag, u
 
         for(int i=0; i < 4;i++){
 
-            uint32_t res1 = ShaderBuilderAcceptAccess(weight, SHADER_VARIABLE_TYPE_FLOAT, 4, (uint32_t []){ i }, 1, true);
-            uint32_t res2 = ShaderBuilderAcceptAccess(joints, SHADER_VARIABLE_TYPE_FLOAT, 4, (uint32_t []){ i }, 1, true);
+            uint32_t res1 = ShaderBuilderAcceptAccess(weight, SHADER_VARIABLE_TYPE_FLOAT, 4, (uint32_t []){ i }, 1, SHADER_DATA_FLAG_LOAD);
+            uint32_t res2 = ShaderBuilderAcceptAccess(joints, SHADER_VARIABLE_TYPE_FLOAT, 4, (uint32_t []){ i }, 1, SHADER_DATA_FLAG_LOAD);
             res2 = ShaderBuilderConvertFToS(res2);
 
-            res2 = ShaderBuilderAcceptAccess(bones, SHADER_VARIABLE_TYPE_MATRIX, 4, (uint32_t []){ 0, res2 }, 2, true);
+            res2 = ShaderBuilderAcceptAccess(bones, SHADER_VARIABLE_TYPE_MATRIX, 4, (uint32_t []){ 0, res2 }, 2, SHADER_DATA_FLAG_LOAD);
 
             res_arr[i] = ShaderBuilderAddFuncMult(res2, 0, SHADER_VARIABLE_TYPE_MATRIX, 4, res1, 0, SHADER_VARIABLE_TYPE_FLOAT, 0, 4);
         }
@@ -822,7 +822,7 @@ void ShadersMakeDefault3DModelShader(ShaderBuilder *vert, ShaderBuilder *frag, u
         res = ShaderBuilderAddFuncAdd(res, 0, SHADER_VARIABLE_TYPE_MATRIX, 4, res_arr[3], 0, SHADER_VARIABLE_TYPE_MATRIX, 4, 4);
         ShaderBuilderStoreValue((uint32_t []){m_skinMat, res}, 2);
             
-        uint32_t acc = ShaderBuilderAcceptAccess(bones, SHADER_VARIABLE_TYPE_INT, 1, (uint32_t []){1}, 1, true);
+        uint32_t acc = ShaderBuilderAcceptAccess(bones, SHADER_VARIABLE_TYPE_INT, 1, (uint32_t []){1}, 1, SHADER_DATA_FLAG_LOAD);
 
         uint32_t cst = ShaderBuilderAddConstant(SHADER_VARIABLE_TYPE_INT, 0, 0, 1);
 
@@ -845,7 +845,7 @@ void ShadersMakeDefault3DModelShader(ShaderBuilder *vert, ShaderBuilder *frag, u
         res = ShaderBuilderAddFuncMult(uniform, 1, SHADER_VARIABLE_TYPE_MATRIX, 4, res, 0, SHADER_VARIABLE_TYPE_VECTOR, 4, 4);
         res = ShaderBuilderAddFuncMult(uniform, 2, SHADER_VARIABLE_TYPE_MATRIX, 4, res, 0, SHADER_VARIABLE_TYPE_VECTOR, 4, 4);
 
-        uint32_t gl_Pos = ShaderBuilderAcceptAccess(vert->gl_struct_indx, SHADER_VARIABLE_TYPE_VECTOR, 4, (uint32_t []){ 0 }, 1, false);
+        uint32_t gl_Pos = ShaderBuilderAcceptAccess(vert->gl_struct_indx, SHADER_VARIABLE_TYPE_VECTOR, 4, (uint32_t []){ 0 }, 1, SHADER_DATA_FLAG_LOAD);
         ShaderBuilderStoreValue((uint32_t []){ gl_Pos, res}, 2);
 
         ShaderBuilderAddFuncMove(col, 3, clr_dst, 3);
@@ -985,11 +985,11 @@ void ShadersMakeDeafult3DModelShaderWithLight(ShaderBuilder *vert, ShaderBuilder
 
         for(int i=0; i < 4;i++){
 
-            uint32_t res1 = ShaderBuilderAcceptAccess(weight, SHADER_VARIABLE_TYPE_FLOAT, 4, (uint32_t []){ i }, 1, true);
-            uint32_t res2 = ShaderBuilderAcceptAccess(joints, SHADER_VARIABLE_TYPE_FLOAT, 4, (uint32_t []){ i }, 1, true);
+            uint32_t res1 = ShaderBuilderAcceptAccess(weight, SHADER_VARIABLE_TYPE_FLOAT, 4, (uint32_t []){ i }, 1, SHADER_DATA_FLAG_LOAD);
+            uint32_t res2 = ShaderBuilderAcceptAccess(joints, SHADER_VARIABLE_TYPE_FLOAT, 4, (uint32_t []){ i }, 1, SHADER_DATA_FLAG_LOAD);
             res2 = ShaderBuilderConvertFToS(res2);
 
-            res2 = ShaderBuilderAcceptAccess(bones, SHADER_VARIABLE_TYPE_MATRIX, 4, (uint32_t []){ 0, res2 }, 2, true);
+            res2 = ShaderBuilderAcceptAccess(bones, SHADER_VARIABLE_TYPE_MATRIX, 4, (uint32_t []){ 0, res2 }, 2, SHADER_DATA_FLAG_LOAD);
 
             res_arr[i] = ShaderBuilderAddFuncMult(res2, 0, SHADER_VARIABLE_TYPE_MATRIX, 4, res1, 0, SHADER_VARIABLE_TYPE_FLOAT, 0, 4);
         }
@@ -999,7 +999,7 @@ void ShadersMakeDeafult3DModelShaderWithLight(ShaderBuilder *vert, ShaderBuilder
         res = ShaderBuilderAddFuncAdd(res, 0, SHADER_VARIABLE_TYPE_MATRIX, 4, res_arr[3], 0, SHADER_VARIABLE_TYPE_MATRIX, 4, 4);
         ShaderBuilderStoreValue((uint32_t []){m_skinMat, res}, 2);
             
-        uint32_t acc = ShaderBuilderAcceptAccess(bones, SHADER_VARIABLE_TYPE_INT, 1, (uint32_t []){1}, 1, true);
+        uint32_t acc = ShaderBuilderAcceptAccess(bones, SHADER_VARIABLE_TYPE_INT, 1, (uint32_t []){1}, 1, SHADER_DATA_FLAG_LOAD);
 
         uint32_t cst = ShaderBuilderAddConstant(SHADER_VARIABLE_TYPE_INT, 0, 0, 1);
 
@@ -1022,12 +1022,12 @@ void ShadersMakeDeafult3DModelShaderWithLight(ShaderBuilder *vert, ShaderBuilder
         res = ShaderBuilderAddFuncMult(uniform, 1, SHADER_VARIABLE_TYPE_MATRIX, 4, res, 0, SHADER_VARIABLE_TYPE_VECTOR, 4, 4);
         res = ShaderBuilderAddFuncMult(uniform, 2, SHADER_VARIABLE_TYPE_MATRIX, 4, res, 0, SHADER_VARIABLE_TYPE_VECTOR, 4, 4);
 
-        uint32_t gl_Pos = ShaderBuilderAcceptAccess(vert->gl_struct_indx, SHADER_VARIABLE_TYPE_VECTOR, 4, (uint32_t []){ 0 }, 1, false);
+        uint32_t gl_Pos = ShaderBuilderAcceptAccess(vert->gl_struct_indx, SHADER_VARIABLE_TYPE_VECTOR, 4, (uint32_t []){ 0 }, 1, SHADER_DATA_FLAG_LOAD);
         ShaderBuilderStoreValue((uint32_t []){ gl_Pos, res}, 2);
 
         uint32_t v3_type = ShaderBuilderAddVector(3, NULL);
         
-        uint32_t acc_1 = ShaderBuilderAcceptAccess(uniform, SHADER_VARIABLE_TYPE_MATRIX, 4, (uint32_t []){ 0 }, 1, true);
+        uint32_t acc_1 = ShaderBuilderAcceptAccess(uniform, SHADER_VARIABLE_TYPE_MATRIX, 4, (uint32_t []){ 0 }, 1, SHADER_DATA_FLAG_LOAD);
 
         VectorExtract extr2 = ShaderBuilderGetElemenets(SHADER_VARIABLE_TYPE_VECTOR, acc_1, 4, 0, 3);
 
@@ -1216,13 +1216,13 @@ void ShaderMakeDefaultParticle3DShader(ShaderBuilder *vert, ShaderBuilder *frag)
         uint32_t cons = ShaderBuilderAddConstant(SHADER_VARIABLE_TYPE_FLOAT, 0, c, 1);
 
         uint32_t res = ShaderBuilderAddFuncMult(cons, 0, SHADER_VARIABLE_TYPE_FLOAT, 0, p_size, 0, SHADER_VARIABLE_TYPE_FLOAT, 0, 0);
-        uint32_t acc = ShaderBuilderAcceptAccess(vert->gl_struct_indx, SHADER_VARIABLE_TYPE_FLOAT, 0, (uint32_t []){ 1 }, 1, false);
+        uint32_t acc = ShaderBuilderAcceptAccess(vert->gl_struct_indx, SHADER_VARIABLE_TYPE_FLOAT, 0, (uint32_t []){ 1 }, 1, SHADER_DATA_FLAG_OUTPUT);
         ShaderBuilderStoreValue((uint32_t []){ acc,  res}, 2);
 
         res = ShaderBuilderAddFuncMult(uniform, 1, SHADER_VARIABLE_TYPE_MATRIX, 4, uniform, 0, SHADER_VARIABLE_TYPE_MATRIX, 4, 4);
         res = ShaderBuilderAddFuncMult(uniform, 2,  SHADER_VARIABLE_TYPE_MATRIX, 4, res, 0, SHADER_VARIABLE_TYPE_MATRIX, 4, 4);
         res = ShaderBuilderAddFuncMult(res, 0,  SHADER_VARIABLE_TYPE_MATRIX, 4, posit, 0, SHADER_VARIABLE_TYPE_VECTOR, 3, 4);
-        acc = ShaderBuilderAcceptAccess(vert->gl_struct_indx, SHADER_VARIABLE_TYPE_VECTOR, 4, (uint32_t []){ 0 }, 1, false);
+        acc = ShaderBuilderAcceptAccess(vert->gl_struct_indx, SHADER_VARIABLE_TYPE_VECTOR, 4, (uint32_t []){ 0 }, 1, SHADER_DATA_FLAG_OUTPUT);
         ShaderBuilderStoreValue((uint32_t []){ acc,  res}, 2);
 
         ShaderBuilderAddFuncMove(clr_indx, 3, clr_dst, 3);
@@ -1287,7 +1287,7 @@ void ShadersMakeClear2DShader(ShaderBuilder *vert, ShaderBuilder *frag){
         uint32_t txt_dst = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_VECTOR, SHADER_DATA_FLAG_OUTPUT, NULL, 2, "fragTexCoord", 1, 0);
 
 
-        uint32_t gl_Pos = ShaderBuilderAcceptAccess(vert->gl_struct_indx, SHADER_VARIABLE_TYPE_VECTOR, 4, (uint32_t []){ 0 }, 1, false);
+        uint32_t gl_Pos = ShaderBuilderAcceptAccess(vert->gl_struct_indx, SHADER_VARIABLE_TYPE_VECTOR, 4, (uint32_t []){ 0 }, 1, SHADER_DATA_FLAG_OUTPUT);
 
         uint32_t res = ShaderBuilderMutateVector(posit, 2, 4);
 
@@ -1371,7 +1371,7 @@ void ShadersMakeDefault2DTextShader(ShaderBuilder *vert, ShaderBuilder *frag){
         uint32_t res = ShaderBuilderAddFuncMult(uniform, 2, SHADER_VARIABLE_TYPE_VECTOR, 2, posit, 0, SHADER_VARIABLE_TYPE_VECTOR, 2, 2);
         res = ShaderBuilderAddFuncAdd(uniform, 0, SHADER_VARIABLE_TYPE_VECTOR, 2, res, 0, SHADER_VARIABLE_TYPE_VECTOR, 2, 2);
 
-        uint32_t acc = ShaderBuilderAcceptAccess(vert->gl_struct_indx, SHADER_VARIABLE_TYPE_VARIABLE, 4, (uint32_t []){ 0 }, 1, false);
+        uint32_t acc = ShaderBuilderAcceptAccess(vert->gl_struct_indx, SHADER_VARIABLE_TYPE_VARIABLE, 4, (uint32_t []){ 0 }, 1, SHADER_DATA_FLAG_OUTPUT);
         ShaderBuilderStoreValue((uint32_t []){ acc, res }, 2);
 
         ShaderBuilderAddFuncMove(clr_indx, 3, clr_dst, 3);
@@ -1421,7 +1421,7 @@ void ShadersMakeTerrainShader(ShaderBuilder *vert, ShaderBuilder *tesc, ShaderBu
         uint32_t res = ShaderBuilderAcceptLoad(posit, 0);
 
         res = ShaderBuilderMutateVector(res, 3, 4);
-        uint32_t acc = ShaderBuilderAcceptAccess(vert->gl_struct_indx, SHADER_VARIABLE_TYPE_VARIABLE, 4, (uint32_t []){ 0 }, 1, false);
+        uint32_t acc = ShaderBuilderAcceptAccess(vert->gl_struct_indx, SHADER_VARIABLE_TYPE_VARIABLE, 4, (uint32_t []){ 0 }, 1, SHADER_DATA_FLAG_OUTPUT);
         ShaderBuilderStoreValue((uint32_t []){ acc, res }, 2);
 
         ShaderBuilderAddFuncMove(nrm_indx, 3, nrm_dst, 3);
@@ -1478,7 +1478,7 @@ void ShadersMakeTerrainShader(ShaderBuilder *vert, ShaderBuilder *tesc, ShaderBu
         };
         
         uint32_t gl_in = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_STRUCT, SHADER_DATA_FLAG_SYSTEM, gl_arr, 1, "gl_in", 0, 0);
-        uint32_t gl_out = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_STRUCT, SHADER_DATA_FLAG_SYSTEM, gl_arr, 1, "gl_out", 0, 0);
+        uint32_t gl_out = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_STRUCT, SHADER_DATA_FLAG_OUTPUT | SHADER_DATA_FLAG_SYSTEM, gl_arr, 1, "gl_out", 0, 0);
 
         uint32_t gl_Inv = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_INT, SHADER_DATA_FLAG_SYSTEM, NULL, 1, "gl_InvocationID", 0, 8);
 
@@ -1486,13 +1486,13 @@ void ShadersMakeTerrainShader(ShaderBuilder *vert, ShaderBuilder *tesc, ShaderBu
             {SHADER_VARIABLE_TYPE_FLOAT, 0,  0, "float", NULL, 0, NULL},
         };
         
-        uint32_t gl_t_l_in = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_ARRAY, SHADER_DATA_FLAG_SYSTEM, gl_tes_level_in, 2, "gl_TessLevelInner", 0, 12);
+        uint32_t gl_t_l_in = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_ARRAY, SHADER_DATA_FLAG_OUTPUT | SHADER_DATA_FLAG_SYSTEM, gl_tes_level_in, 2, "gl_TessLevelInner", 0, 12);
 
         ShaderStructConstr gl_tes_level_out[] = {
             {SHADER_VARIABLE_TYPE_FLOAT, 0,  0, "float", NULL, 0, NULL},
         };
 
-        uint32_t gl_t_l_out = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_ARRAY, SHADER_DATA_FLAG_SYSTEM, gl_tes_level_out, 2, "gl_TessLevelOuter", 0, 11);
+        uint32_t gl_t_l_out = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_ARRAY, SHADER_DATA_FLAG_OUTPUT | SHADER_DATA_FLAG_SYSTEM, gl_tes_level_out, 4, "gl_TessLevelOuter", 0, 11);
         
         uint32_t diffuse = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_IMAGE, SHADER_DATA_FLAG_UNIFORM_CONSTANT, NULL, 0, "diffuse", 0, 3);
         uint32_t height_map = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_IMAGE, SHADER_DATA_FLAG_UNIFORM_CONSTANT, NULL, 0, "samplerHeight", 0, 4);
@@ -1504,11 +1504,11 @@ void ShadersMakeTerrainShader(ShaderBuilder *vert, ShaderBuilder *tesc, ShaderBu
             {SHADER_VARIABLE_TYPE_VECTOR, 2,  0, "vec2", NULL, 0, NULL},
         };
 
-        uint32_t nrm_dst = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_ARRAY, 0, norm_str, 32, "inNormal", 0, 0);
-        uint32_t txt_dst = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_ARRAY, 0, uv_str, 32, "inUv", 1, 0);
+        uint32_t Normal_in = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_ARRAY, 0, norm_str, 32, "inNormal", 0, 0);
+        uint32_t UV_in = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_ARRAY, 0, uv_str, 32, "inUV", 1, 0);
         
-        uint32_t nrm_out = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_ARRAY, SHADER_DATA_FLAG_OUTPUT, norm_str, 4, "outNormal", 0, 0);
-        uint32_t txt_out = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_ARRAY, SHADER_DATA_FLAG_OUTPUT, uv_str, 4, "outUv", 1, 0);
+        uint32_t Normal_out = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_ARRAY, SHADER_DATA_FLAG_OUTPUT, norm_str, 4, "outNormal", 0, 0);
+        uint32_t UV_out = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_ARRAY, SHADER_DATA_FLAG_OUTPUT, uv_str, 4, "outUV", 1, 0);
         
         ShaderBuilderSetCurrentFunc(screenSpaceTessFactor->indx);
 
@@ -1590,6 +1590,109 @@ void ShadersMakeTerrainShader(ShaderBuilder *vert, ShaderBuilder *tesc, ShaderBu
         
         ShaderBuilderSetCurrentFunc(frustrumCheck->indx);
 
+        uint32_t i_pointer = ShaderBuilderAddPointer(SHADER_VARIABLE_TYPE_INT, 1, 0);
+        uint32_t v4_pointer = ShaderBuilderAddPointer(SHADER_VARIABLE_TYPE_VECTOR, 3, 0);
+
+        uint32_t i_iter = ShaderBuilderAddOperand((uint32_t []){ i_pointer, 7 }, 2, SHADER_OPERAND_TYPE_VARIABLE);
+        uint32_t v_pos = ShaderBuilderAddOperand((uint32_t []){ v4_pointer, 7 }, 2, SHADER_OPERAND_TYPE_VARIABLE);
+        
+        uint32_t l_invoc = ShaderBuilderAcceptLoad(gl_Inv, 0);
+
+        uint32_t acc = ShaderBuilderAcceptAccess(gl_in, SHADER_VARIABLE_TYPE_VECTOR, 4, (uint32_t []){ l_invoc, 0 }, 2, SHADER_DATA_FLAG_LOAD);
+
+        ShaderBuilderStoreValue((uint32_t []){ v_pos, acc }, 2);
+
+        acc = ShaderBuilderAcceptAccess(UV_in, SHADER_VARIABLE_TYPE_VECTOR, 2, (uint32_t []){ 0 }, 1, SHADER_DATA_FLAG_LOAD);
+
+        uint32_t texture = ShaderBuilderGetTexture(height_map, acc, 0);
+
+        extr = ShaderBuilderGetElemenets(SHADER_VARIABLE_TYPE_FLOAT, texture, 4, 3, 1);
+
+        acc = ShaderBuilderAcceptAccess(uniform2, SHADER_VARIABLE_TYPE_FLOAT, 0, (uint32_t []){ 2 }, 1, SHADER_DATA_FLAG_LOAD);
+
+        res = ShaderBuilderAddFuncMult(extr.elems[0], 0, SHADER_VARIABLE_TYPE_FLOAT, 0, acc, 0, SHADER_VARIABLE_TYPE_FLOAT, 0, 0);
+
+        acc = ShaderBuilderAcceptAccess(v_pos, SHADER_VARIABLE_TYPE_FLOAT, 0, (uint32_t []){ 1 }, 1, SHADER_DATA_FLAG_LOAD);
+
+        res = ShaderBuilderAddFuncMult(res, 0, SHADER_VARIABLE_TYPE_FLOAT, 0, acc, 0, SHADER_VARIABLE_TYPE_FLOAT, 0, 0);
+        
+        acc = ShaderBuilderAcceptAccess(v_pos, SHADER_VARIABLE_TYPE_FLOAT, 0, (uint32_t []){ 1 }, 1, SHADER_DATA_FLAG_OUTPUT);
+
+        uint32_t c_6 = ShaderBuilderAddConstant(SHADER_VARIABLE_TYPE_INT, 0, 0, 0);
+
+        ShaderBuilderStoreValue((uint32_t []){ acc, res }, 2);
+        ShaderBuilderStoreValue((uint32_t []){ i_iter, c_6 }, 2);
+
+        uint32_t loop_label = ShaderBuilderNextLabel(false, 1);
+
+        ShaderBuilderMakeTransition(loop_label);
+        //-----------------------------------------------------------------------------
+
+        uint32_t loop_merge = ShaderBuilderNextLabel(false, 7);
+        uint32_t loop_continue = ShaderBuilderNextLabel(false, 6);
+        uint32_t loop_break = ShaderBuilderNextLabel(false, 2);
+
+        ShaderBuilderAddOperand((uint32_t []){loop_merge, loop_continue}, 2, SHADER_OPERAND_TYPE_LOOP);  
+
+        ShaderBuilderMakeTransition(loop_break);
+        //-----------------------------------------------------------------------------
+
+        acc = ShaderBuilderAcceptLoad(i_iter, 0);
+
+        uint32_t loop_true = ShaderBuilderNextLabel(false, 3);
+
+        f = 6.0f;
+        c = 0;
+        memcpy(&c, &f, sizeof(uint32_t));
+        uint32_t c_7 = ShaderBuilderAddConstant(SHADER_VARIABLE_TYPE_FLOAT, 0, c, 0);
+        
+        ShaderBuilderMakeBranchConditional(SHADER_CONDITIONAL_TYPE_SLESS_THAN, (uint32_t []){ acc, c_7 }, 2, 0, loop_true, loop_break);
+        //-----------------------------------------------------------------------------
+        ShaderBuilderSetCurrentLabel(loop_true);
+
+        acc = ShaderBuilderAcceptLoad(i_iter, 0);
+
+        res = ShaderBuilderAcceptAccess(uniform2, SHADER_VARIABLE_TYPE_VECTOR, 4, (uint32_t []){ 1, acc }, 2, SHADER_DATA_FLAG_LOAD);
+
+        acc = ShaderBuilderAcceptLoad(v_pos, 0);
+
+        res = ShaderBuilderMakeDotProduct(acc, 0, res, 0);
+        
+        f = 8.0f;
+        c = 0;
+        memcpy(&c, &f, sizeof(uint32_t));
+        uint32_t c_8 = ShaderBuilderAddConstant(SHADER_VARIABLE_TYPE_FLOAT, 0, c, 0);
+
+        res = ShaderBuilderAddFuncAdd(res, 0, SHADER_VARIABLE_TYPE_FLOAT, 0, c_8, 0, SHADER_VARIABLE_TYPE_FLOAT, 0, 0);
+
+        uint32_t label1 = ShaderBuilderNextLabel(false, 4);
+        uint32_t label2 = ShaderBuilderNextLabel(false, 5);
+
+        ShaderBuilderMakeBranchConditional(SHADER_CONDITIONAL_TYPE_FLESS_THAN, (uint32_t []){ res, c_3 }, 2, label2, label1, label2);
+        //-----------------------------------------------------------------------------
+        ShaderBuilderSetCurrentLabel(label1);
+
+        res = ShaderBuilderAddConstant(SHADER_VARIABLE_TYPE_BOOL, 0, 0, 0);
+
+        ShaderBuilderMakeReturnValue(res);
+                
+        //-----------------------------------------------------------------------------
+        ShaderBuilderSetCurrentLabel(label2);
+        
+        ShaderBuilderMakeTransition(loop_continue);
+        //-----------------------------------------------------------------------------
+
+        acc = ShaderBuilderAcceptLoad(i_iter, 0);
+        
+        uint32_t c_9 = ShaderBuilderAddConstant(SHADER_VARIABLE_TYPE_FLOAT, 0, 1, 0);
+        
+        res = ShaderBuilderAddFuncAdd(acc, 0, SHADER_VARIABLE_TYPE_INT, 1, c_9, 0, SHADER_VARIABLE_TYPE_INT, 1, 1);
+        ShaderBuilderStoreValue((uint32_t []){i_iter, res}, 2);
+
+        ShaderBuilderMakeTransition(loop_label);
+        //-----------------------------------------------------------------------------
+        ShaderBuilderSetCurrentLabel(loop_merge);
+
         res = ShaderBuilderAddConstant(SHADER_VARIABLE_TYPE_BOOL, 0, 0, 1);
 
         ShaderBuilderMakeReturnValue(res);
@@ -1597,6 +1700,157 @@ void ShadersMakeTerrainShader(ShaderBuilder *vert, ShaderBuilder *tesc, ShaderBu
         //------------------------------------------------------------------------------------------------------------------------------------
         
         ShaderBuilderSetCurrentFunc(tesc->main_point_index->indx);
+
+        acc = ShaderBuilderAcceptLoad(gl_Inv, 0);
+
+        uint32_t sel_header = ShaderBuilderNextLabel(false, 1);
+        uint32_t sel_merge = ShaderBuilderNextLabel(true, 8);
+
+        ShaderBuilderMakeBranchConditional(SHADER_CONDITIONAL_TYPE_EQUAL, (uint32_t []){ acc, c_6 }, 2, sel_merge, sel_header, sel_merge);
+        //-----------------------------------------------------------------------------
+        ShaderBuilderSetCurrentLabel(sel_header);
+
+        res = ShaderBuilderMakeFunctionCalling(SHADER_VARIABLE_TYPE_BOOL, 0, frustrumCheck->indx, NULL, 0);
+
+        uint32_t label_m_1 = ShaderBuilderNextLabel(false, 2);
+        uint32_t label_m_2 = ShaderBuilderNextLabel(false, 7);
+        uint32_t label_m_3 = ShaderBuilderNextLabel(false, 3);
+
+        ShaderBuilderMakeBranchConditional(SHADER_CONDITIONAL_TYPE_LOGICAL_NOT, (uint32_t []){ res }, 1, label_m_2, label_m_1, label_m_3);
+        //-----------------------------------------------------------------------------
+        ShaderBuilderSetCurrentLabel(label_m_1);
+
+        acc = ShaderBuilderAcceptAccess(gl_t_l_in, SHADER_VARIABLE_TYPE_FLOAT, 0, (uint32_t []){ 0 }, 1, SHADER_DATA_FLAG_OUTPUT);
+        ShaderBuilderStoreValue((uint32_t []){ acc, c_3 }, 2);
+
+        acc = ShaderBuilderAcceptAccess(gl_t_l_in, SHADER_VARIABLE_TYPE_FLOAT, 0, (uint32_t []){ 1 }, 1, SHADER_DATA_FLAG_OUTPUT);
+        ShaderBuilderStoreValue((uint32_t []){ acc, c_3 }, 2);
+        
+        acc = ShaderBuilderAcceptAccess(gl_t_l_out, SHADER_VARIABLE_TYPE_FLOAT, 0, (uint32_t []){ 0 }, 1, SHADER_DATA_FLAG_OUTPUT);
+        ShaderBuilderStoreValue((uint32_t []){ acc, c_3 }, 2);
+        
+        acc = ShaderBuilderAcceptAccess(gl_t_l_out, SHADER_VARIABLE_TYPE_FLOAT, 0, (uint32_t []){ 1 }, 1, SHADER_DATA_FLAG_OUTPUT);
+        ShaderBuilderStoreValue((uint32_t []){ acc, c_3 }, 2);
+        
+        acc = ShaderBuilderAcceptAccess(gl_t_l_out, SHADER_VARIABLE_TYPE_FLOAT, 0, (uint32_t []){ 2 }, 1, SHADER_DATA_FLAG_OUTPUT);
+        ShaderBuilderStoreValue((uint32_t []){ acc, c_3 }, 2);
+        
+        acc = ShaderBuilderAcceptAccess(gl_t_l_out, SHADER_VARIABLE_TYPE_FLOAT, 0, (uint32_t []){ 3 }, 1, SHADER_DATA_FLAG_OUTPUT);
+        ShaderBuilderStoreValue((uint32_t []){ acc, c_3 }, 2);
+
+        ShaderBuilderMakeTransition(label_m_2);
+        //-----------------------------------------------------------------------------
+        ShaderBuilderSetCurrentLabel(label_m_3);
+
+        acc = ShaderBuilderAcceptAccess(uniform2, SHADER_VARIABLE_TYPE_FLOAT, 0, (uint32_t []){ 3 }, 1, SHADER_DATA_FLAG_LOAD);
+
+        uint32_t label_m_4 = ShaderBuilderNextLabel(false, 4);
+        uint32_t label_m_5 = ShaderBuilderNextLabel(false, 6);
+        uint32_t label_m_6 = ShaderBuilderNextLabel(false, 5);
+
+        ShaderBuilderMakeBranchConditional(SHADER_CONDITIONAL_TYPE_FGREAT_THAN, (uint32_t []){ acc, c_3 }, 2, label_m_5, label_m_4, label_m_6);
+        //-----------------------------------------------------------------------------
+        ShaderBuilderSetCurrentLabel(label_m_4);
+
+        acc = ShaderBuilderAcceptAccess(gl_in, SHADER_VARIABLE_TYPE_VECTOR, 4, (uint32_t []){ 3, 0 }, 2, SHADER_DATA_FLAG_LOAD);
+        uint32_t acc2 = ShaderBuilderAcceptAccess(gl_in, SHADER_VARIABLE_TYPE_VECTOR, 4, (uint32_t []){ 0, 0 }, 2, SHADER_DATA_FLAG_LOAD);
+
+        res = ShaderBuilderMakeFunctionCalling(SHADER_VARIABLE_TYPE_FLOAT, 0, screenSpaceTessFactor->indx, (uint32_t []){ acc, acc2 }, 2);
+
+        acc = ShaderBuilderAcceptAccess(gl_t_l_out, SHADER_VARIABLE_TYPE_VECTOR, 4, (uint32_t []){ 0 }, 0, SHADER_DATA_FLAG_OUTPUT);
+        ShaderBuilderStoreValue((uint32_t []){ acc, res }, 2);
+        
+        acc = ShaderBuilderAcceptAccess(gl_in, SHADER_VARIABLE_TYPE_VECTOR, 4, (uint32_t []){ 0, 0 }, 2, SHADER_DATA_FLAG_LOAD);
+        acc2 = ShaderBuilderAcceptAccess(gl_in, SHADER_VARIABLE_TYPE_VECTOR, 4, (uint32_t []){ 1, 0 }, 2, SHADER_DATA_FLAG_LOAD);
+
+        res = ShaderBuilderMakeFunctionCalling(SHADER_VARIABLE_TYPE_FLOAT, 0, screenSpaceTessFactor->indx, (uint32_t []){ acc, acc2 }, 2);
+
+        acc = ShaderBuilderAcceptAccess(gl_t_l_out, SHADER_VARIABLE_TYPE_VECTOR, 4, (uint32_t []){ 1 }, 0, SHADER_DATA_FLAG_OUTPUT);
+        ShaderBuilderStoreValue((uint32_t []){ acc, res }, 2);
+        
+        acc = ShaderBuilderAcceptAccess(gl_in, SHADER_VARIABLE_TYPE_VECTOR, 4, (uint32_t []){ 1, 0 }, 2, SHADER_DATA_FLAG_LOAD);
+        acc2 = ShaderBuilderAcceptAccess(gl_in, SHADER_VARIABLE_TYPE_VECTOR, 4, (uint32_t []){ 2, 0 }, 2, SHADER_DATA_FLAG_LOAD);
+
+        res = ShaderBuilderMakeFunctionCalling(SHADER_VARIABLE_TYPE_FLOAT, 0, screenSpaceTessFactor->indx, (uint32_t []){ acc, acc2 }, 2);
+
+        acc = ShaderBuilderAcceptAccess(gl_t_l_out, SHADER_VARIABLE_TYPE_VECTOR, 4, (uint32_t []){ 2 }, 0, SHADER_DATA_FLAG_OUTPUT);
+        ShaderBuilderStoreValue((uint32_t []){ acc, res }, 2);
+        
+        acc = ShaderBuilderAcceptAccess(gl_in, SHADER_VARIABLE_TYPE_VECTOR, 4, (uint32_t []){ 2, 0 }, 2, SHADER_DATA_FLAG_LOAD);
+        acc2 = ShaderBuilderAcceptAccess(gl_in, SHADER_VARIABLE_TYPE_VECTOR, 4, (uint32_t []){ 3, 0 }, 2, SHADER_DATA_FLAG_LOAD);
+
+        res = ShaderBuilderMakeFunctionCalling(SHADER_VARIABLE_TYPE_FLOAT, 0, screenSpaceTessFactor->indx, (uint32_t []){ acc, acc2 }, 2);
+
+        acc = ShaderBuilderAcceptAccess(gl_t_l_out, SHADER_VARIABLE_TYPE_VECTOR, 4, (uint32_t []){ 3 }, 0, SHADER_DATA_FLAG_OUTPUT);
+        ShaderBuilderStoreValue((uint32_t []){ acc, res }, 2);
+        
+        acc = ShaderBuilderAcceptAccess(gl_t_l_out, SHADER_VARIABLE_TYPE_FLOAT, 0, (uint32_t []){ 0 }, 1, SHADER_DATA_FLAG_LOAD | SHADER_DATA_FLAG_OUTPUT);
+        acc2 = ShaderBuilderAcceptAccess(gl_t_l_out, SHADER_VARIABLE_TYPE_FLOAT, 0, (uint32_t []){ 3 }, 1, SHADER_DATA_FLAG_LOAD | SHADER_DATA_FLAG_OUTPUT);
+        
+        f = 0.5f;
+        c = 0;
+        memcpy(&c, &f, sizeof(uint32_t));
+        uint32_t c_10 = ShaderBuilderAddConstant(SHADER_VARIABLE_TYPE_FLOAT, 0, c, 0);
+
+        res = ShaderBuilderMakeExternalFunction((uint32_t []){type_float, acc, acc2, c_10}, 4, GLSLstd450FMix);
+
+        acc = ShaderBuilderAcceptAccess(gl_t_l_in, SHADER_VARIABLE_TYPE_FLOAT, 0, (uint32_t []){ 0 }, 0, SHADER_DATA_FLAG_OUTPUT);
+        ShaderBuilderStoreValue((uint32_t []){ acc, res }, 2);
+        
+        acc = ShaderBuilderAcceptAccess(gl_t_l_out, SHADER_VARIABLE_TYPE_FLOAT, 0, (uint32_t []){ 2 }, 1, SHADER_DATA_FLAG_LOAD | SHADER_DATA_FLAG_OUTPUT);
+        acc2 = ShaderBuilderAcceptAccess(gl_t_l_out, SHADER_VARIABLE_TYPE_FLOAT, 0, (uint32_t []){ 1 }, 1, SHADER_DATA_FLAG_LOAD | SHADER_DATA_FLAG_OUTPUT);
+        
+        res = ShaderBuilderMakeExternalFunction((uint32_t []){type_float, acc, acc2, c_10}, 4, GLSLstd450FMix);
+
+        acc = ShaderBuilderAcceptAccess(gl_t_l_in, SHADER_VARIABLE_TYPE_FLOAT, 0, (uint32_t []){ 1 }, 0, SHADER_DATA_FLAG_OUTPUT);
+        ShaderBuilderStoreValue((uint32_t []){ acc, res }, 2);
+
+        ShaderBuilderMakeTransition(label_m_5);
+        //-----------------------------------------------------------------------------
+        ShaderBuilderSetCurrentLabel(label_m_6);
+        
+        acc = ShaderBuilderAcceptAccess(gl_t_l_in, SHADER_VARIABLE_TYPE_FLOAT, 0, (uint32_t []){ 0 }, 1, SHADER_DATA_FLAG_OUTPUT);
+        ShaderBuilderStoreValue((uint32_t []){ acc, c_4 }, 2);
+
+        acc = ShaderBuilderAcceptAccess(gl_t_l_in, SHADER_VARIABLE_TYPE_FLOAT, 0, (uint32_t []){ 1 }, 1, SHADER_DATA_FLAG_OUTPUT);
+        ShaderBuilderStoreValue((uint32_t []){ acc, c_4 }, 2);
+        
+        acc = ShaderBuilderAcceptAccess(gl_t_l_out, SHADER_VARIABLE_TYPE_FLOAT, 0, (uint32_t []){ 0 }, 1, SHADER_DATA_FLAG_OUTPUT);
+        ShaderBuilderStoreValue((uint32_t []){ acc, c_4 }, 2);
+        
+        acc = ShaderBuilderAcceptAccess(gl_t_l_out, SHADER_VARIABLE_TYPE_FLOAT, 0, (uint32_t []){ 1 }, 1, SHADER_DATA_FLAG_OUTPUT);
+        ShaderBuilderStoreValue((uint32_t []){ acc, c_4 }, 2);
+        
+        acc = ShaderBuilderAcceptAccess(gl_t_l_out, SHADER_VARIABLE_TYPE_FLOAT, 0, (uint32_t []){ 2 }, 1, SHADER_DATA_FLAG_OUTPUT);
+        ShaderBuilderStoreValue((uint32_t []){ acc, c_4 }, 2);
+        
+        acc = ShaderBuilderAcceptAccess(gl_t_l_out, SHADER_VARIABLE_TYPE_FLOAT, 0, (uint32_t []){ 3 }, 1, SHADER_DATA_FLAG_OUTPUT);
+        ShaderBuilderStoreValue((uint32_t []){ acc, c_4 }, 2);
+
+        ShaderBuilderMakeTransition(label_m_5);
+        //-----------------------------------------------------------------------------
+        ShaderBuilderSetCurrentLabel(label_m_5);
+        
+        ShaderBuilderMakeTransition(label_m_2);
+        //-----------------------------------------------------------------------------
+        
+        ShaderBuilderMakeTransition(sel_merge);
+        //-----------------------------------------------------------------------------
+
+        acc = ShaderBuilderAcceptLoad(gl_Inv, 0);
+
+        acc2 = ShaderBuilderAcceptAccess(gl_out, SHADER_VARIABLE_TYPE_VECTOR, 4, (uint32_t []){ acc, 0 }, 2, SHADER_DATA_FLAG_OUTPUT);
+        res = ShaderBuilderAcceptAccess(gl_in, SHADER_VARIABLE_TYPE_VECTOR, 4, (uint32_t []){ acc, 0 }, 2, SHADER_DATA_FLAG_LOAD);
+        ShaderBuilderStoreValue((uint32_t []){ acc2, res }, 2);
+        
+        acc2 = ShaderBuilderAcceptAccess(Normal_out, SHADER_VARIABLE_TYPE_VECTOR, 3, (uint32_t []){ acc }, 1, SHADER_DATA_FLAG_OUTPUT);
+        res = ShaderBuilderAcceptAccess(Normal_in, SHADER_VARIABLE_TYPE_VECTOR, 3, (uint32_t []){ acc }, 1, SHADER_DATA_FLAG_LOAD);
+        ShaderBuilderStoreValue((uint32_t []){ acc2, res }, 2);
+        
+        acc2 = ShaderBuilderAcceptAccess(UV_out, SHADER_VARIABLE_TYPE_VECTOR, 2, (uint32_t []){ acc }, 1, SHADER_DATA_FLAG_OUTPUT);
+        res = ShaderBuilderAcceptAccess(UV_in, SHADER_VARIABLE_TYPE_VECTOR, 2, (uint32_t []){ acc}, 1, SHADER_DATA_FLAG_LOAD);
+        ShaderBuilderStoreValue((uint32_t []){ acc2, res }, 2);
+
 
         ShaderBuilderMake();
     }

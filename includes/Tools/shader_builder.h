@@ -27,6 +27,7 @@ typedef enum{
     SHADER_CONDITIONAL_TYPE_SGREAT_THAN,
     SHADER_CONDITIONAL_TYPE_EQUAL,
     SHADER_CONDITIONAL_TYPE_NOT_EQUAL,
+    SHADER_CONDITIONAL_TYPE_LOGICAL_NOT,
 } ConditionalType;
 
 typedef enum{
@@ -97,6 +98,7 @@ typedef enum{
     SHADER_OPERAND_TYPE_FGREATTHAN,
     SHADER_OPERAND_TYPE_IEQUAL,
     SHADER_OPERAND_TYPE_INOTEQUAL,
+    SHADER_OPERAND_TYPE_LOGICAL_NOT,
     SHADER_OPERAND_TYPE_CONVERT_FTOS,
     SHADER_OPERAND_TYPE_DPDX,
     SHADER_OPERAND_TYPE_DPDY,
@@ -111,6 +113,7 @@ typedef enum{
     SHADER_DATA_FLAG_UNIFORM_CONSTANT = 0x8,
     SHADER_DATA_FLAG_SYSTEM = 0x10,
     SHADER_DATA_FLAG_FUNCTION = 0x20,
+    SHADER_DATA_FLAG_LOAD = 0x40,
 } ShaderDataFlags;
 
 typedef enum{
@@ -230,7 +233,7 @@ uint32_t ShaderBuilderAddVector(uint32_t size, char *name);
 uint32_t ShaderBuilderAddMatrix(uint32_t size, char *name);
 VectorExtract ShaderBuilderGetElemenets(uint32_t src_type, uint32_t src_index, uint32_t src_size, uint32_t start_indx, uint32_t size);
 uint32_t ShaderBuilderAddOperand(uint32_t *indexes, uint32_t count, ShaderOperandType operand);
-uint32_t ShaderBuilderAcceptAccess(uint32_t val_indx, ShaderVariableType var_type, uint32_t type_arg, uint32_t *chain, uint32_t size, int with_load);
+uint32_t ShaderBuilderAcceptAccess(uint32_t val_indx, ShaderVariableType var_type, uint32_t type_arg, uint32_t *chain, uint32_t size, uint32_t flags);
 uint32_t ShaderBuilderAcceptLoad(uint32_t val_indx, uint32_t struct_indx);
 
 uint32_t ShaderBuilderMakeExternalFunction(uint32_t *arg, uint32_t size, uint32_t ext_indx);
