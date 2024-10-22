@@ -808,6 +808,8 @@ uint32_t HelpFunc(ShaderVariableType type, ShaderStructConstr *struct_arr, uint3
                 break;
             case SHADER_VARIABLE_TYPE_VECTOR:
                 res = ShaderBuilderAddVector(size, NULL );
+
+                ShaderBuilderAddDecor(res, SHADER_DECOR_TYPE_BUILTIN, (uint32_t []){ binding }, 1);
                 break;
             case SHADER_VARIABLE_TYPE_STRUCT:
                 res = ShaderBuilderAddStruct(struct_arr, size, name);
@@ -960,9 +962,9 @@ int ShaderBuilderFindOperand( ShaderOperandType op_type){
 
 ShaderOperand *ShaderBuilderFindOperandByIndex(uint32_t index){
 
-    for(int i=0;i < curr_builder->main_point_index->labels[0].num_operands;i++){
-        if(curr_builder->main_point_index->labels[0].operands[i].indx == index){
-            return &curr_builder->main_point_index->labels[0].operands[i];
+    for(int i=0;i < curr_func->labels[0].num_operands;i++){
+        if(curr_func->labels[0].operands[i].indx == index){
+            return &curr_func->labels[0].operands[i];
         }
     }
 
@@ -1035,10 +1037,13 @@ uint32_t ShaderBuilderAcceptAccess(uint32_t val_indx, ShaderVariableType var_typ
                 arr[0] = ShaderBuilderAddPointerF(type_arg, flags & SHADER_DATA_FLAG_OUTPUT ? SHADER_DATA_FLAG_OUTPUT : 0);
         }
     }else{
-        arr[0] = ShaderBuilderGetType(var_type, type_arg, NULL);
+        if(var_type == SHADER_VARIABLE_TYPE_FLOAT_POINTER)
+            arr[0] = ShaderBuilderAddPointer(SHADER_VARIABLE_TYPE_FLOAT, 0, SHADER_DATA_FLAG_FUNCTION);
+        else
+            arr[0] = ShaderBuilderGetType(var_type, type_arg, NULL);
     }
 
-    uint32_t load_type = ShaderBuilderGetType(var_type, type_arg, NULL);
+    uint32_t load_type = ShaderBuilderGetType(var_type == SHADER_VARIABLE_TYPE_FLOAT_POINTER ? SHADER_VARIABLE_TYPE_FLOAT : var_type, type_arg, NULL);
 
     if(load_type == 0)
         load_type = type_arg;
@@ -1203,9 +1208,15 @@ uint32_t ShaderBuilderGetTexture(uint32_t texture_indx, uint32_t uv_indx, uint32
 
     uint32_t res_type = ShaderBuilderAddVector(4, NULL);
 
-    uint32_t arr[] = {res_type, res, res2};
+    if(elem_num < 10){
+        uint32_t arr[] = {res_type, res, res2};
 
-    res = ShaderBuilderAddOperand(arr, sizeof(arr), SHADER_OPERAND_TYPE_IMAGE_SAMLE_IMPLICIT_LOD);
+        res = ShaderBuilderAddOperand(arr, sizeof(arr), SHADER_OPERAND_TYPE_IMAGE_SAMLE_IMPLICIT_LOD);
+    }else{        
+        uint32_t arr[] = {res_type, res, res2, elem_num};
+
+        res = ShaderBuilderAddOperand(arr, sizeof(arr), SHADER_OPERAND_TYPE_IMAGE_SAMLE_EXPLICIT_LOD);
+    }
 
     return res;
 }
@@ -1704,16 +1715,7 @@ ShaderFunc *ShaderBuilderAddFunction(ShaderVariableType output, uint32_t type_ar
                 curr_builder->functions[curr_builder->num_functions].arg_indxs[i] = curr_builder->current_index + 1;
                 curr_builder->functions[curr_builder->num_functions].num_args = size;
 
-                
-                ShaderOperand *oper = &curr_label->operands[curr_label->num_operands];
-
-                oper->var_indx[0] = arr[i + 1];
-                oper->num_vars = 1;
-                oper->op_type = SHADER_OPERAND_TYPE_FUNCTION_PARAM;
-                oper->indx = curr_builder->current_index + 1;
-
-                curr_label->num_operands++;                
-                curr_builder->current_index++;
+                curr_builder->current_index ++;
             }
 
             res = ShaderBuilderAddVariable(SHADER_VARIABLE_TYPE_FUNCTION, 0, arr, size + 1, NULL, 0);
@@ -1735,9 +1737,25 @@ ShaderFunc *ShaderBuilderAddFunction(ShaderVariableType output, uint32_t type_ar
     curr_builder->num_functions++;
     curr_builder->current_index++;
 
-    ShaderBuilderSetCurrentFunc(curr_builder->functions[curr_builder->num_functions - 1].indx);
+    ShaderFunc *func = &curr_builder->functions[curr_builder->num_functions - 1];
+
+    ShaderBuilderSetCurrentFunc(func->indx);
 
     ShaderBuilderAddLabel(false);
+
+    for(int i=0;i < func->num_args;i++){
+        
+        ShaderOperand *oper = NULL;
+        
+        oper = &curr_label->operands[curr_label->num_operands];
+
+        oper->num_vars = 1;
+        oper->var_indx[0] = func->args[i];
+        oper->op_type = SHADER_OPERAND_TYPE_FUNCTION_PARAM;
+        oper->indx = func->arg_indxs[i];
+
+        curr_label->num_operands++;
+    }
 
     return &curr_builder->functions[curr_builder->num_functions - 1];
 
@@ -2061,6 +2079,15 @@ void ShaderBuilderCheckThatLabel(ShaderLabel *label){
                     ShaderBuilderAddValue(operand->var_indx[1]);
                     ShaderBuilderAddValue(operand->var_indx[2]);
                     break;
+                case SHADER_OPERAND_TYPE_IMAGE_SAMLE_EXPLICIT_LOD:
+                    ShaderBuilderAddOp(SpvOpImageSampleExplicitLod, 7);
+                    ShaderBuilderAddValue(operand->var_indx[0]);
+                    ShaderBuilderAddValue(operand->indx);
+                    ShaderBuilderAddValue(operand->var_indx[1]);
+                    ShaderBuilderAddValue(operand->var_indx[2]);
+                    ShaderBuilderAddValue(0x2);
+                    ShaderBuilderAddValue(operand->var_indx[3]);
+                    break;
                 case SHADER_OPERAND_TYPE_LOAD:
                     ShaderBuilderAddOp(SpvOpLoad, 4);
                     ShaderBuilderAddValue(operand->var_indx[0]);
@@ -2345,6 +2372,21 @@ void ShaderBuilderMake(){
         ShaderBuilderAddOp(SpvOpExecutionMode, 3);
         ShaderBuilderAddValue(curr_builder->main_point_index->indx );
         ShaderBuilderAddValue(SpvExecutionModeOriginUpperLeft );
+    }else if(curr_builder->type == SHADER_TYPE_TESELLATION_CONTROL){
+        ShaderBuilderAddOp(SpvOpExecutionMode, 4);
+        ShaderBuilderAddValue(curr_builder->main_point_index->indx );
+        ShaderBuilderAddValue(SpvExecutionModeOutputVertices);
+        ShaderBuilderAddValue(4);
+    }else if(curr_builder->type == SHADER_TYPE_TESELLATION_EVALUATION){
+        ShaderBuilderAddOp(SpvOpExecutionMode, 3);
+        ShaderBuilderAddValue(curr_builder->main_point_index->indx );
+        ShaderBuilderAddValue(SpvExecutionModeQuads);
+        ShaderBuilderAddOp(SpvOpExecutionMode, 3);
+        ShaderBuilderAddValue(curr_builder->main_point_index->indx );
+        ShaderBuilderAddValue(SpvExecutionModeSpacingEqual);
+        ShaderBuilderAddOp(SpvOpExecutionMode, 3);
+        ShaderBuilderAddValue(curr_builder->main_point_index->indx );
+        ShaderBuilderAddValue(SpvExecutionModeVertexOrderCw);
     }
 
     //Debug informations
