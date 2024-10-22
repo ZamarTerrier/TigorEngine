@@ -26,7 +26,6 @@ void* createShaderModule(ShaderObject shdr);
 
 void InitGrass3D(vertexParam *vParam, indexParam *iParam);
 void InitPlane3D(vertexParam *vParam, indexParam *iParam, int rows, int colmns);
-void InitTerrain(vertexParam *vParam, indexParam *iParam, void *param);
 int SphereGenerator3D(vertexParam *vParam, indexParam *iParam,float radius, int stackCount, int sectorCount);
 void ConeGenerator(vertexParam *vParam, indexParam *iParam, const float height, int stackCount, int sectorCount);
 int IcoSphereGenerator(vertexParam *vParam, indexParam *iParam,float radius);

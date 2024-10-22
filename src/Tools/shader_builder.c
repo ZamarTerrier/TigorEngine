@@ -808,8 +808,6 @@ uint32_t HelpFunc(ShaderVariableType type, ShaderStructConstr *struct_arr, uint3
                 break;
             case SHADER_VARIABLE_TYPE_VECTOR:
                 res = ShaderBuilderAddVector(size, NULL );
-
-                ShaderBuilderAddDecor(res, SHADER_DECOR_TYPE_BUILTIN, (uint32_t []){ binding }, 1);
                 break;
             case SHADER_VARIABLE_TYPE_STRUCT:
                 res = ShaderBuilderAddStruct(struct_arr, size, name);
@@ -1921,6 +1919,15 @@ uint32_t DecoratingUniforStruct(ShaderVariable *str_elm, uint32_t *offset){
 
             *offset += 4;
         }
+        
+        if(j < str_elm->num_args - 2)
+        {
+            ShaderVariable *next_elm = ShaderBuilderFindVar(str_elm->args[j + 1]);
+            ShaderVariable *next_elm2 = ShaderBuilderFindVar(str_elm->args[j + 2]);
+
+            if( next_elm->type == SHADER_VARIABLE_TYPE_VECTOR && next_elm->values[0] == 2 && (next_elm2->type == SHADER_VARIABLE_TYPE_INT || next_elm2->type == SHADER_VARIABLE_TYPE_FLOAT))
+                continue;
+        }
 
         if(j < str_elm->num_args - 1)
         {
@@ -2520,7 +2527,7 @@ void ShaderBuilderMake(){
                     ShaderBuilderAddValue(curr_builder->ioData[i].indx );
                     ShaderBuilderAddValue(SpvDecorationBuiltIn);
 
-                    ShaderDecoration *decor = ShaderBuilderFindDecor(v->indx, SHADER_DECOR_TYPE_BUILTIN);
+                    ShaderDecoration *decor = ShaderBuilderFindDecor(curr_builder->ioData[i].indx, SHADER_DECOR_TYPE_BUILTIN);
 
                     ShaderBuilderAddValue(decor->args[0] );
 
@@ -3045,36 +3052,6 @@ void ShaderBuilderParcingShader(uint32_t *shader, uint32_t size){
     }
 }
 
-uint32_t ReturnSizeVector(ShaderVariable *var_elm){
-
-    ShaderVariable *elm_type = ShaderBuilderFindVar(var_elm->args[0]);
-
-    uint32_t temp_size = 0;
-    if(elm_type->type == SHADER_VARIABLE_TYPE_FLOAT || elm_type->type == SHADER_VARIABLE_TYPE_INT)
-        temp_size = 4 * var_elm->values[0] /*count elem*/;
-
-    return temp_size;
-}
-
-uint32_t ReturnSizeMatrix(ShaderVariable *mat_elm){
-
-    uint32_t size = 0;
-
-    ShaderVariable *elm_type = ShaderBuilderFindVar(mat_elm->args[0]); 
-
-    if(elm_type->type == SHADER_VARIABLE_TYPE_FLOAT || elm_type->type == SHADER_VARIABLE_TYPE_INT)
-        size += 4 * mat_elm->values[0] /*count elem*/;
-    else if(elm_type->type == SHADER_VARIABLE_TYPE_VECTOR){
-        size += ReturnSizeVector(elm_type) * mat_elm->values[0];
-    }
-
-    
-    while(size % 16)
-        size ++;
-
-    return size;
-}
-
 uint32_t ReturnSizeStruct(ShaderVariable *str_elm){
 
     uint32_t size = 0, temp_size = 0, biggest_value = 0, const_count = 0;
@@ -3093,45 +3070,38 @@ uint32_t ReturnSizeStruct(ShaderVariable *str_elm){
             const_count++;
         }else if(var_elm->type == SHADER_VARIABLE_TYPE_VECTOR){
             
-            temp_size = ReturnSizeVector(var_elm);
-
-            if(next_elm != NULL){
-                if(var_elm->values[0] /*count elem*/ == 3 && (next_elm->type == SHADER_VARIABLE_TYPE_FLOAT || next_elm->type == SHADER_VARIABLE_TYPE_INT))
-                    size += temp_size;
-                else{
-                    temp_size += 4;
-                    size += temp_size;
-                }
-
-            }else{
-                if(var_elm->values[0] /*count elem*/ == 3){
-                    temp_size += 4;
-                    size += temp_size;
-                }else{
-                    size += temp_size;
-                }
-            }
+            size += 4 * var_elm->values[0]/*size*/;
             
-
         }else if(var_elm->type == SHADER_VARIABLE_TYPE_MATRIX){
-            size += ReturnSizeMatrix(var_elm);
+            ShaderVariable *mat_elm = ShaderBuilderFindVar(var_elm->args[0]);
+            
+            size += mat_elm->values[0] * 4 * var_elm->values[0];
         }else if(var_elm->type == SHADER_VARIABLE_TYPE_ARRAY){
             ShaderVariable *elm_type = ShaderBuilderFindVar(var_elm->args[0]);
             ShaderVariable *elm_const = ShaderBuilderFindVar(var_elm->args[1]);        
             if(elm_type->type == SHADER_VARIABLE_TYPE_FLOAT || elm_type->type == SHADER_VARIABLE_TYPE_INT){
                 size += 4 * elm_const->values[0]/*count elem*/;
+            }else if(elm_type->type == SHADER_VARIABLE_TYPE_VECTOR){
+                size += 4 * elm_type->values[0] * elm_const->values[0]/*size vertex*/;
             }else if(elm_type->type == SHADER_VARIABLE_TYPE_MATRIX){
-                size += ReturnSizeMatrix(elm_type) * elm_const->values[0]/*count elem*/;                                
+                ShaderVariable *mat_elem = ShaderBuilderFindVar(elm_type->args[0]);
+                size += 4 * elm_type->values[0] * mat_elem->values[0] * elm_const->values[0];                                
             }else if(elm_type->type == SHADER_VARIABLE_TYPE_STRUCT){
                 uint32_t str_size = ReturnSizeStruct(elm_type);
                 size += str_size * elm_const->values[0]/*count elem*/;
             }            
             
-            while(size % 16)
-                size ++;
-
         }else if(var_elm->type == SHADER_VARIABLE_TYPE_STRUCT){
                 size += ReturnSizeStruct(var_elm);
+        }
+
+        if(j < str_elm->num_args - 2)
+        {
+            ShaderVariable *next_elm = ShaderBuilderFindVar(str_elm->args[j + 1]);
+            ShaderVariable *next_elm2 = ShaderBuilderFindVar(str_elm->args[j + 2]);
+
+            if( next_elm->type == SHADER_VARIABLE_TYPE_VECTOR && next_elm->values[0] == 2 && (next_elm2->type == SHADER_VARIABLE_TYPE_INT || next_elm2->type == SHADER_VARIABLE_TYPE_FLOAT))
+                continue;
         }
 
         if(j < str_elm->num_args - 1)
@@ -3163,6 +3133,27 @@ void ShaderBuilderMakeUniformsFromShader(ShaderBuilder *builder, uint32_t *code,
         curr_builder->alloc_head = calloc(1, sizeof(ChildStack));
 
     ShaderBuilderParcingShader(code, size);
+
+    
+    uint32_t type = 0;
+
+    switch(builder->type){
+        case SHADER_TYPE_VERTEX:
+            type = VK_SHADER_STAGE_VERTEX_BIT;
+            break;
+        case SHADER_TYPE_FRAGMENT:
+            type = VK_SHADER_STAGE_FRAGMENT_BIT;
+            break;
+        case SHADER_TYPE_COMPUTED:
+            type = VK_SHADER_STAGE_COMPUTE_BIT;
+            break;
+        case SHADER_TYPE_TESELLATION_CONTROL:
+            type = VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT;
+            break;
+        case SHADER_TYPE_TESELLATION_EVALUATION:
+            type = VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
+            break;
+    }
 
     #ifndef NDEBUG
     printf("Shader builder : Variables count %i \n", ShaderBuilderGetVariablesCount(builder));
@@ -3198,8 +3189,15 @@ void ShaderBuilderMakeUniformsFromShader(ShaderBuilder *builder, uint32_t *code,
 
                         while(size_buffer % 16)
                             size_buffer++;
+
+                        int res = BluePrintFindBluePrintBind(blueprints, indx_pack, binding, type);
+
+                        if(res){
+                            child = child->next;
+                            continue;  
+                        }
                         
-                        BluePrintAddUniformObjectC(blueprints, indx_pack, size_buffer, curr_builder->type == SHADER_TYPE_VERTEX ? VK_SHADER_STAGE_VERTEX_BIT : VK_SHADER_STAGE_FRAGMENT_BIT, binding);
+                        BluePrintAddUniformObjectC(blueprints, indx_pack, size_buffer, type, binding);
 
                         #ifndef NDEBUG
                         printf("Shader builder : Uniform buffer size is %i\n", size_buffer);
@@ -3222,8 +3220,15 @@ void ShaderBuilderMakeUniformsFromShader(ShaderBuilder *builder, uint32_t *code,
                             if(curr_builder->decors[i].type == SpvDecorationBinding && curr_builder->decors[i].indx == currVar->indx)
                                 binding = curr_builder->decors[i].val;
                         }
+
+                        int res = BluePrintFindBluePrintBind(blueprints, indx_pack, binding, type);
+
+                        if(res){
+                            child = child->next;
+                            continue;  
+                        }
                         
-                        BluePrintAddTextureC(blueprints, indx_pack, curr_builder->type == SHADER_TYPE_VERTEX ? VK_SHADER_STAGE_VERTEX_BIT : VK_SHADER_STAGE_FRAGMENT_BIT, binding);
+                        BluePrintAddTextureC(blueprints, indx_pack, type, binding);
 
                         #ifndef NDEBUG
                         printf("Shader builder : Image added to blueprint\n");

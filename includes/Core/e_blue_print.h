@@ -52,6 +52,8 @@ typedef struct{
 
 typedef void (*UpdateDescriptor)(void *go, void *data);
 
+int BluePrintFindBluePrintBind(Blueprints *blueprints, uint32_t num_pack, uint32_t binding, uint32_t shader_bit);
+
 uint32_t BluePrintInit(Blueprints *blueprints);
 
 void BluePrintSetSettingsValue(Blueprints *blueprints, uint32_t indx_pack, uint32_t type, uint32_t value);

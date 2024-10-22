@@ -1881,7 +1881,7 @@ void ShadersMakeTerrainShader(ShaderBuilder *vert, ShaderBuilder *tesc, ShaderBu
             {SHADER_VARIABLE_TYPE_ARRAY, 1,  4, "gl_CullDistance", &float_str, 1, NULL}
         };
 
-        uint32_t gl_PerVertex = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_STRUCT, SHADER_DATA_FLAG_SYSTEM | SHADER_DATA_FLAG_OUTPUT, gl_str, 5, "gl_PerVertex", 0, 0);
+        uint32_t gl_PerVertex = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_STRUCT, SHADER_DATA_FLAG_SYSTEM | SHADER_DATA_FLAG_OUTPUT, gl_str, 4, "gl_PerVertex", 0, 0);
 
         ShaderStructConstr gl_arr[] = {
             {SHADER_VARIABLE_TYPE_ARRAY, 4,  0, "gl_srt", &gl_str, 4, NULL},
@@ -1912,7 +1912,7 @@ void ShadersMakeTerrainShader(ShaderBuilder *vert, ShaderBuilder *tesc, ShaderBu
 
         uint32_t uniform2 = ShaderBuilderAddUniform(uniform_arr2, 6, "TesselationBuffer", 0, 2);
 
-        uint32_t gl_TessCoord = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_VECTOR, SHADER_DATA_FLAG_SYSTEM, NULL, 3, "gl_TessCoord", 0, 0);
+        uint32_t gl_TessCoord = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_VECTOR, SHADER_DATA_FLAG_SYSTEM, NULL, 3, "gl_TessCoord", 0, 13);
         
         uint32_t height_map = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_IMAGE, SHADER_DATA_FLAG_UNIFORM_CONSTANT, NULL, 0, "displacementMap", 0, 4);
 
@@ -1976,8 +1976,8 @@ void ShadersMakeTerrainShader(ShaderBuilder *vert, ShaderBuilder *tesc, ShaderBu
 
         uint32_t uv = ShaderBuilderAcceptLoad(UV_out, 0);
         uint32_t texture = ShaderBuilderGetTexture(height_map, uv, c_1);
-        extr = ShaderBuilderGetElemenets(SHADER_VARIABLE_TYPE_FLOAT, texture, 4, 3, 1);
-        uint32_t t_r = ShaderBuilderAddFuncAdd(extr.elems[0], 0, SHADER_VARIABLE_TYPE_FLOAT, 0, uniform2, 2, SHADER_VARIABLE_TYPE_FLOAT, 0, 0);
+        extr = ShaderBuilderGetElemenets(SHADER_VARIABLE_TYPE_FLOAT, texture, 4, 0, 1);
+        uint32_t t_r = ShaderBuilderAddFuncMult(extr.elems[0], 0, SHADER_VARIABLE_TYPE_FLOAT, 0, uniform2, 2, SHADER_VARIABLE_TYPE_FLOAT, 0, 0);
 
         res = ShaderBuilderAcceptAccess(v_pos, SHADER_VARIABLE_TYPE_FLOAT_POINTER, 0, (uint32_t []){ 1 }, 1, SHADER_DATA_FLAG_LOAD);
 
@@ -2005,7 +2005,7 @@ void ShadersMakeTerrainShader(ShaderBuilder *vert, ShaderBuilder *tesc, ShaderBu
         uint32_t diffuse = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_IMAGE, SHADER_DATA_FLAG_UNIFORM_CONSTANT, NULL, 0, "diffuse", 0, 3);
         uint32_t height_map = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_IMAGE, SHADER_DATA_FLAG_UNIFORM_CONSTANT, NULL, 0, "heightMap", 0, 4);
         
-        uint32_t inNormal = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_VECTOR, 0, NULL, 4, "inNormal", 0, 0);
+        uint32_t inNormal = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_VECTOR, 0, NULL, 3, "inNormal", 0, 0);
         uint32_t inUV = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_VECTOR, 0, NULL, 2, "inUV", 1, 0);
 
         uint32_t outColor = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_VECTOR, SHADER_DATA_FLAG_OUTPUT, NULL, 4, "outColor", 0, 0);

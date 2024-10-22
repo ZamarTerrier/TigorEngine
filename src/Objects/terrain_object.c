@@ -4,9 +4,58 @@
 #include "Core/e_camera.h"
 
 #include "Tools/e_math.h"
+#include "Tools/e_tools.h"
 #include "Tools/e_shaders.h"
 
 extern TEngine engine;
+
+
+void InitTerrain(TerrainObject *to, TerrainParam *tParam){
+
+    vertexParam vParam;
+    indexParam iParam;
+
+    vParam.num_verts = tParam->size_patch * tParam->size_patch;
+    vParam.vertices = calloc(vParam.num_verts, sizeof(Vertex3D));
+
+    Vertex3D *verts = vParam.vertices;
+
+    const float wx = 2.0f;
+    const float wy = 2.0f;
+
+    for(int x=0; x < tParam->size_patch;x++){
+        for(int z=0; z < tParam->size_patch;z++){
+            uint32_t index = (x + z * tParam->size_patch);
+            verts[index].position.x = (x * wx + wx / 2.0f - (float)tParam->size_patch * wx / 2.0f) * tParam->vertex_step;
+            verts[index].position.y = tParam->vertex_step;
+            verts[index].position.z = (z * wy + wy / 2.0f - (float)tParam->size_patch * wy / 2.0f) * tParam->vertex_step;
+            verts[index].normal = vec3_f( 0, 1, 0);
+            verts[index].texCoord = v2_muls(vec2_f((float)x / tParam->size_patch, (float)z / tParam->size_patch), 1.0f); // tParam->t_t_param.texture_scale);
+        }
+    }
+
+    const uint32_t w = (tParam->size_patch - 1);
+    iParam.indexesSize = w * w * 4;
+    iParam.indices = (uint32_t *) calloc(iParam.indexesSize, sizeof(uint32_t));
+
+    // Indices
+    for (int x = 0; x < w; x++)
+    {
+        for (int y = 0; y < w; y++)
+        {
+            uint32_t index = (x + y * w) * 4;
+            iParam.indices[index] = (x + y * tParam->size_patch);
+            iParam.indices[index + 1] = iParam.indices[index] + tParam->size_patch;
+            iParam.indices[index + 2] = iParam.indices[index + 1] + 1;
+            iParam.indices[index + 3] = iParam.indices[index] + 1;
+        }
+    }
+    
+    GraphicsObjectSetVertex(&to->go.graphObj, vParam.vertices, vParam.num_verts, sizeof(Vertex3D), iParam.indices, iParam.indexesSize, sizeof(uint32_t));
+
+    free(vParam.vertices);
+    free(iParam.indices);
+}
 
 void TerrainObjectMakeDefaultParams(TerrainParam *tParam, uint32_t texture_width, uint32_t texture_height, uint32_t height_map_size)
 {
@@ -138,7 +187,7 @@ void TerrainObjectGenerateTerrainHeightTextureMap(TerrainObject *to, BluePrintDe
 {
     uint32_t size_texture = to->t_t_param.height_map_scale * to->t_t_param.height_map_scale;
 
-    to->height_map = calloc(size_texture, sizeof(uint16_t));
+    to->height_map = AllocateMemory(size_texture, sizeof(uint16_t));
 
     uint16_t *heightMap = to->height_map;
 
@@ -227,20 +276,25 @@ void TerrainObjectInitDefaultShader(GameObject3D *go){
         GameObjectImage g_img;
         memset(&g_img, 0, sizeof(GameObjectImage));
 
-        g_img.imgWidth = to->t_t_param.texture_width;
-        g_img.imgHeight = to->t_t_param.texture_height;
-        g_img.flags = TIGOR_TEXTURE_FLAG_URGB | TIGOR_TEXTURE_FLAG_SPECIFIC;
+        g_img.imgWidth = to->t_t_param.height_map_scale;
+        g_img.imgHeight = to->t_t_param.height_map_scale;
+        g_img.flags = TIGOR_TEXTURE_FLAG_R16 | TIGOR_TEXTURE_FLAG_SPECIFIC;
 
         BluePrintDescriptor *descr = BluePrintSetTextureImageCreate(&to->go.graphObj.blueprints, num_pack, &g_img, 3);
         TerrainObjectGenerateTerrainHeightTextureMap(to, descr);
     }        
+
+    uint32_t flags = BluePrintGetSettingsValue(&to->go.graphObj.blueprints, num_pack, 3);
+    BluePrintSetSettingsValue(&to->go.graphObj.blueprints, num_pack, 3, flags | TIGOR_PIPELINE_FLAG_TESSELLATION_CONTROL_SHADER | TIGOR_PIPELINE_FLAG_TESSELLATION_EVALUATION_SHADER);
     
+    BluePrintSetSettingsValue(&to->go.graphObj.blueprints, num_pack, 1, VK_PRIMITIVE_TOPOLOGY_PATCH_LIST);
+
     go->self.flags |= TIGOR_GAME_OBJECT_FLAG_SHADED;
 }
 
 void TearrainDefaultDestroy(TerrainObject *to)
 {
-    free(to->height_map);
+    FreeMemory(to->height_map);
 
     GameObject3DDestroy(to);
 
@@ -264,18 +318,7 @@ void TerrainObjectInit(TerrainObject *to, DrawParam *dParam, TerrainParam *tPara
     to->t_shift = rand() % UINT16_MAX;
     to->t_shift = to->t_shift / UINT16_MAX;
 
-    vertexParam vParam;
-    indexParam iParam;
-
-    InitTerrain(&vParam, &iParam, tParam);
-
-    GraphicsObjectSetVertex(&to->go.graphObj, vParam.vertices, vParam.num_verts, sizeof(TerrainVertex), iParam.indices, iParam.indexesSize, sizeof(uint32_t));
-
-    free(vParam.vertices);
-    free(iParam.indices);
-
-    if((to->flags & ENGINE_TERRIAN_FLAGS_GENERATE_HEIGHTS_OLD))
-        TerrainObjectGenerateTerrainHeights(to);
+    InitTerrain(to, tParam);
 
     GameObject3DInitTextures(to, dParam);
 

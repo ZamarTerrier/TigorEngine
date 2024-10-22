@@ -15,6 +15,19 @@
 
 extern TEngine engine;
 
+int BluePrintFindBluePrintBind(Blueprints *blueprints, uint32_t num_pack, uint32_t binding, uint32_t shader_bit){
+    for(int i=0;i < blueprints->blue_print_packs[num_pack].num_descriptors;i++)
+        if(blueprints->blue_print_packs[num_pack].descriptors[i].binding == binding){
+
+            if(!(blueprints->blue_print_packs[num_pack].descriptors[i].stageflag & shader_bit))
+                blueprints->blue_print_packs[num_pack].descriptors[i].stageflag |= shader_bit;
+                
+            return true;
+        }
+
+    return false;
+}
+
 uint32_t BluePrintInit(Blueprints *blueprints)
 {
     uint32_t nums = blueprints->num_blue_print_packs;

@@ -694,17 +694,16 @@ void TextureUpdate(struct BluePrintDescriptor_T *descriptor, void *in_data, uint
     Texture2D *texture = &descr->textures[0];
 
     BufferObject stagingBuffer;
-    VkDeviceMemory stagingBufferMemory;
 
     VkDeviceSize bufferSize = texture->image_data.texWidth * texture->image_data.texHeight * 4;
 
     BuffersCreate(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &stagingBuffer, TIGOR_BUFFER_ALLOCATE_STAGING);
 
     uint32_t *data;
-    vkMapMemory(device->e_device, stagingBufferMemory, 0, bufferSize, 0, (void **)&data);
+    vkMapMemory(device->e_device, stagingBuffer.memory, 0, bufferSize, 0, (void **)&data);
     memset(data, 0, bufferSize);
     memcpy(data + offset, in_data, size_data);
-    vkUnmapMemory(device->e_device, stagingBufferMemory);
+    vkUnmapMemory(device->e_device, stagingBuffer.memory);
 
     ToolsTransitionImageLayout(texture->image, texture->textureType, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, texture->image_data.mip_levels);
     ToolsCopyBufferToImage(stagingBuffer.buffer, texture->image, texture->image_data.texWidth, texture->image_data.texHeight);

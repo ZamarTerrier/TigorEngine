@@ -128,4 +128,9 @@ target_link_libraries(TestModel ${CMAKE_CURRENT_SOURCE_DIR}/${CMAKE_BUILD_TYPE}/
 add_test(NAME Test7
 		COMMAND TestModel)
 		
+add_executable(TestTerrain tests/terrain_test.c)
+target_link_libraries(TestTerrain ${CMAKE_CURRENT_SOURCE_DIR}/${CMAKE_BUILD_TYPE}/libTigorEngine.a Vulkan::Vulkan)
+add_test(NAME Test8
+		COMMAND TestTerrain)
+		
 
