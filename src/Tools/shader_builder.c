@@ -839,7 +839,7 @@ uint32_t ShaderBuilderAddIOData(ShaderVariableType type, ShaderDataFlags flags, 
 
             type = SHADER_VARIABLE_TYPE_ARRAY;
         }else
-            res =HelpFunc(type, struct_arr, size, name, binding);
+            res = HelpFunc(type, struct_arr, size, name, binding);
     }else{
         res = HelpFunc(type, struct_arr, size, name, binding);
 
@@ -1797,8 +1797,8 @@ void ShaderBuilderInit(ShaderBuilder *builder, ShaderType type){
         ShaderStructConstr struct_arr[] = {
             {SHADER_VARIABLE_TYPE_VECTOR, 4, 0, "gl_Position", NULL, 0, NULL},
             {SHADER_VARIABLE_TYPE_FLOAT, 32, 1, "gl_PointSize", NULL, 0, NULL},
-            {SHADER_VARIABLE_TYPE_ARRAY, 1,  3, "gl_ClipDistance", &float_str, 1, NULL},
-            {SHADER_VARIABLE_TYPE_ARRAY, 1,  4, "gl_CullDistance", &float_str, 1, NULL}
+            {SHADER_VARIABLE_TYPE_ARRAY, 1,  3, "gl_ClipDistance", float_str, 1, NULL},
+            {SHADER_VARIABLE_TYPE_ARRAY, 1,  4, "gl_CullDistance", float_str, 1, NULL}
         };
 
         curr_builder->gl_struct_indx = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_STRUCT, SHADER_DATA_FLAG_OUTPUT | SHADER_DATA_FLAG_SYSTEM, struct_arr, 4, "gl_PerVertex", 0, 0);
@@ -3070,7 +3070,25 @@ uint32_t ReturnSizeStruct(ShaderVariable *str_elm){
             const_count++;
         }else if(var_elm->type == SHADER_VARIABLE_TYPE_VECTOR){
             
-            size += 4 * var_elm->values[0]/*size*/;
+            temp_size = 4 * var_elm->values[0]/*size*/;
+
+            if(next_elm != NULL){
+                if(var_elm->values[0] /*count elem*/ == 3 && (next_elm->type == SHADER_VARIABLE_TYPE_FLOAT || next_elm->type == SHADER_VARIABLE_TYPE_INT))
+                    size += temp_size;
+                else{
+                    temp_size += 4;
+                    size += temp_size;
+                }
+
+            }else{
+                if(var_elm->values[0] /*count elem*/ == 3){
+                    temp_size += 4;
+                    size += temp_size;
+                }else{
+                    size += temp_size;
+                }
+            }
+            
             
         }else if(var_elm->type == SHADER_VARIABLE_TYPE_MATRIX){
             ShaderVariable *mat_elm = ShaderBuilderFindVar(var_elm->args[0]);

@@ -1469,16 +1469,21 @@ void ShadersMakeTerrainShader(ShaderBuilder *vert, ShaderBuilder *tesc, ShaderBu
         ShaderStructConstr gl_str[] = {
             {SHADER_VARIABLE_TYPE_VECTOR, 4, 0, "gl_Position", NULL, 0, NULL},
             {SHADER_VARIABLE_TYPE_FLOAT, 32, 1, "gl_PointSize", NULL, 0, NULL},
-            {SHADER_VARIABLE_TYPE_ARRAY, 1,  3, "gl_ClipDistance", &float_str, 1, NULL},
-            {SHADER_VARIABLE_TYPE_ARRAY, 1,  4, "gl_CullDistance", &float_str, 1, NULL}
+            {SHADER_VARIABLE_TYPE_ARRAY, 1,  3, "gl_ClipDistance", float_str, 1, NULL},
+            {SHADER_VARIABLE_TYPE_ARRAY, 1,  4, "gl_CullDistance", float_str, 1, NULL}
         };
 
         ShaderStructConstr gl_arr[] = {
-            {SHADER_VARIABLE_TYPE_ARRAY, 4,  0, "gl_srt", &gl_str, 4, NULL},
+            {SHADER_VARIABLE_TYPE_ARRAY, 32,  0, "gl_srt", gl_str, 4, NULL},
         };
         
         uint32_t gl_in = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_STRUCT, SHADER_DATA_FLAG_SYSTEM, gl_arr, 1, "gl_in", 0, 0);
-        uint32_t gl_out = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_STRUCT, SHADER_DATA_FLAG_OUTPUT | SHADER_DATA_FLAG_SYSTEM, gl_arr, 1, "gl_out", 0, 0);
+        
+        ShaderStructConstr gl_arr2[] = {
+            {SHADER_VARIABLE_TYPE_ARRAY, 4,  0, "gl_srt", gl_str, 4, NULL},
+        };
+
+        uint32_t gl_out = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_STRUCT, SHADER_DATA_FLAG_OUTPUT | SHADER_DATA_FLAG_SYSTEM, gl_arr2, 1, "gl_out", 0, 0);
 
         uint32_t gl_Inv = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_INT, SHADER_DATA_FLAG_SYSTEM, NULL, 1, "gl_InvocationID", 0, 8);
 
@@ -1509,6 +1514,8 @@ void ShadersMakeTerrainShader(ShaderBuilder *vert, ShaderBuilder *tesc, ShaderBu
         uint32_t Normal_out = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_ARRAY, SHADER_DATA_FLAG_OUTPUT, norm_str, 4, "outNormal", 0, 0);
         uint32_t UV_out = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_ARRAY, SHADER_DATA_FLAG_OUTPUT, uv_str, 4, "outUV", 1, 0);
         
+        #pragma region ScreenScpaceTessFactor
+
         ShaderBuilderSetCurrentFunc(screenSpaceTessFactor->indx);
 
         uint32_t var1 = ShaderBuilderAcceptLoad(screenSpaceTessFactor->arg_indxs[0], 0);
@@ -1584,9 +1591,12 @@ void ShadersMakeTerrainShader(ShaderBuilder *vert, ShaderBuilder *tesc, ShaderBu
         res = ShaderBuilderMakeExternalFunction((uint32_t []){ type_float, res, c_4, c_5 }, 4, GLSLstd450FClamp);
 
         ShaderBuilderMakeReturnValue(res);
-        
+        #pragma endregion
+
         //------------------------------------------------------------------------------------------------------------------------------------
         
+        #pragma region FrustrumCheck
+
         ShaderBuilderSetCurrentFunc(frustrumCheck->indx);
 
         uint32_t i_pointer = ShaderBuilderAddPointer(SHADER_VARIABLE_TYPE_INT, 1, SHADER_DATA_FLAG_FUNCTION);
@@ -1694,7 +1704,8 @@ void ShadersMakeTerrainShader(ShaderBuilder *vert, ShaderBuilder *tesc, ShaderBu
         res = ShaderBuilderAddConstant(SHADER_VARIABLE_TYPE_BOOL, 0, 0, 1);
 
         ShaderBuilderMakeReturnValue(res);
-
+        #pragma endregion
+       
         //------------------------------------------------------------------------------------------------------------------------------------
         
         ShaderBuilderSetCurrentFunc(tesc->main_point_index->indx);
@@ -1761,7 +1772,6 @@ void ShadersMakeTerrainShader(ShaderBuilder *vert, ShaderBuilder *tesc, ShaderBu
         ShaderBuilderStoreValue((uint32_t []){ v4_param2, acc2 }, 2);
 
         res = ShaderBuilderMakeFunctionCalling(SHADER_VARIABLE_TYPE_FLOAT, 0, screenSpaceTessFactor->indx, (uint32_t []){ v4_param1, v4_param2 }, 2);
-
         acc = ShaderBuilderAcceptAccess(gl_t_l_out, SHADER_VARIABLE_TYPE_FLOAT, 4, (uint32_t []){ 0 }, 1, SHADER_DATA_FLAG_OUTPUT);
         ShaderBuilderStoreValue((uint32_t []){ acc, res }, 2);
         
@@ -1771,7 +1781,6 @@ void ShadersMakeTerrainShader(ShaderBuilder *vert, ShaderBuilder *tesc, ShaderBu
         ShaderBuilderStoreValue((uint32_t []){ v4_param2, acc2 }, 2);
 
         res = ShaderBuilderMakeFunctionCalling(SHADER_VARIABLE_TYPE_FLOAT, 0, screenSpaceTessFactor->indx, (uint32_t []){ v4_param1, v4_param2 }, 2);
-
         acc = ShaderBuilderAcceptAccess(gl_t_l_out, SHADER_VARIABLE_TYPE_FLOAT, 4, (uint32_t []){ 1 }, 1, SHADER_DATA_FLAG_OUTPUT);
         ShaderBuilderStoreValue((uint32_t []){ acc, res }, 2);
         
@@ -1781,7 +1790,6 @@ void ShadersMakeTerrainShader(ShaderBuilder *vert, ShaderBuilder *tesc, ShaderBu
         ShaderBuilderStoreValue((uint32_t []){ v4_param2, acc2 }, 2);
 
         res = ShaderBuilderMakeFunctionCalling(SHADER_VARIABLE_TYPE_FLOAT, 0, screenSpaceTessFactor->indx, (uint32_t []){ v4_param1, v4_param2 }, 2);
-
         acc = ShaderBuilderAcceptAccess(gl_t_l_out, SHADER_VARIABLE_TYPE_FLOAT, 4, (uint32_t []){ 2 }, 1, SHADER_DATA_FLAG_OUTPUT);
         ShaderBuilderStoreValue((uint32_t []){ acc, res }, 2);
         
@@ -1791,28 +1799,23 @@ void ShadersMakeTerrainShader(ShaderBuilder *vert, ShaderBuilder *tesc, ShaderBu
         ShaderBuilderStoreValue((uint32_t []){ v4_param2, acc2 }, 2);
 
         res = ShaderBuilderMakeFunctionCalling(SHADER_VARIABLE_TYPE_FLOAT, 0, screenSpaceTessFactor->indx, (uint32_t []){ v4_param1, v4_param2 }, 2);
-
         acc = ShaderBuilderAcceptAccess(gl_t_l_out, SHADER_VARIABLE_TYPE_FLOAT, 4, (uint32_t []){ 3 }, 1, SHADER_DATA_FLAG_OUTPUT);
         ShaderBuilderStoreValue((uint32_t []){ acc, res }, 2);
-        
-        acc = ShaderBuilderAcceptAccess(gl_t_l_out, SHADER_VARIABLE_TYPE_FLOAT, 0, (uint32_t []){ 0 }, 1, SHADER_DATA_FLAG_LOAD | SHADER_DATA_FLAG_OUTPUT);
-        acc2 = ShaderBuilderAcceptAccess(gl_t_l_out, SHADER_VARIABLE_TYPE_FLOAT, 0, (uint32_t []){ 3 }, 1, SHADER_DATA_FLAG_LOAD | SHADER_DATA_FLAG_OUTPUT);
-        
+
         f = 0.5f;
         c = 0;
         memcpy(&c, &f, sizeof(uint32_t));
         uint32_t c_10 = ShaderBuilderAddConstant(SHADER_VARIABLE_TYPE_FLOAT, 0, c, 0);
-
+        
+        acc = ShaderBuilderAcceptAccess(gl_t_l_out, SHADER_VARIABLE_TYPE_FLOAT, 0, (uint32_t []){ 0 }, 1, SHADER_DATA_FLAG_LOAD | SHADER_DATA_FLAG_OUTPUT);
+        acc2 = ShaderBuilderAcceptAccess(gl_t_l_out, SHADER_VARIABLE_TYPE_FLOAT, 0, (uint32_t []){ 3 }, 1, SHADER_DATA_FLAG_LOAD | SHADER_DATA_FLAG_OUTPUT);       
         res = ShaderBuilderMakeExternalFunction((uint32_t []){type_float, acc, acc2, c_10}, 4, GLSLstd450FMix);
-
         acc = ShaderBuilderAcceptAccess(gl_t_l_in, SHADER_VARIABLE_TYPE_FLOAT, 0, (uint32_t []){ 0 }, 1, SHADER_DATA_FLAG_OUTPUT);
         ShaderBuilderStoreValue((uint32_t []){ acc, res }, 2);
         
         acc = ShaderBuilderAcceptAccess(gl_t_l_out, SHADER_VARIABLE_TYPE_FLOAT, 0, (uint32_t []){ 2 }, 1, SHADER_DATA_FLAG_LOAD | SHADER_DATA_FLAG_OUTPUT);
         acc2 = ShaderBuilderAcceptAccess(gl_t_l_out, SHADER_VARIABLE_TYPE_FLOAT, 0, (uint32_t []){ 1 }, 1, SHADER_DATA_FLAG_LOAD | SHADER_DATA_FLAG_OUTPUT);
-        
         res = ShaderBuilderMakeExternalFunction((uint32_t []){type_float, acc, acc2, c_10}, 4, GLSLstd450FMix);
-
         acc = ShaderBuilderAcceptAccess(gl_t_l_in, SHADER_VARIABLE_TYPE_FLOAT, 0, (uint32_t []){ 1 }, 1, SHADER_DATA_FLAG_OUTPUT);
         ShaderBuilderStoreValue((uint32_t []){ acc, res }, 2);
 
@@ -1877,14 +1880,14 @@ void ShadersMakeTerrainShader(ShaderBuilder *vert, ShaderBuilder *tesc, ShaderBu
         ShaderStructConstr gl_str[] = {
             {SHADER_VARIABLE_TYPE_VECTOR, 4, 0, "gl_Position", NULL, 0, NULL},
             {SHADER_VARIABLE_TYPE_FLOAT, 32, 1, "gl_PointSize", NULL, 0, NULL},
-            {SHADER_VARIABLE_TYPE_ARRAY, 1,  3, "gl_ClipDistance", &float_str, 1, NULL},
-            {SHADER_VARIABLE_TYPE_ARRAY, 1,  4, "gl_CullDistance", &float_str, 1, NULL}
+            {SHADER_VARIABLE_TYPE_ARRAY, 1,  3, "gl_ClipDistance", float_str, 1, NULL},
+            {SHADER_VARIABLE_TYPE_ARRAY, 1,  4, "gl_CullDistance", float_str, 1, NULL}
         };
 
         uint32_t gl_PerVertex = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_STRUCT, SHADER_DATA_FLAG_SYSTEM | SHADER_DATA_FLAG_OUTPUT, gl_str, 4, "gl_PerVertex", 0, 0);
 
         ShaderStructConstr gl_arr[] = {
-            {SHADER_VARIABLE_TYPE_ARRAY, 4,  0, "gl_srt", &gl_str, 4, NULL},
+            {SHADER_VARIABLE_TYPE_ARRAY, 32,  0, "gl_srt", gl_str, 4, NULL},
         };
         
         uint32_t gl_in = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_STRUCT, SHADER_DATA_FLAG_SYSTEM, gl_arr, 1, "gl_in", 0, 0);
