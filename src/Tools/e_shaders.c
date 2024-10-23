@@ -1982,20 +1982,19 @@ void ShadersMakeTerrainShader(ShaderBuilder *vert, ShaderBuilder *tesc, ShaderBu
         extr = ShaderBuilderGetElemenets(SHADER_VARIABLE_TYPE_FLOAT, texture, 4, 0, 1);
         uint32_t t_r = ShaderBuilderAddFuncMult(extr.elems[0], 0, SHADER_VARIABLE_TYPE_FLOAT, 0, uniform2, 2, SHADER_VARIABLE_TYPE_FLOAT, 0, 0);
 
-        res = ShaderBuilderAcceptAccess(v_pos, SHADER_VARIABLE_TYPE_FLOAT_POINTER, 0, (uint32_t []){ 1 }, 1, SHADER_DATA_FLAG_LOAD);
-
-        res = ShaderBuilderAddFuncSub(res, 0, SHADER_VARIABLE_TYPE_FLOAT, 0, t_r, 0, SHADER_VARIABLE_TYPE_FLOAT, 0, 0);
-
-        acc1 = ShaderBuilderAcceptAccess(v_pos, SHADER_VARIABLE_TYPE_FLOAT_POINTER, 0, (uint32_t []){ 1 }, 1, 0);
-        ShaderBuilderStoreValue((uint32_t []){ acc1, res }, 2);
+        acc1 = ShaderBuilderAcceptLoad(v_pos, 0);
+        extr = ShaderBuilderGetElemenets(SHADER_VARIABLE_TYPE_FLOAT, acc1, 4, 0, 4);
+        res = ShaderBuilderAddFuncAdd(extr.elems[1], 0, SHADER_VARIABLE_TYPE_FLOAT, 0, t_r, 0, SHADER_VARIABLE_TYPE_FLOAT, 0, 0);
+        res = ShaderBuilderCompositeConstruct((uint32_t []){ type_vec4, extr.elems[0], res, extr.elems[2], extr.elems[3] }, 5);
+        ShaderBuilderStoreValue((uint32_t []){ v_pos, res }, 2);
 
         acc1 = ShaderBuilderAcceptLoad(v_pos, 0);
 
         res = ShaderBuilderAddFuncMult(uniform, 2, SHADER_VARIABLE_TYPE_MATRIX, 4, uniform, 1, SHADER_VARIABLE_TYPE_MATRIX, 4, 4);
         res = ShaderBuilderAddFuncMult(res, 0, SHADER_VARIABLE_TYPE_MATRIX, 4, uniform, 0, SHADER_VARIABLE_TYPE_MATRIX, 4, 4);
         res = ShaderBuilderAddFuncMult(res, 0, SHADER_VARIABLE_TYPE_MATRIX, 4, acc1, 0, SHADER_VARIABLE_TYPE_VECTOR, 4, 4);
-        acc1 = ShaderBuilderAcceptAccess(gl_PerVertex, SHADER_VARIABLE_TYPE_VECTOR, 4, (uint32_t []){ 0 }, 1, SHADER_DATA_FLAG_OUTPUT);
-        ShaderBuilderStoreValue((uint32_t []){ acc1, res }, 2);
+        acc2 = ShaderBuilderAcceptAccess(gl_PerVertex, SHADER_VARIABLE_TYPE_VECTOR, 4, (uint32_t []){ 0 }, 1, SHADER_DATA_FLAG_OUTPUT);
+        ShaderBuilderStoreValue((uint32_t []){ acc2, res }, 2);
 
 
         ShaderBuilderMake();
@@ -2011,9 +2010,21 @@ void ShadersMakeTerrainShader(ShaderBuilder *vert, ShaderBuilder *tesc, ShaderBu
         uint32_t inNormal = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_VECTOR, 0, NULL, 3, "inNormal", 0, 0);
         uint32_t inUV = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_VECTOR, 0, NULL, 2, "inUV", 1, 0);
 
+        
+        float f = 180.f;
+        uint32_t c = 0;
+        memcpy(&c, &f, sizeof(uint32_t));
+        uint32_t c_1 = ShaderBuilderAddConstant(SHADER_VARIABLE_TYPE_FLOAT, 0, c, 0);
+
+        uint32_t type_vec2 = ShaderBuilderAddVector(2, NULL);
+
+        uint32_t temp = ShaderBuilderCompositeConstruct((uint32_t []){ type_vec2, c_1, c_1 }, 3);
+
+        temp = ShaderBuilderAddFuncMult(inUV, 0, SHADER_VARIABLE_TYPE_VECTOR, 2, temp, 0, SHADER_VARIABLE_TYPE_VECTOR, 2, 2);
+
         uint32_t outColor = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_VECTOR, SHADER_DATA_FLAG_OUTPUT, NULL, 4, "outColor", 0, 0);
 
-        uint32_t res = ShaderBuilderGetTexture(diffuse, inUV, 0);
+        uint32_t res = ShaderBuilderGetTexture(diffuse, temp, 0);
 
         ShaderBuilderStoreValue((uint32_t []){ outColor, res }, 2);
 

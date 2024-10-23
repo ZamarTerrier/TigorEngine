@@ -17,7 +17,6 @@ typedef enum{
 
 typedef struct{
     uint32_t size_factor;
-    uint32_t height_factor;
     float displaisment_factor;
     float tesselation_factor;
     uint32_t amplitude;
@@ -28,8 +27,6 @@ typedef struct{
 typedef struct{
     uint32_t height_map_scale;
     uint32_t texture_scale;
-    uint32_t texture_width;
-    uint32_t texture_height;
     uint32_t num_textures;
 } TerrainTextureParam;
 
@@ -59,6 +56,8 @@ typedef struct{
 
 void TerrainObjectInit(TerrainObject *to, DrawParam *dParam, TerrainParam *tParam);
 
-void TerrainObjectMakeDefaultParams(TerrainParam *tParam, uint32_t texture_width, uint32_t texture_height, uint32_t height_map_size);
+float TerrainObjectGetHeight(TerrainObject *to, uint32_t x, uint32_t y);
+
+void TerrainObjectMakeDefaultParams(TerrainParam *tParam, uint32_t height_map_size);
 
 #endif //TERRIAN_OBJECT_H

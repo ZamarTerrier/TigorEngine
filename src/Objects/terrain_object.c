@@ -20,8 +20,8 @@ void InitTerrain(TerrainObject *to, TerrainParam *tParam){
 
     Vertex3D *verts = vParam.vertices;
 
-    const float wx = 2.0f;
-    const float wy = 2.0f;
+    const float wx = 1.0f;
+    const float wy = 1.0f;
 
     for(int x=0; x < tParam->size_patch;x++){
         for(int z=0; z < tParam->size_patch;z++){
@@ -57,21 +57,18 @@ void InitTerrain(TerrainObject *to, TerrainParam *tParam){
     free(iParam.indices);
 }
 
-void TerrainObjectMakeDefaultParams(TerrainParam *tParam, uint32_t texture_width, uint32_t texture_height, uint32_t height_map_size)
+void TerrainObjectMakeDefaultParams(TerrainParam *tParam, uint32_t height_map_size)
 {
-    tParam->size_patch = 256;
-    tParam->t_g_param.size_factor = 182;
-    tParam->t_g_param.height_factor = 12;
-    tParam->t_g_param.displaisment_factor = 512.0f;
+    tParam->size_patch = 64;
+    tParam->t_g_param.size_factor = 5;
+    tParam->t_g_param.displaisment_factor = 32.0f;
     tParam->t_g_param.tesselation_factor = 0.75f;
     tParam->t_g_param.frequency = 1;
     tParam->t_g_param.amplitude = 1;
-    tParam->t_g_param.octaves = 6;
+    tParam->t_g_param.octaves = 2;
     tParam->vertex_step = 3.0;
     tParam->t_t_param.height_map_scale = height_map_size;
     tParam->t_t_param.texture_scale = 180.0f;
-    tParam->t_t_param.texture_width = texture_width;
-    tParam->t_t_param.texture_height = texture_height;
     tParam->t_t_param.num_textures = 0;
     tParam->flags = ENGINE_TERRIAN_FLAGS_REPEATE_TEXTURE | ENGINE_TERRIAN_FLAGS_GENERATE_HEIGHTS ;//| ENGINE_TERRIAN_FLAGS_GENERATE_HEIGHTS_PERLIN;
 }
@@ -218,11 +215,27 @@ void TerrainObjectGenerateTerrainHeightTextureMap(TerrainObject *to, BluePrintDe
             float s_val = (t_noise + 1.0) / 2;
             uint16_t t_val = UINT16_MAX * s_val;
 
-            heightMap[iter] = -t_val;
+            heightMap[iter] = t_val;
         }
     }
 
     TextureUpdate(descr, heightMap, size_texture * sizeof(uint16_t), 0);
+}
+
+float TerrainObjectGetHeight(TerrainObject *to, uint32_t x, uint32_t y)
+{
+    /*uint32_t scale = to->t_t_param.height_map_scale / to->width;
+
+    uint16_t *heightMap = to->height_map;
+
+    int i_x = x * scale;
+    int i_y = y * scale;
+    i_x = e_max(0, e_min(i_x, (int)to->t_t_param.height_map_scale - 1));
+    i_y = e_max(0, e_min(i_y, (int)to->t_t_param.height_map_scale - 1));
+    i_x = i_x / scale;
+    i_y = i_y / scale;
+
+    return *(heightMap + (i_x + i_y * to->t_t_param.height_map_scale) * scale) / (float)UINT16_MAX * to->t_g_param.displaisment_factor;*/
 }
 
 void TerrainObjectInitDefaultShader(GameObject3D *go){    
@@ -285,7 +298,9 @@ void TerrainObjectInitDefaultShader(GameObject3D *go){
     }        
 
     uint32_t flags = BluePrintGetSettingsValue(&to->go.graphObj.blueprints, num_pack, 3);
-    BluePrintSetSettingsValue(&to->go.graphObj.blueprints, num_pack, 3, flags | TIGOR_PIPELINE_FLAG_TESSELLATION_CONTROL_SHADER | TIGOR_PIPELINE_FLAG_TESSELLATION_EVALUATION_SHADER);
+    BluePrintSetSettingsValue(&to->go.graphObj.blueprints, num_pack, 3, flags | TIGOR_PIPELINE_FLAG_TESSELLATION_CONTROL_SHADER | TIGOR_PIPELINE_FLAG_TESSELLATION_EVALUATION_SHADER | TIGOR_PIPELINE_FLAG_FACE_CLOCKWISE);
+    
+    BluePrintSetSettingsValue(&to->go.graphObj.blueprints, num_pack, 2, VK_CULL_MODE_NONE);
     
     BluePrintSetSettingsValue(&to->go.graphObj.blueprints, num_pack, 1, VK_PRIMITIVE_TOPOLOGY_PATCH_LIST);
 

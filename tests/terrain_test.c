@@ -33,12 +33,12 @@ int main(){
     DrawParam dParam;
     memset(&dParam, 0, sizeof(DrawParam));
 
-    dParam.diffuse = "res\\texture.jpg";
+    dParam.diffuse = "res\\grass_01_color_1k.png";
     //dParam.normal = "res\\normal.jpg";
 
     TerrainParam tParam;
 
-    TerrainObjectMakeDefaultParams(&tParam, 512, 512, 512);
+    TerrainObjectMakeDefaultParams(&tParam, 1024);
 
     TerrainObjectInit(&terrain, &dParam, &tParam);
 
@@ -48,6 +48,12 @@ int main(){
 
         Camera3DMovementUpdate(0.1);
         Camera3DRotationUpdate(0.1);
+
+        vec3 pos = Camera3DGetPosition();
+
+        pos.y = TerrainObjectGetHeight(&terrain, pos.x, pos.z);
+
+        Camera3DSetPosition(pos.x, pos.y, pos.z);
 
         Update(0.1);
 

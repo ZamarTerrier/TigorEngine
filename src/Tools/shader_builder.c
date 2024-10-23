@@ -3088,8 +3088,7 @@ uint32_t ReturnSizeStruct(ShaderVariable *str_elm){
                     size += temp_size;
                 }
             }
-            
-            
+                        
         }else if(var_elm->type == SHADER_VARIABLE_TYPE_MATRIX){
             ShaderVariable *mat_elm = ShaderBuilderFindVar(var_elm->args[0]);
             
