@@ -47,8 +47,7 @@ typedef struct{
     uint32_t width;
     uint32_t height;
     float t_shift;
-    TerrainTextureParam t_t_param;
-    TerrainGeneratorParam t_g_param;
+    TerrainParam t_param;
     void *tesc_shader;
     void *tese_shader;
 } TerrainObject;
@@ -56,7 +55,7 @@ typedef struct{
 
 void TerrainObjectInit(TerrainObject *to, DrawParam *dParam, TerrainParam *tParam);
 
-float TerrainObjectGetHeight(TerrainObject *to, uint32_t x, uint32_t y);
+float TerrainObjectGetHeight(TerrainObject *to, float x, float y);
 
 void TerrainObjectMakeDefaultParams(TerrainParam *tParam, uint32_t height_map_size);
 

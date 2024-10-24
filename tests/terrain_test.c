@@ -14,7 +14,22 @@ TerrainObject terrain;
 
 extern TEngine engine;
 
+bool pressed = false;
+
+void KeyCallback(void* window, int key, int scancode, int action, int mods){
+    
+    if ( (key == TIGOR_KEY_ESCAPE || key == -1)  && action == TIGOR_PRESS && !pressed){
+
+        Camera3DSetLockCursor();
+
+        pressed = true;
+
+    }else if(key == TIGOR_KEY_ESCAPE && action == TIGOR_RELEASE)
+        pressed = false;
+}
+
 void Update(float dTime){
+
 
 }
 
@@ -22,6 +37,8 @@ void Update(float dTime){
 int main(){
 
     TEngineInitSystem(800, 600, "Test");
+
+    TEngineSetKeyCallback((void *)KeyCallback);
 
     //TEngineSetFont("res\\arial.ttf");
 
@@ -38,7 +55,7 @@ int main(){
 
     TerrainParam tParam;
 
-    TerrainObjectMakeDefaultParams(&tParam, 1024);
+    TerrainObjectMakeDefaultParams(&tParam, 2048);
 
     TerrainObjectInit(&terrain, &dParam, &tParam);
 
@@ -51,7 +68,9 @@ int main(){
 
         vec3 pos = Camera3DGetPosition();
 
-        pos.y = TerrainObjectGetHeight(&terrain, pos.x, pos.z);
+        float some_val = TerrainObjectGetHeight(&terrain, pos.x, pos.z);
+
+        pos.y = lerp(pos.y, some_val + 50, 0.1f);
 
         Camera3DSetPosition(pos.x, pos.y, pos.z);
 

@@ -457,6 +457,8 @@ BluePrintDescriptor *BluePrintSetTextureImageCreate(Blueprints *blueprints, uint
                 TextureCreateSpecific((struct BluePrintDescriptor_T *)descriptor, VK_FORMAT_R32_SINT, image->imgWidth, image->imgHeight);
             else if(image->flags & TIGOR_TEXTURE_FLAG_R32_UINT)
                 TextureCreateSpecific((struct BluePrintDescriptor_T *)descriptor, VK_FORMAT_R32_UINT, image->imgWidth, image->imgHeight);
+            else if(image->flags & TIGOR_TEXTURE_FLAG_R32_FLOAT)
+                TextureCreateSpecific((struct BluePrintDescriptor_T *)descriptor, VK_FORMAT_R32_SFLOAT, image->imgWidth, image->imgHeight);
             else if(image->flags & TIGOR_TEXTURE_FLAG_SRGB)
                 TextureCreateSpecific((struct BluePrintDescriptor_T *)descriptor, VK_FORMAT_R8G8B8A8_SRGB, image->imgWidth, image->imgHeight);
             else

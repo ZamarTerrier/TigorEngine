@@ -34,6 +34,7 @@ typedef struct{
     float lastY;
 
     bool firstMouse;
+    bool lockMouse;
     bool walk;
 } Camera3D;
 /// @brief Функция инициализации двумерной камеры
@@ -106,6 +107,11 @@ void Camera3DRotationUpdate(float deltaTime);
 ///     Позволяет изменять положение камеры с помощью клавиатуры
 /// @param deltaTime - множитель скорости бработки кадров
 void Camera3DMovementUpdate(float deltaTime);
+/// @brief Функция блокировки курсора
+void Camera3DSetLockCursor();
+/// @brief Функция получения статуса блокировки курсора
+/// @return true или false
+bool Camera3DGetLockCursor();
 #ifdef __cplusplus
 }
 #endif

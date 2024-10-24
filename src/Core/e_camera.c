@@ -34,8 +34,8 @@ void Camera3DInit(Camera3D *cam){
     cam->pitch = 0;
     cam->sensitivity = 2.0f;
 
-    cam->moveSpeed = 2.0f;
-    cam->cameraSpeed = 3.5f;
+    cam->moveSpeed = 1.0f;
+    cam->cameraSpeed = 1.5f;
 
     cam->firstMouse = true;
     cam->walk = false;
@@ -208,8 +208,16 @@ void Camera3DRotationUpdate(float deltaTime){
         cam->firstMouse = false;
     }
 
-    double xoffset = xpos - cam->lastX;
-    double yoffset = cam->lastY - ypos; 
+    double xoffset, yoffset;
+
+    if(cam->lockMouse){
+        xoffset = engine.width / 2 - xpos;
+        yoffset = engine.height / 2 - ypos;
+    }else{
+        xoffset = xpos - cam->lastX;
+        yoffset = cam->lastY - ypos; 
+    }
+    
     cam->lastX = xpos;
     cam->lastY = ypos;
 
@@ -230,7 +238,30 @@ void Camera3DRotationUpdate(float deltaTime){
     next_rotation.y = -sin(cam->pitch * (M_PI / 180));
     next_rotation.z = -sin(cam->yaw * (M_PI / 180)) * cos(cam->pitch * (M_PI / 180));
 
+    if(cam->lockMouse)
+        next_rotation.z *= -1;
+
     next_rotation = v3_norm(next_rotation);
 
     Camera3DSetRotation(next_rotation.x, next_rotation.y, next_rotation.z);
+
+    if(cam->lockMouse)
+        TEngineFixedCursorCenter();
+}
+
+void Camera3DSetLockCursor(){
+    Camera3D* cam = (Camera3D*)engine.cam3D;
+
+    cam->lockMouse = !cam->lockMouse;
+
+    if(cam->lockMouse)
+        TEngineHideCursor(1);
+    else
+        TEngineHideCursor(2);
+}
+
+bool Camera3DGetLockCursor(){
+    Camera3D* cam = (Camera3D*)engine.cam3D;
+
+    return cam->lockMouse;
 }
