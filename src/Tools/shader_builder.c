@@ -1206,7 +1206,7 @@ uint32_t ShaderBuilderGetTexture(uint32_t texture_indx, uint32_t uv_indx, uint32
 
     uint32_t res_type = ShaderBuilderAddVector(4, NULL);
 
-    if(elem_num < 10){
+    if(elem_num < 32){
         uint32_t arr[] = {res_type, res, res2};
 
         res = ShaderBuilderAddOperand(arr, sizeof(arr), SHADER_OPERAND_TYPE_IMAGE_SAMLE_IMPLICIT_LOD);

@@ -1,6 +1,7 @@
 #include "Tools/rayIntersections3D.h"
 
 #include "Objects/gameObject3D.h"
+#include "Objects/terrain_object.h"
 
 int Intersect3DRaySphere(InterRay3DParam *ray, vec3 ObjP, float *t, vec3 *q)
 {
@@ -137,25 +138,69 @@ int Intersect3DRayAABB(InterRay3DParam *ray,  vec3 obj_min, vec3 obj_max, float 
 
 }
 
-float Intersect3DRayTriangle(void* shape, InterRay3DParam *ray, vec3 *q){
+float Intersect3DRayTriangle(vec3 *pos, InterRay3DParam *ray, vec3 *q){
 
+    vec3 p0 = pos[0], p1 = pos[1], p2 = pos[2];
+
+    float res = 0;
+    
+    if(v3_distance(p0, ray->position) > ray->distance + 1.0f)
+        return 0.0f;   
+
+    vec3 e1 = v3_sub(p1, p0);
+    vec3 e2 = v3_sub(p2, p0);
+
+    // Вычисление вектора нормали к плоскости
+    vec3 pvec = v3_cross(ray->direction, e2);
+    float det = v3_dot(e1, pvec);   
+    
+    // Луч параллелен плоскости
+    if (det < 1e-8 && det > -1e-8) {
+        return 0.0f; 
+    }   
+    float inv_det = 1 / det;
+    vec3 tvec = v3_sub(ray->position, p0);
+    float u = v3_dot(tvec, pvec) * inv_det;
+    if (u < 0 || u > 1) {
+        return 0.0f; 
+    }   
+
+    vec3 qvec = v3_cross(tvec, e1);
+    float v = v3_dot(ray->direction, qvec) * inv_det;
+    if (v < 0 || u + v > 1) {
+        return 0.0f; 
+    }   
+
+    res = v3_dot(e2, qvec) * inv_det;
+
+    if(res > ray->distance)
+        return 0;
+
+    *q = v3_add(ray->position, v3_muls(ray->direction, res));
+
+    return res;
+}
+
+float Intersect3DRayModel(void* shape, InterRay3DParam *ray, vec3 *q){
     GameObject3D *model = (GameObject3D *) shape;
-
+    
     vertexParam *vParam = &model->graphObj.shapes[0].vParam;
     indexParam *iParam = &model->graphObj.shapes[0].iParam;
 
     if(vParam->num_verts < 3)
         return 0;
 
+    vec3 pos[3];
+        
+        
     vec3 origPos = model->transform.position;
     vec3 scale = model->transform.scale;
+    
+    Vertex3D *verts = vParam->vertices;
 
-    vec3 p0, p1, p2;
-
-    float res = 0;
     int curr = 0, num = 0, i0 = 0, i1 = 0, i2 = 0;
 
-    Vertex3D *verts = vParam->vertices;
+    float res = 0;
 
     for(int i=0;i < iParam->indexesSize / 3 ;i++){
 
@@ -165,46 +210,18 @@ float Intersect3DRayTriangle(void* shape, InterRay3DParam *ray, vec3 *q){
         i1 = iParam->indices[curr + 1];
         i2 = iParam->indices[curr + 2];
 
-        p0 = v3_add(v3_mul(verts[i0].position, scale), origPos);
-        p1 = v3_add(v3_mul(verts[i1].position, scale), origPos);
-        p2 = v3_add(v3_mul(verts[i2].position, scale), origPos);
+        pos[0] = v3_add(v3_mul(verts[i0].position, scale), origPos);
+        pos[1] = v3_add(v3_mul(verts[i1].position, scale), origPos);
+        pos[2] = v3_add(v3_mul(verts[i2].position, scale), origPos);
+        
 
-        if(v3_distance(p0, ray->position) > ray->distance + 1.0f)
-            continue;
+        res = Intersect3DRayTriangle(pos, ray, q);
 
-        vec3 e1 = v3_sub(p1, p0);
-        vec3 e2 = v3_sub(p2, p0);
-        // Вычисление вектора нормали к плоскости
-        vec3 pvec = v3_cross(ray->direction, e2);
-        float det = v3_dot(e1, pvec);
-
-        // Луч параллелен плоскости
-        if (det < 1e-8 && det > -1e-8) {
-            continue;
-        }
-
-        float inv_det = 1 / det;
-        vec3 tvec = v3_sub(ray->position, p0);
-        float u = v3_dot(tvec, pvec) * inv_det;
-        if (u < 0 || u > 1) {
-            continue;
-        }
-
-        vec3 qvec = v3_cross(tvec, e1);
-        float v = v3_dot(ray->direction, qvec) * inv_det;
-        if (v < 0 || u + v > 1) {
-            continue;
-        }
-
-        res = v3_dot(e2, qvec) * inv_det;
-        break;
+        if(res != 0.0f)
+            break;
 
     }
 
-    if(res > ray->distance)
-        return 0;
-
-    *q = v3_add(ray->position, v3_muls(ray->direction, res));
-
     return res;
 }
+

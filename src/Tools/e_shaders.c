@@ -950,7 +950,7 @@ void ShadersMakeDeafult3DModelShaderWithLight(ShaderBuilder *vert, ShaderBuilder
 
         ShaderStructConstr uniform_arr2[] = {
             {SHADER_VARIABLE_TYPE_ARRAY, 128, 0, "mats", mat_ptr, 1, NULL},
-            {SHADER_VARIABLE_TYPE_INT, 4, 0, "size", NULL, 0, NULL}
+            {SHADER_VARIABLE_TYPE_INT, 1, 0, "size", NULL, 0, NULL}
         };
 
         uint32_t bones = ShaderBuilderAddUniform(uniform_arr2, 2, "InvMatBuffer", 0, 2);

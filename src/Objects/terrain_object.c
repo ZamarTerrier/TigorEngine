@@ -60,8 +60,8 @@ void InitTerrain(TerrainObject *to, TerrainParam *tParam){
 void TerrainObjectMakeDefaultParams(TerrainParam *tParam, uint32_t height_map_size)
 {
     tParam->size_patch = 64;
-    tParam->t_g_param.size_factor = 8;
-    tParam->t_g_param.displaisment_factor = 128.0f;
+    tParam->t_g_param.size_factor = 10;
+    tParam->t_g_param.displaisment_factor = 32.0f;
     tParam->t_g_param.tesselation_factor = 0.75f;
     tParam->t_g_param.frequency = 1;
     tParam->t_g_param.amplitude = 1;
@@ -212,7 +212,7 @@ void TerrainObjectGenerateTerrainHeightTextureMap(TerrainObject *to, BluePrintDe
             else
                 t_noise = SimplexOctave2D(to->t_param.t_g_param.octaves, n_val_x, n_val_y, to->t_param.t_g_param.frequency, to->t_param.t_g_param.amplitude);
 
-            heightMap[iter] = t_noise * 2;
+            heightMap[iter] = t_noise * 10;
         }
     }
 

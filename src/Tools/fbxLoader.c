@@ -230,8 +230,7 @@ void read_mesh(engine_model_mesh *vBuffer, ufbx_mesh *mesh, FBXStruct *fbx)
             }
        }
     }
-    
-    
+        
 	ufbx_vertex_stream streams[2];
 	size_t num_streams = 1;
 
@@ -625,6 +624,8 @@ void ModelFBXSetDefaultLightShader(GameObject3D *go)
         GameObject3DSetDescriptorTextureArrayCreate(go, num_pack, 3, go->diffuses, go->num_diffuses);
     else if(go->num_diffuses > 0)
         GameObject3DSetDescriptorTextureCreate(go, num_pack, 3, go->diffuses);
+    else
+        GameObject3DSetDescriptorTextureCreate(go, num_pack, 3, NULL);
         
     if(go->num_normals > 1)
         GameObject3DSetDescriptorTextureArrayCreate(go, num_pack, 4, go->normals, go->num_normals);
