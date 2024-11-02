@@ -15,7 +15,7 @@ int Intersect3DSegmentCylinder(InterRay3DParam *ray, vec3 p, vec3 q, float r, fl
 
 int Intersect3DRayAABB(InterRay3DParam *ray,  vec3 obj_min, vec3 obj_max, float *tmin, float *tmax, vec3 *q);
 
-float Intersect3DRayTriangle(void* shape, InterRay3DParam *ray, vec3 *q);
+float Intersect3DRayTriangle(vec3 *pos, InterRay3DParam *ray, vec3 *q);
 
 #ifdef __cplusplus
 }

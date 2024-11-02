@@ -38,7 +38,10 @@ typedef struct{
 } mat2;
 
 typedef struct{
-    float m[3][3];
+    union{
+        float m[3][3];
+        float arr[9];
+    };
 } mat3;
 
 typedef struct{

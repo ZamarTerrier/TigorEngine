@@ -21,6 +21,7 @@ target_sources(${PROJECT_NAME} PRIVATE
 				src/TigorGUI.c
 				src/Core/e_blue_print.c
 				src/Core/e_memory.c
+				src/Core/e_physics.c
 				src/Core/e_buffer.c
 				src/Core/e_camera.c
 				src/Core/e_debuger.c
@@ -133,4 +134,8 @@ target_link_libraries(TestTerrain ${CMAKE_CURRENT_SOURCE_DIR}/${CMAKE_BUILD_TYPE
 add_test(NAME Test8
 		COMMAND TestTerrain)
 		
+add_executable(TestPhysics tests/test_physics.c)
+target_link_libraries(TestPhysics ${CMAKE_CURRENT_SOURCE_DIR}/${CMAKE_BUILD_TYPE}/libTigorEngine.a Vulkan::Vulkan)
+add_test(NAME Test9
+		COMMAND TestPhysics)
 

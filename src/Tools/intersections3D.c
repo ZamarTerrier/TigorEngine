@@ -351,6 +351,24 @@ int IntersectionSphereShape(void *obj1, void *shape, float *dist, float *depth, 
     return res;
 }
 
+int IntersectionSphereToSphereL(void *obj1, void *obj2){
+
+
+    InterSphereParam *o1 = (InterSphereParam *)obj1;
+    InterSphereParam *o2 = (InterSphereParam *)obj2;
+
+    float r1 = o1->radius * 0.58f, r2 = o2->radius * 0.58f;
+
+    vec3 v = v3_sub(o2->center, o1->center);
+
+    float dist = v3_dot(v, v);
+
+    float rSumm = r1 + r2;
+
+    return dist <= rSumm * rSumm;
+
+}
+
 int IntersectionSphereToSphere(void *obj1, void *obj2, float *dist, float *depth, vec3 *dir){
 
 

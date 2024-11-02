@@ -80,6 +80,8 @@ bool v3_equal(vec3 a, vec3 b);
 vec3 v3_lerp(vec3 a, vec3 b, float t);
 vec3 v3_slerp(vec3 start, vec3 end, float percent);
 vec3 v3_to(vec3 from, vec3 to, float t);
+float v3_magnitude(const vec3 *a);
+float v3_magnitudesq(const vec3 *a);
 float v3_point_segment_dist(const vec3 *P, const vec3 *x0, const vec3 *b, vec3 *witness);
 float v3_point_tri_dist(const vec3 *P, const vec3 *x0, const vec3 *B, const vec3 *C, vec3 *witness);
 
