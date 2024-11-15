@@ -25,6 +25,8 @@ RigidBody *rb_plane;
 
 extern TEngine engine;
 
+extern float RAD2DEG(float x);
+
 void Update(float dTime){
 
     double time = TEngineGetTime();
@@ -32,9 +34,9 @@ void Update(float dTime){
     PhysicsUpdate(dTime);
 
     Transform3DSetPosition(&po, rb_box->params.position.x, rb_box->params.position.y, rb_box->params.position.z);
-    Transform3DSetRotate(&po, rb_box->params.rotating.x, rb_box->params.rotating.y, rb_box->params.rotating.z);
+    Transform3DSetRotate(&po, RAD2DEG(rb_box->params.rotating.x), RAD2DEG(rb_box->params.rotating.y), RAD2DEG(rb_box->params.rotating.z));
     Transform3DSetPosition(&po2, rb_box2->params.position.x, rb_box2->params.position.y, rb_box2->params.position.z);
-    Transform3DSetRotate(&po2, rb_box2->params.rotating.x, rb_box2->params.rotating.y, rb_box2->params.rotating.z);
+    Transform3DSetRotate(&po2, RAD2DEG(rb_box2->params.rotating.x), RAD2DEG(rb_box2->params.rotating.y), RAD2DEG(rb_box2->params.rotating.z));
 }
 
 
@@ -48,8 +50,8 @@ int main(){
     rb_box2 = PhysicsInitObject(TIGOR_RIGIDBODY_TYPE_BOX, true);
     rb_plane = PhysicsInitObject(TIGOR_RIGIDBODY_TYPE_BOX, true);
 
-    rb_box->params.rotating = vec3_f(0,0,10);
-    rb_box2->params.rotating = vec3_f(0,0,5);
+    rb_box->params.rotating = vec3_f(0, 0, 0.4);
+    rb_box2->params.rotating = vec3_f(0, 0, 0);
 
     rb_plane->mass = 0.0f;
     rb_plane->params.size = vec3_f(50, 1, 50);

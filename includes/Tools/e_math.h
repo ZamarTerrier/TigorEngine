@@ -52,6 +52,7 @@ vec2 v2_norm(vec2 v);
 float v2_length(vec2 v);
 float v2_dot (vec2 a, vec2 b);
 float  v2_distance(vec2 v1, vec2 v2);
+int v2_cmp(vec2 v1, vec2 v2);
 
 vec3 vec3_f(float x, float y, float z);
 
@@ -104,6 +105,7 @@ vec4 v4_lerp(vec4 a, vec4 b, float t);
 
 mat3 mat3_f();
 
+vec2 m2_v2_mult(mat2 m, vec2 v);
 vec3 m4_v3_mult(mat4 m, vec3 v);
 vec4 m4_v4_mult(mat4 mat, vec4 v);
 

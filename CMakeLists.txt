@@ -134,8 +134,13 @@ target_link_libraries(TestTerrain ${CMAKE_CURRENT_SOURCE_DIR}/${CMAKE_BUILD_TYPE
 add_test(NAME Test8
 		COMMAND TestTerrain)
 		
-add_executable(TestPhysics tests/test_physics.c)
-target_link_libraries(TestPhysics ${CMAKE_CURRENT_SOURCE_DIR}/${CMAKE_BUILD_TYPE}/libTigorEngine.a Vulkan::Vulkan)
+add_executable(TestPhysics2D tests/test_physics2D.c)
+target_link_libraries(TestPhysics2D ${CMAKE_CURRENT_SOURCE_DIR}/${CMAKE_BUILD_TYPE}/libTigorEngine.a Vulkan::Vulkan)
 add_test(NAME Test9
-		COMMAND TestPhysics)
+		COMMAND TestPhysics2D)
+
+add_executable(TestPhysics3D tests/test_physics3D.c)
+target_link_libraries(TestPhysics3D ${CMAKE_CURRENT_SOURCE_DIR}/${CMAKE_BUILD_TYPE}/libTigorEngine.a Vulkan::Vulkan)
+add_test(NAME Test10
+		COMMAND TestPhysics3D)
 

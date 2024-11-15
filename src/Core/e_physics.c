@@ -16,7 +16,7 @@ typedef struct{
 } Collider;
 
 typedef struct{
-    CollisionManifold colls[32];
+    CollisionManifold colls[1024];
     uint32_t num_colls;
 } ResultCollider;
 
@@ -25,21 +25,36 @@ Collider colliders2;
 ResultCollider results;
 
 float LinearProjectionPercent = 0.45f;
-float PenetrationSlack = 0.01f;
-int ImpulseIteration = 5;
+float PenetrationSlack = 0.10f;
+int ImpulseIteration = 10;
 
 RigidBody phy_objs[32];
 uint32_t num_phy_objs = 0;
+
+float CorrectDegrees(float degrees) {
+	while (degrees > 360.0f) {
+		degrees -= 360.0f;
+	}
+	while (degrees < -360.0f) {
+		degrees += 360.0f;
+	}
+	return degrees;
+}
+
+float RAD2DEG(float radians) {
+	float degrees = radians * 57.295754f;
+	degrees = CorrectDegrees(degrees);
+	return degrees;
+}
 
 void ResetCollisionManifold(CollisionManifold* result) {
     memset(result, 0, sizeof(CollisionManifold));
 	if (result != 0) {
 		result->colliding = false;
-		result->normal = vec3_f(0, 0, 1);
+		result->normal = vec3_f(0, 1, 0);
 		result->depth = FLT_MAX;
 	}
 }
-
 
 vec3 RigidBodyGetMin(const ColParams *aabb) {
 	vec3 p1 = v3_add(aabb->position, aabb->size);
@@ -58,7 +73,7 @@ vec3 RigidBodyClosestPoint(const ColParams *obb, const vec3 *point) {
 	vec3 result = obb->position;
 	vec3 dir = v3_sub(*point, obb->position);
 
-    float *arr = &obb->size;
+    float *arr = (float *)&obb->size;
 
 	for (int i = 0; i < 3; ++i) {
 		const float* orientation = &obb->orientation.arr[i * 3];
@@ -82,7 +97,7 @@ vec3 RigidBodyClosestPoint(const ColParams *obb, const vec3 *point) {
 bool RigidBodyPointInOBB(const vec3 point, const ColParams *obb) {
 	vec3 dir = v3_sub(point, obb->position);
 
-    float *arr = &obb->size;
+    float *arr = (float *)&obb->size;
 
 	for (int i = 0; i < 3; ++i) {
 		const float* orientation = &obb->orientation.arr[i * 3];
@@ -109,13 +124,61 @@ float RigidBodyInvMass(RigidBody *rb) {
 }
 
 void RigidBodySynchCollisionVolumes(RigidBody *rb) {    
-	rb->params.orientation = m3_rotation_matrix(rb->params.rotating);
+	rb->params.orientation = m3_rotation_matrix(vec3_f(RAD2DEG(rb->params.rotating.x), RAD2DEG(rb->params.rotating.y), RAD2DEG(rb->params.rotating.z)));
 }
 
 
+mat4 Inverse(const mat4 m) {
+	/*float det = Determinant(m);
+	if (CMP(det, 0.0f)) { return mat4(); }
+	return Adjugate(m) * (1.0f / det);*/
+
+	// The code below is the expanded form of the above equation.
+	// This optimization avoids loops and function calls
+
+	float det \
+		= m._11 * m._22 * m._33 * m._44 + m._11 * m._23 * m._34 * m._42 + m._11 * m._24 * m._32 * m._43
+		+ m._12 * m._21 * m._34 * m._43 + m._12 * m._23 * m._31 * m._44 + m._12 * m._24 * m._33 * m._41
+		+ m._13 * m._21 * m._32 * m._44 + m._13 * m._22 * m._34 * m._41 + m._13 * m._24 * m._31 * m._42
+		+ m._14 * m._21 * m._33 * m._42 + m._14 * m._22 * m._31 * m._43 + m._14 * m._23 * m._32 * m._41
+		- m._11 * m._22 * m._34 * m._43 - m._11 * m._23 * m._32 * m._44 - m._11 * m._24 * m._33 * m._42
+		- m._12 * m._21 * m._33 * m._44 - m._12 * m._23 * m._34 * m._41 - m._12 * m._24 * m._31 * m._43
+		- m._13 * m._21 * m._34 * m._42 - m._13 * m._22 * m._31 * m._44 - m._13 * m._24 * m._32 * m._41
+		- m._14 * m._21 * m._32 * m._43 - m._14 * m._22 * m._33 * m._41 - m._14 * m._23 * m._31 * m._42;
+
+	if (CMP(det, 0.0f)) { 
+		return mat4_rowsf(1,0,0,0 ,0,1,0,0 ,0,0,1,0 ,0,0,0,1); 
+	}
+	float i_det = 1.0f / det;
+
+	mat4 result;
+	result._11 = (m._22 * m._33 * m._44 + m._23 * m._34 * m._42 + m._24 * m._32 * m._43 - m._22 * m._34 * m._43 - m._23 * m._32 * m._44 - m._24 * m._33 * m._42) * i_det;
+	result._12 = (m._12 * m._34 * m._43 + m._13 * m._32 * m._44 + m._14 * m._33 * m._42 - m._12 * m._33 * m._44 - m._13 * m._34 * m._42 - m._14 * m._32 * m._43) * i_det;
+	result._13 = (m._12 * m._23 * m._44 + m._13 * m._24 * m._42 + m._14 * m._22 * m._43 - m._12 * m._24 * m._43 - m._13 * m._22 * m._44 - m._14 * m._23 * m._42) * i_det;
+	result._14 = (m._12 * m._24 * m._33 + m._13 * m._22 * m._34 + m._14 * m._23 * m._32 - m._12 * m._23 * m._34 - m._13 * m._24 * m._32 - m._14 * m._22 * m._33) * i_det;
+	result._21 = (m._21 * m._34 * m._43 + m._23 * m._31 * m._44 + m._24 * m._33 * m._41 - m._21 * m._33 * m._44 - m._23 * m._34 * m._41 - m._24 * m._31 * m._43) * i_det;
+	result._22 = (m._11 * m._33 * m._44 + m._13 * m._34 * m._41 + m._14 * m._31 * m._43 - m._11 * m._34 * m._43 - m._13 * m._31 * m._44 - m._14 * m._33 * m._41) * i_det;
+	result._23 = (m._11 * m._24 * m._43 + m._13 * m._21 * m._44 + m._14 * m._23 * m._41 - m._11 * m._23 * m._44 - m._13 * m._24 * m._41 - m._14 * m._21 * m._43) * i_det;
+	result._24 = (m._11 * m._23 * m._34 + m._13 * m._24 * m._31 + m._14 * m._21 * m._33 - m._11 * m._24 * m._33 - m._13 * m._21 * m._34 - m._14 * m._23 * m._31) * i_det;
+	result._31 = (m._21 * m._32 * m._44 + m._22 * m._34 * m._41 + m._24 * m._31 * m._42 - m._21 * m._34 * m._42 - m._22 * m._31 * m._44 - m._24 * m._32 * m._41) * i_det;
+	result._32 = (m._11 * m._34 * m._42 + m._12 * m._31 * m._44 + m._14 * m._32 * m._41 - m._11 * m._32 * m._44 - m._12 * m._34 * m._41 - m._14 * m._31 * m._42) * i_det;
+	result._33 = (m._11 * m._22 * m._44 + m._12 * m._24 * m._41 + m._14 * m._21 * m._42 - m._11 * m._24 * m._42 - m._12 * m._21 * m._44 - m._14 * m._22 * m._41) * i_det;
+	result._34 = (m._11 * m._24 * m._32 + m._12 * m._21 * m._34 + m._14 * m._22 * m._31 - m._11 * m._22 * m._34 - m._12 * m._24 * m._31 - m._14 * m._21 * m._32) * i_det;
+	result._41 = (m._21 * m._33 * m._42 + m._22 * m._31 * m._43 + m._23 * m._32 * m._41 - m._21 * m._32 * m._43 - m._22 * m._33 * m._41 - m._23 * m._31 * m._42) * i_det;
+	result._42 = (m._11 * m._32 * m._43 + m._12 * m._33 * m._41 + m._13 * m._31 * m._42 - m._11 * m._33 * m._42 - m._12 * m._31 * m._43 - m._13 * m._32 * m._41) * i_det;
+	result._43 = (m._11 * m._23 * m._42 + m._12 * m._21 * m._43 + m._13 * m._22 * m._41 - m._11 * m._22 * m._43 - m._12 * m._23 * m._41 - m._13 * m._21 * m._42) * i_det;
+	result._44 = (m._11 * m._22 * m._33 + m._12 * m._23 * m._31 + m._13 * m._21 * m._32 - m._11 * m._23 * m._32 - m._12 * m._21 * m._33 - m._13 * m._22 * m._31) * i_det;
+
+	/*if (result * m != mat4()) {
+		std::cout << "ERROR! Expecting matrix x inverse to equal identity!\n";
+	}*/
+
+	return result;
+}
+
 mat4 RigidBodyInvTensor(RigidBody *rb) {
 	if (rb->mass == 0) {
-		return mat4_rowsf(
+		return mat4_colmnsf(
 			0, 0, 0, 0,
 			0, 0, 0, 0,
 			0, 0, 0, 0,
@@ -150,7 +213,7 @@ mat4 RigidBodyInvTensor(RigidBody *rb) {
 		iw = 1.0f;
 	}
 
-	return m4_inv(mat4_rowsf(
+	return Inverse(mat4_colmnsf(
 		ix, 0, 0, 0,
 		0, iy, 0, 0,
 		0, 0, iz, 0,
@@ -195,26 +258,36 @@ void RigidBodyUpdate(RigidBody *rb, float dt) {
 	rb->params.position = v3_add(rb->params.position, v3_muls(rb->velocity, dt));
 
 	if (rb->type == TIGOR_RIGIDBODY_TYPE_BOX) {
-		rb->params.rotating = v3_add(rb->params.rotating, v3_muls(v3_muls(rb->angVel, dt), 180.0f / M_PI));
+		rb->params.rotating = v3_add(rb->params.rotating, v3_muls(rb->angVel, dt));
 	}
 
 	RigidBodySynchCollisionVolumes(rb);
 }
 
-Interval RigidBodyGetInterval(const ColParams *aabb, const vec3 *axis) {
-	vec3 i = RigidBodyGetMin(aabb);
-	vec3 a = RigidBodyGetMax(aabb);
+Interval RigidBodyGetInterval(const ColParams *obb, const vec3 *axis) {
+	vec3 vertex[8];
 
-	vec3 vertex[8] = {
-		{i.x, a.y, a.z},
-		{i.x, a.y, i.z},
-		{i.x, i.y, a.z},
-		{i.x, i.y, i.z},
-		{a.x, a.y, a.z},
-		{a.x, a.y, i.z},
-		{a.x, i.y, a.z},
-		{a.x, i.y, i.z}
+	vec3 C = obb->position;	// OBB Center
+	vec3 E = obb->size;		// OBB Extents
+	const float* o = obb->orientation.arr;
+	vec3 A[] = {			// OBB Axis
+		{o[0], o[1], o[2]},
+		{o[3], o[4], o[5]},
+		{o[6], o[7], o[8]},
 	};
+
+	vec3 t1 = v3_muls(A[0], E.x);
+	vec3 t2 = v3_muls(A[1], E.y);
+	vec3 t3 = v3_muls(A[2], E.z);
+
+	vertex[0] = v3_add(v3_add(v3_add(C, t1), t2), t3);
+	vertex[1] = v3_add(v3_add(v3_sub(C, t1), t2), t3);
+	vertex[2] = v3_add(v3_sub(v3_add(C, t1), t2), t3);
+	vertex[3] = v3_sub(v3_add(v3_add(C, t1), t2), t3);
+	vertex[4] = v3_sub(v3_sub(v3_sub(C, t1), t2), t3);
+	vertex[5] = v3_sub(v3_sub(v3_add(C, t1), t2), t3);
+	vertex[6] = v3_sub(v3_add(v3_sub(C, t1), t2), t3);
+	vertex[7] = v3_add(v3_sub(v3_sub(C, t1), t2), t3);
 
 	Interval result;
 	result.min = result.max = v3_dot(*axis, vertex[0]);
@@ -263,15 +336,19 @@ Point RigidBodyGetVertices(const ColParams *obb) {
 		{o[3], o[4], o[5]},
 		{o[6], o[7], o[8]},
 	};
+	
+	vec3 t1 = v3_muls(A[0], E.x);
+	vec3 t2 = v3_muls(A[1], E.y);
+	vec3 t3 = v3_muls(A[2], E.z);
 
-	v.points[0] = v3_add(C, v3_add(v3_add(v3_muls(A[0], E.x), v3_muls(A[1], E.y)), v3_muls(A[2], E.z)));
-	v.points[1] = v3_sub(C, v3_add(v3_add(v3_muls(A[0], E.x), v3_muls(A[1], E.y)), v3_muls(A[2], E.z)));
-	v.points[2] = v3_add(C, v3_add(v3_sub(v3_muls(A[0], E.x), v3_muls(A[1], E.y)), v3_muls(A[2], E.z)));
-	v.points[3] = v3_add(C, v3_sub(v3_add(v3_muls(A[0], E.x), v3_muls(A[1], E.y)), v3_muls(A[2], E.z)));
-	v.points[4] = v3_sub(C, v3_sub(v3_sub(v3_muls(A[0], E.x), v3_muls(A[1], E.y)), v3_muls(A[2], E.z)));
-	v.points[5] = v3_add(C, v3_sub(v3_sub(v3_muls(A[0], E.x), v3_muls(A[1], E.y)), v3_muls(A[2], E.z)));
-	v.points[6] = v3_sub(C, v3_sub(v3_add(v3_muls(A[0], E.x), v3_muls(A[1], E.y)), v3_muls(A[2], E.z)));
-	v.points[7] = v3_sub(C, v3_add(v3_sub(v3_muls(A[0], E.x), v3_muls(A[1], E.y)), v3_muls(A[2], E.z)));
+	v.points[0] = v3_add(v3_add(v3_add(C, t1), t2), t3);
+	v.points[1] = v3_add(v3_add(v3_sub(C, t1), t2), t3);
+	v.points[2] = v3_add(v3_sub(v3_add(C, t1), t2), t3);
+	v.points[3] = v3_sub(v3_add(v3_add(C, t1), t2), t3);
+	v.points[4] = v3_sub(v3_sub(v3_sub(C, t1), t2), t3);
+	v.points[5] = v3_sub(v3_sub(v3_add(C, t1), t2), t3);
+	v.points[6] = v3_sub(v3_add(v3_sub(C, t1), t2), t3);
+	v.points[7] = v3_add(v3_sub(v3_sub(C, t1), t2), t3);
 
 	return v;
 }
@@ -350,18 +427,16 @@ bool RigidBodyClipToPlane(const Plane *plane, const Line *line, vec3 *outPoint) 
 Point RigidBodyClipEdgesToOBB(const LineArr *edges, const ColParams *obb) {
 	Point result;
     memset(&result, 0, sizeof(Point));
-	result.num_points = edges->num_lines * 3;
 	vec3 intersection;
 
 	PlaneArr planes = RigidBodyGetPlanes(obb);
 
-    int iter = 0;
 	for (int i = 0; i < planes.num_planes; ++i) {
 		for (int j = 0; j < edges->num_lines; ++j) {
 			if (RigidBodyClipToPlane(&planes.planes[i], &edges->lines[j], &intersection)) {
 				if (RigidBodyPointInOBB(intersection, obb)) {
-					result.points[iter] = intersection;
-                    iter ++;
+					result.points[result.num_points] = intersection;
+					result.num_points++;
 				}
 			}
 		}
@@ -376,9 +451,9 @@ void SomeEraseContact(CollisionManifold *coll, int indx){
 
     vec3 arr[diff];
 
-    memcpy(arr, &coll->contacts[indx], diff);
+    memcpy(arr, &coll->contacts[indx], sizeof(vec3) * diff);
 
-    memcpy(&coll->contacts[indx], arr + 1, diff - 1);
+    memcpy(&coll->contacts[indx], arr + 1, sizeof(vec3) * (diff - 1));
 
     coll->num_contacts --;
 
@@ -426,7 +501,7 @@ CollisionManifold FindCollisionFeaturesOBBOOBB(const ColParams *A, const ColPara
 		if (test[i].x < 0.000001f) test[i].x = 0.0f;
 		if (test[i].y < 0.000001f) test[i].y = 0.0f;
 		if (test[i].z < 0.000001f) test[i].z = 0.0f;
-		if (v3_magnitudesq(&test[i])< 0.001f) {
+		if (v3_magnitudesq(&test[i]) < 0.001f) {
 			continue;
 		}
 		float depth = RigidBodyPenetrationDepth(A, B, &test[i], &shouldFlip);
@@ -445,17 +520,18 @@ CollisionManifold FindCollisionFeaturesOBBOOBB(const ColParams *A, const ColPara
 	if (hitNormal == 0) {
 		return result;
 	}
+
 	vec3 axis = v3_norm(*hitNormal);
 
     LineArr t1 = RigidBodyGetEdges(A);
     LineArr t2 = RigidBodyGetEdges(B);
 
-	Point c1 = RigidBodyClipEdgesToOBB(&t1, A);
-	Point c2 = RigidBodyClipEdgesToOBB(&t2, B);
+	Point c1 = RigidBodyClipEdgesToOBB(&t2, A);
+	Point c2 = RigidBodyClipEdgesToOBB(&t1, B);
     
-    memcpy(&result.contacts[result.num_contacts], &c1.points, c1.num_points);
+    memcpy(&result.contacts[result.num_contacts], c1.points, sizeof(vec3) * c1.num_points);
     result.num_contacts += c1.num_points;
-    memcpy(&result.contacts[result.num_contacts], &c2.points, c2.num_points);
+    memcpy(&result.contacts[result.num_contacts], c2.points, sizeof(vec3) * c2.num_points);
     result.num_contacts += c2.num_points;
 
 	Interval i = RigidBodyGetInterval(A, &axis);
@@ -494,7 +570,7 @@ CollisionManifold FindCollisionFeaturesSphereSphere(const ColParams *A, const Co
 	if (v3_magnitudesq(&d) - r * r > 0 || v3_magnitudesq(&d) == 0.0f) {
 		return result;
 	}
-	v3_norm(d);
+	d = v3_norm(d);
 
 	result.colliding = true;
 	result.normal = d;
@@ -586,7 +662,9 @@ RigidBody *PhysicsInitObject(uint32_t type, bool isDynamic){
 
     res->params.radius = 1.0f;
     res->params.size = vec3_f(1, 1, 1);
-    res->mass = 1.0f;
+    res->mass = 1.0f;	
+	//res->staticFriction = 0.5f;
+	//res->dynamicFriction = 0.3f;
     res->friction = 0.6f;
     res->cor = 0.5f;
 
@@ -617,6 +695,8 @@ void RigidBodyApplyImpulse(RigidBody *A, RigidBody *B, const CollisionManifold *
 
 	vec3 relativeVel = v3_sub(v3_add(B->velocity, v3_cross(B->angVel, r2)), v3_add(A->velocity, v3_cross(A->angVel, r1)));
 
+	//vec3 relativeVel = B.velocity - A.velocity;
+
 	// Relative collision normal
 	vec3 relativeNorm = M->normal;
 	relativeNorm = v3_norm(relativeNorm);
@@ -630,13 +710,12 @@ void RigidBodyApplyImpulse(RigidBody *A, RigidBody *B, const CollisionManifold *
 
 	float numerator = (-(1.0f + e) * v3_dot(relativeVel, relativeNorm));
 	float d1 = invMassSum;
-#ifndef LINEAR_ONLY
+	
 	vec3 d2 = v3_cross(m4_v3_mult(i1, v3_cross(r1, relativeNorm)), r1);
 	vec3 d3 = v3_cross(m4_v3_mult(i2, v3_cross(r2, relativeNorm)), r2);
 	float denominator = d1 + v3_dot(relativeNorm, v3_add(d2, d3));
-#else
-	float denominator = d1;
-#endif
+
+	//float denominator = d1;
 
 	float j = (denominator == 0.0f) ? 0.0f : numerator / denominator;
 	if (M->num_contacts > 0.0f && j != 0.0f) {
@@ -647,10 +726,8 @@ void RigidBodyApplyImpulse(RigidBody *A, RigidBody *B, const CollisionManifold *
 	A->velocity = v3_sub(A->velocity, v3_muls(impulse, invMass1));
 	B->velocity = v3_add(B->velocity, v3_muls(impulse, invMass2));
 
-#ifndef LINEAR_ONLY
 	A->angVel = v3_sub(A->angVel, m4_v3_mult(i1, v3_cross(r1, impulse)));
 	B->angVel = v3_add(B->angVel, m4_v3_mult(i2, v3_cross(r2, impulse)));
-#endif
 
 	// Friction
 	vec3 t = v3_sub(relativeVel, v3_muls(relativeNorm, v3_dot(relativeVel, relativeNorm)));
@@ -661,13 +738,12 @@ void RigidBodyApplyImpulse(RigidBody *A, RigidBody *B, const CollisionManifold *
 
 	numerator = -v3_dot(relativeVel, t);
 	d1 = invMassSum;
-#ifndef LINEAR_ONLY
+	
 	d2 = v3_cross(m4_v3_mult(i1, v3_cross(r1, t)), r1);
 	d3 = v3_cross(m4_v3_mult(i2, v3_cross(r2, t)), r2);
 	denominator = d1 + v3_dot(t, v3_add(d2, d3));
-#else
-	denominator = d1;
-#endif
+
+	//denominator = d1;
 
 	float jt = (denominator == 0.0f) ? 0.0f : numerator / denominator;
 	if (M->num_contacts > 0.0f && jt != 0.0f) {
@@ -679,16 +755,16 @@ void RigidBodyApplyImpulse(RigidBody *A, RigidBody *B, const CollisionManifold *
 	}
 
 	vec3 tangentImpuse;
-#ifdef DYNAMIC_FRICTION
-	float sf = sqrtf(A.staticFriction * B.staticFriction);
-	float df = sqrtf(A.dynamicFriction * B.dynamicFriction);
+	
+	/*float sf = sqrtf(A->staticFriction * B->staticFriction);
+	float df = sqrtf(A->dynamicFriction * B->dynamicFriction);
 	if (fabsf(jt) < j * sf) {
-		tangentImpuse = t * jt;
+		tangentImpuse = v3_muls(t, jt);
 	}
 	else {
-		tangentImpuse = t * -j * df;
-	}
-#else
+		tangentImpuse = v3_muls(t, (-j * df));
+	}*/
+	
 	float friction = sqrtf(A->friction * B->friction);
 	if (jt > j * friction) {
 		jt = j * friction;
@@ -697,15 +773,12 @@ void RigidBodyApplyImpulse(RigidBody *A, RigidBody *B, const CollisionManifold *
 		jt = -j * friction;
 	}
 	tangentImpuse = v3_muls(t, jt);
-#endif
 
 	A->velocity = v3_sub(A->velocity, v3_muls(tangentImpuse, invMass1));
 	B->velocity = v3_add(B->velocity, v3_muls(tangentImpuse, invMass2));
 
-#ifndef LINEAR_ONLY
 	A->angVel = v3_sub(A->angVel, m4_v3_mult(i1, v3_cross(r1, tangentImpuse)));
 	B->angVel = v3_add(B->angVel, m4_v3_mult(i2, v3_cross(r2, tangentImpuse)));
-#endif
 }
 
 void PhysicsUpdate(float deltaTime){
@@ -801,10 +874,10 @@ void PhysicsUpdate(float deltaTime){
 
 			float depth = fmaxf(results.colls[i].depth - PenetrationSlack, 0.0f);
 			float scalar = (totalMass == 0.0f) ? 0.0f : depth / totalMass;
-			vec3 correction = v3_muls(results.colls[i].normal, scalar * LinearProjectionPercent);
+			vec3 correction = v3_muls(v3_muls(results.colls[i].normal, scalar), LinearProjectionPercent);
 
 			colliders1.rigids[i]->params.position = v3_sub(colliders1.rigids[i]->params.position, v3_muls(correction, RigidBodyInvMass(colliders1.rigids[i])));
-			colliders2.rigids[i]->params.position = v3_sub(colliders2.rigids[i]->params.position, v3_muls(correction, RigidBodyInvMass(colliders2.rigids[i])));
+			colliders2.rigids[i]->params.position = v3_add(colliders2.rigids[i]->params.position, v3_muls(correction, RigidBodyInvMass(colliders2.rigids[i])));
 
             RigidBodySynchCollisionVolumes(colliders1.rigids[i]);
             RigidBodySynchCollisionVolumes(colliders2.rigids[i]);

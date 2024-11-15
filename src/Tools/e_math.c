@@ -5,6 +5,8 @@
 #include "Data/e_resource_data.h"
 #include "Data/e_resource_engine.h"
 
+#include "float.h"
+
 extern TEngine engine;
 
 bool mat4_is_affine(mat4 a){
@@ -84,8 +86,8 @@ mat2 m2_rotate(float angle){
     angle *= M_PI / 180;  // convert to radians
     mat2 result;
 
-    double c = cos(angle) / 10;
-    double s = sin(angle) / 10;
+    double c = cos(angle);
+    double s = sin(angle);
 
     result.m[0][0] = c;
     result.m[0][1] = -s;
@@ -257,6 +259,7 @@ vec2 v2_divs  (vec2 a, float s) { return (vec2){ a.x / s,   a.y / s  }; }
 float v2_length(vec2 v) { return sqrtf(v.x*v.x + v.y*v.y); }
 float v2_dot (vec2 a, vec2 b) { return a.x*b.x + a.y*b.y; }
 float  v2_distance(vec2 v1, vec2 v2) { return sqrt(pow((v1.x - v2.x), 2) + pow((v1.y - v2.y), 2)); }
+int v2_cmp(vec2 v1, vec2 v2){ return fabs(v1.x - v2.x) < FLT_EPSILON && fabs(v1.y -v2.y) < FLT_EPSILON;  }
 
 vec3 vec3_f(float x, float y, float z){ return (vec3){ x, y, z };}
 vec3 v3_add(vec3 a, vec3 b) { return (vec3){ a.x + b.x, a.y + b.y, a.z + b.z }; }
@@ -467,6 +470,15 @@ vec4 v4_lerp(vec4 a, vec4 b, float t){
     return r;
 }
 
+vec2 m2_v2_mult(mat2 m, vec2 v) {
+    vec2 ret;
+    float *pvec = (float *)&ret;
+    for (int i = 0; i < 2; i++) {
+        pvec[i] = v.x * m.m[0][i] + v.y * m.m[1][i];
+    }
+    return ret;
+}
+
 mat3 mat3_f()
 {
     mat3 res;
@@ -483,7 +495,7 @@ vec3 m4_v3_mult(mat4 m, vec3 v) {
     vec3 ret;
     float *pvec = (float *)&ret;
     for (int i = 0; i < 3; i++) {
-        pvec[i] = v.x * m.m[0][i] + v.y * m.m[1][i] + v.z * m.m[2][i] + m.m[3][i];
+        pvec[i] = v.x * m.m[0][i] + v.y * m.m[1][i] + v.z * m.m[2][i] + 0.0f * m.m[3][i];
     }
     return ret;
 }

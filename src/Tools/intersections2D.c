@@ -27,16 +27,13 @@ vec2 tripleProduct(vec2 a, vec2 b, vec2 c){
 
 size_t indexOfFurthestPoint (void *obj, vec2 direction) {
 
-    GameObject2D *shape = obj;
+    Point2D *shape = obj;
 
     float maxdot = -1;
     size_t index = -1;
 
-    vertexParam *vParam = &shape->graphObj.shapes[0].vParam;
-    Vertex2D *vertex = vParam->vertices;
-
-    for (int i=0;i < vParam->num_verts;i++) {
-      float dot = v2_dot(vertex[i].position, direction);
+    for (int i=0;i < shape->num_points;i++) {
+      float dot = v2_dot(shape->points[i], direction);
       if (dot > maxdot){
           maxdot = dot;
           index = i;
@@ -48,19 +45,16 @@ size_t indexOfFurthestPoint (void *obj, vec2 direction) {
 
 vec2 supportFunc(void *obj, vec2 direction)
 {
-    GameObject2D *shape = obj;
+    Point2D *shape = obj;
 
     float maxdot = -1;
     vec2 base;
 
-    vertexParam *vParam = &shape->graphObj.shapes[0].vParam;
-    Vertex2D *vertex = vParam->vertices;
-
-    for (int i=0;i < vParam->num_verts;i++) {
-      float dot = v2_dot(vertex[i].position, direction);
+    for (int i=0;i < shape->num_points;i++) {
+      float dot = v2_dot(shape->points[i], direction);
       if (dot > maxdot){
           maxdot = dot;
-          base = v2_add(vertex[i].position, shape->transform.position);
+          base = v2_add(shape->points[i], shape->center);
       }
     }
 
@@ -69,28 +63,26 @@ vec2 supportFunc(void *obj, vec2 direction)
 
 vec2 averagePoint (void *obj) {
 
-    GameObject2D *shape = obj;
-
-    vertexParam *vParam = &shape->graphObj.shapes[0].vParam;
-    Vertex2D *vertex = vParam->vertices;
+    Point2D *shape = obj;
 
     vec2 avg = { 0.f, 0.f };
-    for (size_t i = 0; i < vParam->num_verts; i++) {
-        avg.x += vertex[i].position.x + shape->transform.position.x;
-        avg.y += vertex[i].position.y + shape->transform.position.y;
+    for (size_t i = 0; i < shape->num_points; i++) {
+        avg.x += shape->points[i].x + shape->center.x;
+        avg.y += shape->points[i].y + shape->center.y;
     }
-    avg.x /= vParam->num_verts;
-    avg.y /= vParam->num_verts;
+    avg.x /= shape->num_points;
+    avg.y /= shape->num_points;
+
     return avg;
 }
 
 vec2 support (void *obj1, void *obj2, vec2 d) {
 
-    GameObject2D *shape1 = obj1;
-    GameObject2D *shape2 = obj2;
+    Point2D *shape1 = obj1;
+    Point2D *shape2 = obj2;
 
-    Vertex2D *vertex1 = shape1->graphObj.shapes[0].vParam.vertices;
-    Vertex2D *vertex2 = shape2->graphObj.shapes[0].vParam.vertices;
+    vec2 *vertex1 = shape1->points;
+    vec2 *vertex2 = shape2->points;
 
     // get furthest point of first body along an arbitrary direction
     size_t i = indexOfFurthestPoint (obj1, d);
@@ -99,7 +91,7 @@ vec2 support (void *obj1, void *obj2, vec2 d) {
     size_t j = indexOfFurthestPoint (obj2, v2_muls(d, -1));
 
     // subtract (Minkowski sum) the two points to see if bodies 'overlap'
-    return v2_sub(v2_add(vertex1[i].position, shape1->transform.position), v2_add(vertex2[j].position, shape2->transform.position));
+    return v2_sub(v2_add(vertex1[i], shape1->center), v2_add(vertex2[j], shape2->center));
 }
 
 int TestGJK2D (GJKObject *gjk) {
@@ -171,7 +163,7 @@ int TestGJK2D (GJKObject *gjk) {
     return 0;
 }
 
-bool IntersectGJK2D(GJKObject *gjk, void *obj1, void *obj2){
+bool IntersectGJK2D(GJKObject *gjk, Point2D *obj1, Point2D *obj2){
     // reset everything
     gjk->num_verts = 0;
     gjk->obj1 = obj1;
@@ -187,15 +179,27 @@ bool IntersectGJK2D(GJKObject *gjk, void *obj1, void *obj2){
     return result == FoundIntersection;
 }
 
-int IntersectLineToLine(vec2 p1, vec2 p2, vec2 p3, vec2 p4)
+float Signed2DTriArea(vec2 a, vec2 b, vec2 c){
+    return (a.x - c.x) * (b.y - c.y) - (a.y - c.y) * (b.x - c.x);
+}
+
+int IntersectLineToLine(vec2 a, vec2 b, vec2 c, vec2 d, float *t, vec2 *p)
 {
-    vec2 s1 = v2_sub(p2, p1);
-    vec2 s2 = v2_sub(p4, p3);
+    float a1 = Signed2DTriArea(a, b, d);
+    float a2 = Signed2DTriArea(a, b, c);
 
-    float s = (-s1.x * (p1.x - p3.x) + s1.x * (p1.y - p3.y)) / (-s2.x * s1.y + s1.x * s2.y);
-    float t = (s2.x * (p1.y - p3.y) - s2.y * (p1.x - p3.x)) / (-s2.x * s1.y + s1.x * s2.y);
+    if(a1 * a2 < 0.0f){
+        float a3 = Signed2DTriArea(c, d, a);
+        
+        float a4 = a3 + a2 - a1;
 
-    return s >= 0 && s <= 1 && t >= 0 && t <= 1;
+        if(a3 * a4 < 0.0f){
+            *t = a3 / (a3 - a4);
+            *p = v2_add(a, v2_muls(v2_sub(b, a), *t));
+            return 1;
+        }
+    }
+    return 0;
 }
 
 float SqDistPointSquare(vec2 pos, InterSquareParam *box)
@@ -235,26 +239,7 @@ int ComputeSideSquare(vec2 p, vec2 min, vec2 max)
 
 bool ComputeTwoTrianles(InterTriangleParam t1, InterTriangleParam t2)
 {
-    if(IntersectLineToLine(t1.p1, t1.p2, t2.p1, t2.p2))
-        return true;
-    else if(IntersectLineToLine(t1.p1, t1.p2, t2.p2, t2.p3))
-        return true;
-    else if(IntersectLineToLine(t1.p1, t1.p2, t2.p3, t2.p1))
-        return true;
 
-    else if(IntersectLineToLine(t1.p2, t1.p3, t2.p1, t2.p2))
-        return true;
-    else if(IntersectLineToLine(t1.p2, t1.p3, t2.p2, t2.p3))
-        return true;
-    else if(IntersectLineToLine(t1.p2, t1.p3, t2.p3, t2.p1))
-        return true;
-
-    else if(IntersectLineToLine(t1.p3, t1.p1, t2.p1, t2.p2))
-        return true;
-    else if(IntersectLineToLine(t1.p3, t1.p1, t2.p2, t2.p3))
-        return true;
-    else if(IntersectLineToLine(t1.p3, t1.p1, t2.p3, t2.p1))
-        return true;
 
     return false;
 }

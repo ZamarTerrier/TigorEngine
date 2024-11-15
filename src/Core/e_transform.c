@@ -17,8 +17,8 @@ void Transform2DInit(Transform2D* transform){
     transform->scale.x = engine.width / 10;
     transform->scale.y = engine.height / 10;
     
-    transform->img.scale.x = transform->scale.x;
-    transform->img.scale.y = transform->scale.y;
+    transform->img.scale.x = 1;
+    transform->img.scale.y = 1;
 
     transform->scaleOrig.x = engine.width;
     transform->scaleOrig.y = engine.height;
@@ -117,8 +117,11 @@ void Transform2DSetRotate(struct GameObject2D_T* go, float angle){
 
     GameObject2D *temp = (GameObject2D *)go;
 
-    angle = angle > 360 ? -360 : angle;
-    angle = angle < -360 ? 360 : angle;
+    while(angle > 360)
+        angle -= 360;
+
+    while(angle < -360)
+        angle += 360;
 
     temp->transform.rotation = angle;
 }

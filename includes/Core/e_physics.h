@@ -25,12 +25,11 @@ typedef struct{
 
 	float mass;
 	float cor; // Coefficient of restitution
-#ifdef DYNAMIC_FRICTION
-	float staticFriction;
-	float dynamicFriction;
-#else
+
+	//float staticFriction;
+	//float dynamicFriction;
+
 	float friction;
-#endif
 
     ColParams params;
     uint32_t type;

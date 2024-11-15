@@ -14,7 +14,7 @@
 
 extern TEngine engine;
 
-void ShapeObjectCreateQuad(ShapeObject *so, QuadParams *param)
+void ShapeObjectCreateQuad(ShapeObject *so)
 {
     Vertex2D *verts = AllocateMemory(4, sizeof(Vertex2D));
 
@@ -40,7 +40,7 @@ void ShapeObjectCreateQuad(ShapeObject *so, QuadParams *param)
 
     for(int i=0;i < 4;i++)
     {
-        verts[i].color = param->color;
+        verts[i].color = vec3_f(1, 1, 1);
     }
 
     uint32_t *tIndx = AllocateMemory(6, sizeof(uint32_t));
@@ -238,7 +238,7 @@ int ShapeObjectInit(ShapeObject *so, DrawParam *dParam, ShapeType type, void *pa
             ShapeObjectCreateLine(so, param);
             break;
         case TIGOR_SHAPE_OBJECT_QUAD:
-            ShapeObjectCreateQuad(so, param);
+            ShapeObjectCreateQuad(so);
             break;
         case TIGOR_SHAPE_OBJECT_CIRCLE:
             ShapeObjectCreateCircle(so, param);

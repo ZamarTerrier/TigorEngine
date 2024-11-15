@@ -71,12 +71,6 @@ int IntersectRayTriangle2D(InterTriangleParam *tri, InterRay2DParam *ray){
     vec2 p1 = ray->position;
     vec2 p2 = v2_add(ray->position, v2_muls(ray->direction, ray->distance));
 
-    if(IntersectLineToLine(p1, p2, tri->p1, tri->p2))
-        return true;
-    else if(IntersectLineToLine(p1, p2, tri->p2, tri->p3))
-        return true;
-    else if(IntersectLineToLine(p1, p2, tri->p3, tri->p1))
-        return true;
 
     return false;
 }

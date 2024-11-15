@@ -9,8 +9,14 @@ extern "C"
 {
 #endif
 
-bool IntersectGJK2D(GJKObject *gjk, void *obj1, void *obj2);
-int IntersectLineToLine(vec2 p1, vec2 p2, vec2 p3, vec2 p4);
+typedef struct{
+    vec2 points[2048];
+    vec2 center;
+    uint32_t num_points;
+} Point2D;
+
+bool IntersectGJK2D(GJKObject *gjk, Point2D *obj1, Point2D *obj2);
+int IntersectLineToLine(vec2 a, vec2 b, vec2 c, vec2 d, float *t, vec2 *p);
 int IntersectionCircleTriangle(vec2 sPos, float r, vec2 p0, vec2 p1, vec2 p2, vec2 *resPos, float *dist, float *depth, vec2 *dir);
 int IntersectionCircleCircle(InterCircleParam *o1, InterCircleParam *o2, float *dist, float *depth, vec2 *dir);
 int IntersectionCircleSquare(InterCircleParam *sph, InterSquareParam *box, float *dist, float *depth, vec2 *dir);
