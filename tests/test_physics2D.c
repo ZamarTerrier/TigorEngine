@@ -15,17 +15,27 @@
 
 #include <float.h>
 
+typedef struct{
+    float impulse;
+    GameObject2D *go;
+    RigidBodyFlags flags;
+} RigidBody2D;
+
 Camera2D cam2D;
 Camera3D cam3D;
 
 ShapeObject so;
 ShapeObject so2;
+ShapeObject so3;
+
+RigidBody2D bodies[8];
+uint32_t num_bodies = 3;
 
 extern TEngine engine;
 
 extern float RAD2DEG(float x);
 
-float rot = 65, grav = 1.0f;
+float start_rot = 35, grav = -1.0f, last_angle = 0;
 
 Point2D RigidBodyGetVertices2D(float rot, vec2 pos, vec2 size, vec3 color) {
 	Point2D v;
@@ -54,115 +64,379 @@ Point2D RigidBodyGetVertices2D(float rot, vec2 pos, vec2 size, vec3 color) {
 	return v;
 }
 
-void Update(float dTime){
+void CalcRot(vec2 dir, GameObject2D *shape, float ang, float impulse){
 
-    double time = TEngineGetTime();
+    float res = ang * impulse;
 
-    float cnst = 256;
+    vec2 pos = Transform2DGetPosition(shape);
+    float rot = Transform2DGetRotation(shape);
 
-    Point2D points1 = RigidBodyGetVertices2D(0, Transform2DGetPosition(&so), Transform2DGetScale(&so), vec3_f(1, 0, 0));
-    Point2D points2 = RigidBodyGetVertices2D(rot, Transform2DGetPosition(&so2), Transform2DGetScale(&so2), vec3_f(0, 1, 0));
+    if(dir.x < 0)
+    {
+        last_angle += ang;
+        rot += res;
+        pos.x -= res;
+    }else{   
+        last_angle -= ang;                 
+        rot -= res;
+        pos.x += res;
+    }
 
-    float t = 0;
-    vec2 t_v;
+    Transform2DSetPosition(shape, pos.x, pos.y);
+    Transform2DSetRotation(shape, rot);
+}
 
-    vec2 points[32];
-    float d_points[32];
-    uint32_t num_points = 0;
+vec2 FindNear(Point2D points, vec2 point){
+
+    float distance = v2_distance(point, points.points[0]);\
+    vec2 res = points.points[0];
+    for(int i=1;i < points.num_points; i++){
+        
+        if(v2_distance(point, points.points[i]) < distance){
+            res = points.points[i];
+            distance = v2_distance(point, points.points[i]);
+        }
+    }
+
+    return res;
+}
+
+Point2D CheckContact(Point2D *a, Point2D *b, float *d_points){
+
+    Point2D result;
+    memset(&result, 0, sizeof(Point2D));
 
     int res = 0;
-    
+    float t;
+    vec2 t_v;
     for(int i=0;i<4;i++){
         for(int j=0;j<4;j++){
-            res = IntersectLineToLine(points1.points[i], points1.points[i < 3 ? i + 1 : 0], points2.points[j], points2.points[j < 3 ? j + 1 : 0], &t, &t_v);
+            res = IntersectLineToLine(a->points[i], a->points[i < 3 ? i + 1 : 0], b->points[j], b->points[j < 3 ? j + 1 : 0], &t, &t_v);
 
             if(res){
-                points[num_points] = t_v;
-                d_points[num_points] = t;
-                num_points ++;
+                result.points[result.num_points] = t_v;
+                d_points[result.num_points] = t - FLT_EPSILON;
+                result.num_points ++;
             }
         }
     }
 
     for(int i=0;i<4;i++){
         for(int j=0;j<4;j++){
-            res = IntersectLineToLine(points2.points[i], points2.points[i < 3 ? i + 1 : 0], points1.points[j], points1.points[j < 3 ? j + 1 : 0], &t, &t_v);
+            res = IntersectLineToLine(b->points[i], b->points[i < 3 ? i + 1 : 0], a->points[j], a->points[j < 3 ? j + 1 : 0], &t, &t_v);
 
             if(res){
-                points[num_points] = t_v;
-                d_points[num_points] = t;
-                num_points ++;
+                result.points[result.num_points] = t_v;
+                d_points[result.num_points] = t - FLT_EPSILON;
+                result.num_points ++;
             }
         }
     }
 
     vec2 t_points[32];
     float t_d_points[32];
-    uint32_t t_num_points = num_points;
-    num_points = 0; 
-    memcpy(t_points, points, sizeof(vec2) * 32);
+    uint32_t t_num_points = result.num_points;
+    result.num_points = 0; 
+    memcpy(t_points, result.points, sizeof(vec2) * 32);
     memcpy(t_d_points, d_points, sizeof(float) * 32);
-    memset(points, 0, sizeof(vec2) * 32);
+    memset(result.points, 0, sizeof(vec2) * 32);
     memset(d_points, 0, sizeof(float) * 32);
 
     int finded = false;
     for(int i=0;i < t_num_points;i++){
         finded = false;
-        for(int j=0;j < num_points;j++){
-            if(v2_distance(t_points[i], points[j]) < 1.0f){
+        for(int j=0;j < result.num_points;j++){
+            if(v2_distance(t_points[i], result.points[j]) < 3.0f){
                 finded = true;
                 break;
             }
         }
 
         if(!finded){
-            points[num_points] = t_points[i];
-            d_points[num_points] = t_d_points[i];
-            num_points ++;
+            result.points[result.num_points] = t_points[i];
+            d_points[result.num_points] = t_d_points[i];
+            result.num_points ++;
         }        
     }
 
-    for(int i=0;i<num_points;i++)
-        GUIAddCircleFilled(points[i], 4, vec3_f(0, 0, 0), 0);
+    return result;
+}
 
-    vec2 pos1 = Transform2DGetPosition(&so);
-    vec2 pos2 = Transform2DGetPosition(&so2);
+typedef struct{
+    Point2D collisions;
+    float depths[32];
+} Manfloid2D;
 
-    if(num_points > 0){
+void ResolveCollisions(RigidBody2D *body, Manfloid2D *coll, float dTime){
+    
+    if(!(body->flags & TIGOR_RIGIDBODY_DYNAMIC))
+        return;
 
-        if(fabs(atan2(points[1].y - points[0].y, points[1].x - points[0].x)) > FLT_EPSILON){
-            vec2 dir = v2_muls(v2_norm(v2_sub(pos1, pos2)), 0.45);
-            //pos1 = v2_add(pos1, dir);
-            pos2 = v2_sub(pos2, dir);
+    vec2 normal = vec2_f(0, 1), dir;
 
-            float t_rot = 0;
-            for(int i=0;i<num_points;i++)
-            {
-                t_rot += atan2(pos2.y - points[i].y, pos2.x - points[i].x) * d_points[i] * dTime;
+    char buff[2048];
+    
+    vec2 pos2 = Transform2DGetPosition(body->go);
+    float rot2 = Transform2DGetRotation(body->go);
+    vec2 size = Transform2DGetScale(body->go);
+    
+    Point2D points2 = RigidBodyGetVertices2D(rot2, pos2, Transform2DGetScale(body->go), vec3_f(0, 1, 0));
+
+    if(coll->collisions.num_points > 0){
+        
+        vec2 temp = coll->collisions.points[0];
+        
+        float mass = 1.0f;
+
+        float weight = 1 / mass / 4;
+
+        bool stable = false;
+        if(coll->collisions.num_points  > 1){
+            vec2 p1_norm = v2_norm(v2_sub(pos2, coll->collisions.points[0]));
+            int find = 0;
+            for(int i=1;i<coll->collisions.num_points;i++){
+                temp = v2_add(temp, coll->collisions.points[i]);
+
+                vec2 t_n = v2_norm(v2_sub(pos2, coll->collisions.points[i]));
+
+                float t_d = fabs(v2_dot(p1_norm, t_n));
+                
+                float f_angle = fabs(atan2(coll->collisions.points[0].y - coll->collisions.points[i].y, coll->collisions.points[0].x - coll->collisions.points[i].x));
+
+                if(t_d > 0.9f || f_angle <= FLT_EPSILON){
+                    stable = true;
+                    find = 1;
+                }
+                
+                memset(buff, 0, 256);
+                sprintf(buff, "Point %i angle is : %0.2f | dot is : %0.2f \0", i, f_angle, t_d);
+                GUIAddText(50, 150 + i * 50, vec3_f(1, 1, 1), 9, buff);
+
+
+                if(!find)
+                    break;
+            }
+            
+            temp = v2_divs(temp, coll->collisions.num_points);
+
+            float dist = v2_distance(coll->collisions.points[0], coll->collisions.points[1]);
+            for(int i=0;i<coll->collisions.num_points;i++){
+                for(int j=0;j<coll->collisions.num_points;j++){
+                    if(i == j)
+                        continue;
+
+                    float t_dist =  v2_distance(coll->collisions.points[i], coll->collisions.points[j]);
+
+                    if(dist > t_dist)
+                        dist = t_dist;
+
+                }
             }
 
-            t_rot = t_rot;
+            vec2 n_norm = v2_norm(m2_v2_mult(m2_rotate(rot2), normal));
+            vec2 p_norm = v2_norm(v2_sub(pos2, temp));
 
-            rot -= t_rot;
+            float d_dot = fabs(v2_dot(n_norm, p_norm));
 
-            pos2.x -= t_rot;
+            if(/*d_dot < 0.85f ||*/ dist < size.x / 4.f){
+                stable = false;
+            }else
+            {
+
+                int stable_count = 0;
+                
+                for(int j=0;j<coll->collisions.num_points;j++){
+                    vec2 t_point = v2_sub(pos2, coll->collisions.points[j]);
+                    for(int i=0;i<4;i++){
+                        
+                        vec2 t_point2 = v2_sub(pos2, points2.points[i]);
+                        float f_angle = fabs(atan2(t_point.y - t_point2.y, t_point.x - t_point2.x));
+
+                        if(f_angle < 1.0f){
+                            stable_count ++;
+                        }
+
+                        
+                        memset(buff, 0, 256);
+                        sprintf(buff, "Point %i angle is : %0.2f | dot is : %0.2f \0", i, f_angle, d_dot);
+                        GUIAddText(550, 250 + i * 50, vec3_f(1, 1, 1), 9, buff);
+                    }
+
+                    if(stable_count >= 2)
+                        stable = true;
+                    else{
+                        stable = false;
+                        break;
+                    }
+                }
+            }
+
+        }else{
+            temp = coll->collisions.points[0];
+            stable = false;
         }
-    }else
+
+
+        if(stable)
+        {
+            body->impulse -= 1.0f * dTime;
+
+            if(body->impulse < 0)
+                body->impulse = 0;
+        }
+        
+        if(!stable){
+
+            dir = v2_muls(v2_norm(v2_sub(coll->collisions.points[0], pos2)), 0.15);
+            pos2 = v2_sub(pos2, v2_muls(dir, coll->depths[0]));
+            Transform2DSetPosition(body->go, pos2.x, pos2.y);
+        
+            float g_angle = 0;
+
+            dir = v2_sub(pos2, temp);
+            dir = v2_norm(dir);
+
+            vec2 normal = vec2_f(0, 1);
+      
+            vec2 t_pos2 = pos2;
+
+            if(coll->collisions.num_points == 1){
+
+                last_angle = 0;
+
+                vec2 t_vec = v2_norm(v2_sub(t_pos2, coll->collisions.points[0]));
+                    
+                float ang = atan2(normal.y - t_vec.y, normal.x - t_vec.x);
+                
+                CalcRot(dir, body->go, ang, body->impulse);
+                
+                body->impulse += 0.01f * dTime;
+
+            }else{
+                
+                float f_angle = fabs(atan2(coll->collisions.points[1].y - coll->collisions.points[0].y, coll->collisions.points[1].x - coll->collisions.points[0].x));
+        
+                //if(f_angle > FLT_EPSILON)
+                {                    
+                    last_angle = 0;
+                    for(int i=0;i<4;i++)
+                    {
+                        vec2 t_vec = v2_sub(t_pos2, points2.points[i]);
+                        for(int j=0;j < coll->collisions.num_points;j++)
+                        {
+                            vec2 t_p = v2_sub(t_pos2, coll->collisions.points[j]);
+                            
+                            float ang = atan2(t_vec.y - t_p.y, t_vec.x - t_p.x) * weight;
+                            
+                            CalcRot(dir, body->go, ang, body->impulse);
+                        }
+                    }
+                    
+
+                    float ang = atan2(pos2.y - temp.y, pos2.x - temp.x);
+
+                    body->impulse -= 0.01f * dTime;
+
+                    ang *= 180 / M_PI;
+                    
+                    memset(buff, 0, 256);
+                    sprintf(buff, "Current angle is : %0.2f", ang);
+                    GUIAddText(50, 150, vec3_f(1, 1, 1), 9, buff);
+                }
+            }
+        }
+        
+        if(body->impulse < 0)
+            body->impulse = 0;
+            
+        memset(buff, 0, 256);
+        sprintf(buff, "Is stable : %s \0", stable ? "yes": "not");
+
+        GUIAddText(50, 50, vec3_f(1, 1, 1), 9, buff);
+    }else{
         pos2.y -= grav * dTime;
 
+        rot2 += last_angle * body->impulse;
+        pos2.x -= last_angle * body->impulse;
+        
+        Transform2DSetPosition(body->go, pos2.x, pos2.y);
+        Transform2DSetRotation(body->go, rot2);
+    }
 
-    Transform2DSetPosition(&so, pos1.x, pos1.y);
-    Transform2DSetPosition(&so2, pos2.x, pos2.y);
+
     
-    char buff[256];
+    memset(buff, 0, 256);
+    sprintf(buff, "Intesect is %s", coll->collisions.num_points > 0 ? "intescted" : "not");
 
-    sprintf(buff, "Intesect is %s", num_points > 0 ? "intescted" : "not");
+    GUIAddText(50, 100, vec3_f(1, 1, 1), 9, buff);
+    
+    memset(buff, 0, 2048);
+    float t_ang = atan2(pos2.y - coll->collisions.points[0].y, pos2.x - coll->collisions.points[0].x);
+    sprintf(buff, " Impulse : %.2f | Last angle : %.2f | Point angle : %.2f | Num contacts : %i |\0", body->impulse, last_angle, t_ang, coll->collisions.num_points);
 
-    GUIAddText(100, 100, vec3_f(1, 1, 1), 9, buff);
+    GUIAddText(400, 100, vec3_f(1, 1, 1), 9, buff);
+
+    memset(buff, 0, 2048);
+    sprintf(buff, " Point 0 is : x - %.2f, y - %.2f, Center : x - %.2f, y -%.2f | All : x - %.2f, y - %.2f |\0", coll->collisions.points[0].x, coll->collisions.points[0].y, pos2.x, pos2.y, dir.x, dir.y);
+
+    GUIAddText(400, 150, vec3_f(1, 1, 1), 9, buff);
+
+    if(coll->collisions.num_points > 0){
+        memset(buff, 0, 2048);
+        vec2 point_norm = v2_norm(v2_sub(pos2, coll->collisions.points[0]));
+        sprintf(buff, " Dot product is : %.2f | Point norm : x - %.2f, y - %.2f | \0", v2_dot(normal, point_norm), point_norm.x, point_norm.y);
+        GUIAddText(550, 200, vec3_f(1, 1, 1), 9, buff);
+    }
+}
+
+Manfloid2D CheckOOBOOBCollision(RigidBody2D *body1, RigidBody2D *body2, float dTime){
+    
+    vec2 pos1 = Transform2DGetPosition(body1->go);
+    vec2 pos2 = Transform2DGetPosition(body2->go);
+    float rot1 = Transform2DGetRotation(body1->go);
+    float rot2 = Transform2DGetRotation(body2->go);
+
+    Point2D points1 = RigidBodyGetVertices2D(rot1, pos1, Transform2DGetScale(body1->go), vec3_f(1, 0, 0));
+    Point2D points2 = RigidBodyGetVertices2D(rot2, pos2, Transform2DGetScale(body2->go), vec3_f(0, 1, 0));
+    
+    Manfloid2D result;
+    result.collisions = CheckContact(&points1, &points2, result.depths);
+    
+    return result;
+}
+
+void Update(float dTime){
+    
+    double time = TEngineGetTime();
+
+    float cnst = 256;
+
+    Manfloid2D result;
+    for(int i=0;i < num_bodies;i++){
+        memset(&result, 0, sizeof(Manfloid2D));
+        for(int j=0;j < num_bodies;j++){
+            if(i == j)
+                continue;
+
+            Manfloid2D temp = CheckOOBOOBCollision(&bodies[i], &bodies[j], dTime);
+
+            memcpy(result.collisions.points + result.collisions.num_points, temp.collisions.points, sizeof(vec2) * temp.collisions.num_points);
+            memcpy(result.depths + result.collisions.num_points, temp.depths, sizeof(float) * temp.collisions.num_points);
+            result.collisions.num_points += temp.collisions.num_points;
+        }
+
+        
+        for(int i=0;i < result.collisions.num_points;i++)
+            GUIAddCircleFilled(result.collisions.points[i], 4, vec3_f(0, 0, 0), 0);
+
+        ResolveCollisions(&bodies[i], &result, dTime);
+    }    
 }
 
 
 int main(){
+
+    memset(bodies, 0, sizeof(RigidBody2D) * num_bodies);
 
     TEngineInitSystem(800, 600, "Test");
 
@@ -176,30 +450,40 @@ int main(){
     //dParam.normal = "res\\normal.jpg";
 
     ShapeObjectInit(&so, &dParam, TIGOR_SHAPE_OBJECT_QUAD, NULL);
-    Transform2DSetPosition(&so, 100, 100);    
+    Transform2DSetPosition(&so, 100, 400);    
     Transform2DSetScale(&so, 50, 50);    
 
     ShapeObjectInit(&so2, &dParam, TIGOR_SHAPE_OBJECT_QUAD, NULL);
-    Transform2DSetPosition(&so2, 120, 250);    
+    Transform2DSetPosition(&so2, 140, 250);    
     Transform2DSetScale(&so2, 50, 50);  
-
+    Transform2DSetRotation(&so2, start_rot);  
     
+    ShapeObjectInit(&so3, &dParam, TIGOR_SHAPE_OBJECT_QUAD, NULL);
+    Transform2DSetPosition(&so3, 100, 450);    
+    Transform2DSetScale(&so3, 200, 50);   
+
+    bodies[0].go = &so;
+    bodies[1].go = &so2;
+    bodies[1].flags = TIGOR_RIGIDBODY_DYNAMIC;
+    bodies[2].go = &so3;
+
+    //Camera2DSetPosition(-engine.width / 2, 0);
     while (!TEngineWindowIsClosed())
     {
         TEnginePoolEvents();
 
-        Update(1.0);
+        Update(1.0f);
         
-        Transform2DSetRotate(&so2, rot);  
-
         TEngineDraw(&so);
         TEngineDraw(&so2);
+        TEngineDraw(&so3);
 
         TEngineRender();
     }
     
     GameObjectDestroy((GameObject *)&so);
     GameObjectDestroy((GameObject *)&so2);
+    GameObjectDestroy((GameObject *)&so3);
     
     EngineDeviceWaitIdle();
     

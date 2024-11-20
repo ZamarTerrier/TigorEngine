@@ -47,8 +47,8 @@ vec2 Transform2DGetImageOffset(struct GameObject2D_T* go);
 void Transform2DSetScale(struct GameObject2D_T* go, float x, float y);
 vec2 Transform2DGetScale(struct GameObject2D_T* go);
 void Transform2DRescale(struct GameObject2D_T* go);
-void Transform2DSetRotate(struct GameObject2D_T* go, float angle);
-float Transform2DGetRotate(struct GameObject2D_T* go);
+void Transform2DSetRotation(struct GameObject2D_T* go, float angle);
+float Transform2DGetRotation(struct GameObject2D_T* go);
 
 void Transform3DSetPositionT(Transform3D* transform, float x, float y, float z);
 void Transform3DSetPosition(struct GameObject3D_T* go, float x, float y, float z);
@@ -58,9 +58,9 @@ void Transform3DSetScaleT(Transform3D* transform, float x, float y, float z);
 void Transform3DSetScale(struct GameObject3D_T* go, float x, float y, float z);
 vec3 Transform3DGetScale(struct GameObject3D_T* go);
 
-void Transform3DSetRotateT(Transform3D* transform, float x, float y, float z);
-void Transform3DSetRotate(struct GameObject3D_T* go, float x, float y, float z);
-vec3 Transform3DGetRotate(struct GameObject3D_T* go);
+void Transform3DSetRotationT(Transform3D* transform, float x, float y, float z);
+void Transform3DSetRotation(struct GameObject3D_T* go, float x, float y, float z);
+vec3 Transform3DGetRotation(struct GameObject3D_T* go);
 
 #ifdef __cplusplus
 }

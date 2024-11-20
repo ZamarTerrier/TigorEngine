@@ -8,6 +8,11 @@ typedef enum{
     TIGOR_RIGIDBODY_TYPE_BOX,
 } RigidBodyType;
 
+typedef enum{
+    TIGOR_RIGIDBODY_STATIC = 0x0,
+    TIGOR_RIGIDBODY_DYNAMIC = 0x1,
+} RigidBodyFlags;
+
 typedef struct{
     mat3 orientation;
     vec3 position;

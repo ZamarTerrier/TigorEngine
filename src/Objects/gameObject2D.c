@@ -27,7 +27,7 @@ void GameObject2DTransformBufferUpdate(GameObject2D *go, void *data)
     TransformBuffer tbo;
     tbo.model = m4_transform2D(go->transform.position, go->transform.scale, go->transform.rotation);
     tbo.view = m4_transform2D(v2_muls(cam->position, -1), cam->scale, cam->angle);
-    tbo.proj = m4_ortho(0, engine.width, engine.height, 0, -1.0, 1.0f);
+    tbo.proj = m4_ortho(0, engine.width, 0, engine.height, -1.0, 1.0f);
     
     memcpy(data, &tbo, sizeof(tbo));
 }
@@ -249,8 +249,8 @@ void GameObject2DInitDefaultShader(GameObject2D *go){
     if(go->num_images > 0)
         GameObject2DSetDescriptorTextureCreate(go, num_pack, 2, go->image);
 
-    /*uint32_t flags = BluePrintGetSettingsValue(&go->graphObj.blueprints, num_pack, 3);
-    BluePrintSetSettingsValue(&go->graphObj.blueprints, num_pack, 3, flags | TIGOR_PIPELINE_FLAG_FACE_CLOCKWISE);*/
+    uint32_t flags = BluePrintGetSettingsValue(&go->graphObj.blueprints, num_pack, 3);
+    BluePrintSetSettingsValue(&go->graphObj.blueprints, num_pack, 3, flags | TIGOR_PIPELINE_FLAG_FACE_CLOCKWISE);
 
     /*if(so->type == TIGOR_SHAPE_OBJECT_LINE)
     {
