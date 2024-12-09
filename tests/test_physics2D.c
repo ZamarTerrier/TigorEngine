@@ -27,9 +27,10 @@ Camera3D cam3D;
 ShapeObject so;
 ShapeObject so2;
 ShapeObject so3;
+ShapeObject so4;
 
 RigidBody2D bodies[8];
-uint32_t num_bodies = 3;
+uint32_t num_bodies = 4;
 
 extern TEngine engine;
 
@@ -459,13 +460,19 @@ int main(){
     Transform2DSetRotation(&so2, start_rot);  
     
     ShapeObjectInit(&so3, &dParam, TIGOR_SHAPE_OBJECT_QUAD, NULL);
-    Transform2DSetPosition(&so3, 100, 450);    
-    Transform2DSetScale(&so3, 200, 50);   
+    Transform2DSetPosition(&so3, 100, 500);    
+    Transform2DSetScale(&so3, 200, 50);  
+
+    ShapeObjectInit(&so4, &dParam, TIGOR_SHAPE_OBJECT_QUAD, NULL);
+    Transform2DSetPosition(&so4, 100, 150);    
+    Transform2DSetScale(&so4, 50, 50);   
 
     bodies[0].go = &so;
     bodies[1].go = &so2;
     bodies[1].flags = TIGOR_RIGIDBODY_DYNAMIC;
     bodies[2].go = &so3;
+    bodies[3].go = &so4;
+    bodies[3].flags = TIGOR_RIGIDBODY_DYNAMIC;
 
     //Camera2DSetPosition(-engine.width / 2, 0);
     while (!TEngineWindowIsClosed())
@@ -477,6 +484,7 @@ int main(){
         TEngineDraw(&so);
         TEngineDraw(&so2);
         TEngineDraw(&so3);
+        TEngineDraw(&so4);
 
         TEngineRender();
     }
@@ -484,6 +492,7 @@ int main(){
     GameObjectDestroy((GameObject *)&so);
     GameObjectDestroy((GameObject *)&so2);
     GameObjectDestroy((GameObject *)&so3);
+    GameObjectDestroy((GameObject *)&so4);
     
     EngineDeviceWaitIdle();
     

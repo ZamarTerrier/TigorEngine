@@ -53,6 +53,8 @@ extern TEngine engine;
 
 int GUIFontResizer = 7;
 
+int GUICurrVertexMaxCount = 0, GUICurrIndexMaxCount = 0;
+
 vec2 ArcFastVtx[GUI_DRAWLIST_ARCFAST_TABLE_SIZE];
 uint8_t CircleSegmentCounts[64];
 float CircleSegmentMaxError = 0.3f;
@@ -350,7 +352,22 @@ void GUIManagerCopyVertex(uint32_t vCount, uint32_t iCount){
     
     GUIObj *obj = NULL;
 
-    uint32_t counter = 0;        
+    uint32_t counter = 0;   
+
+    uint32_t vertCount, indxCount;
+
+    GUIManagerGetVertexCount(&vertCount, &indxCount);
+
+    if(GUICurrVertexMaxCount < vertCount){
+        BuffersDestroyBuffer(&gui.vertBuffer);
+        BuffersDestroyBuffer(&gui.indxBuffer);
+
+        GUICurrVertexMaxCount = vertCount;
+        GUICurrIndexMaxCount =  vertCount << 1;
+        
+        BuffersCreate(sizeof(Vertex2D) * GUICurrVertexMaxCount, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, &gui.vertBuffer, TIGOR_BUFFER_ALLOCATE_VERTEX);
+        BuffersCreate(sizeof(uint32_t) * GUICurrIndexMaxCount, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, &gui.indxBuffer, TIGOR_BUFFER_ALLOCATE_INDEX);
+    }     
     
     char *dataV, *dataI;
     vkMapMemory(device->e_device, gui.vertBuffer.memory, 0, sizeof(Vertex2D) * vCount, 0, (void **)&dataV);
@@ -547,8 +564,11 @@ void GUIManagerInit(int default_font){
 
     gui._FringeScale = 1.0f;
 
-    BuffersCreate(sizeof(Vertex2D) * MAX_VERTEX_SIZE, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, &gui.vertBuffer, TIGOR_BUFFER_ALLOCATE_VERTEX);
-    BuffersCreate(sizeof(uint32_t) * MAX_INDEX_SIZE, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, &gui.indxBuffer, TIGOR_BUFFER_ALLOCATE_INDEX);
+    GUICurrVertexMaxCount = MAX_VERTEX_SIZE;
+    GUICurrIndexMaxCount = MAX_INDEX_SIZE;
+
+    BuffersCreate(sizeof(Vertex2D) * GUICurrVertexMaxCount, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, &gui.vertBuffer, TIGOR_BUFFER_ALLOCATE_VERTEX);
+    BuffersCreate(sizeof(uint32_t) * GUICurrIndexMaxCount, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, &gui.indxBuffer, TIGOR_BUFFER_ALLOCATE_INDEX);
 
     GameObject2DInitDraw((GameObject2D *)&gui);
 }

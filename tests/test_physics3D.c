@@ -34,9 +34,9 @@ void Update(float dTime){
     PhysicsUpdate(dTime);
 
     Transform3DSetPosition(&po, rb_box->params.position.x, rb_box->params.position.y, rb_box->params.position.z);
-    Transform3DSetRotate(&po, RAD2DEG(rb_box->params.rotating.x), RAD2DEG(rb_box->params.rotating.y), RAD2DEG(rb_box->params.rotating.z));
+    Transform3DSetRotation(&po, RAD2DEG(rb_box->params.rotating.x), RAD2DEG(rb_box->params.rotating.y), RAD2DEG(rb_box->params.rotating.z));
     Transform3DSetPosition(&po2, rb_box2->params.position.x, rb_box2->params.position.y, rb_box2->params.position.z);
-    Transform3DSetRotate(&po2, RAD2DEG(rb_box2->params.rotating.x), RAD2DEG(rb_box2->params.rotating.y), RAD2DEG(rb_box2->params.rotating.z));
+    Transform3DSetRotation(&po2, RAD2DEG(rb_box2->params.rotating.x), RAD2DEG(rb_box2->params.rotating.y), RAD2DEG(rb_box2->params.rotating.z));
 }
 
 
