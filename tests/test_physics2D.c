@@ -286,6 +286,7 @@ void ResolveCollisions(RigidBody2D *body, Manfloid2D *coll, float dTime){
                 body->impulse = 0;
         }
         
+
         if(!stable){
 
             dir = v2_muls(v2_norm(v2_sub(coll->collisions.points[0], pos2)), 0.15);
@@ -461,11 +462,12 @@ int main(){
     
     ShapeObjectInit(&so3, &dParam, TIGOR_SHAPE_OBJECT_QUAD, NULL);
     Transform2DSetPosition(&so3, 100, 500);    
-    Transform2DSetScale(&so3, 200, 50);  
+    Transform2DSetScale(&so3, 400, 50);  
 
     ShapeObjectInit(&so4, &dParam, TIGOR_SHAPE_OBJECT_QUAD, NULL);
-    Transform2DSetPosition(&so4, 100, 150);    
+    Transform2DSetPosition(&so4, 100, 100);    
     Transform2DSetScale(&so4, 50, 50);   
+    Transform2DSetRotation(&so4, 24);  
 
     bodies[0].go = &so;
     bodies[1].go = &so2;

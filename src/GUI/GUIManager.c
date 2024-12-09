@@ -44,8 +44,8 @@ double GUIRsqrt(double x)          { return 1.0 / sqrt(x); }
 #define GUI_DRAWLIST_CIRCLE_AUTO_SEGMENT_CALC(_RAD,_MAXERROR)    clamp(GUI_ROUNDUP_TO_EVEN((int)ceil(M_PI / acos(1 - min((_MAXERROR), (_RAD)) / (_RAD)))), GUI_DRAWLIST_CIRCLE_AUTO_SEGMENT_MIN, GUI_DRAWLIST_CIRCLE_AUTO_SEGMENT_MAX)
 #define GUI_DRAWLIST_CIRCLE_AUTO_SEGMENT_CALC_R(_N,_MAXERROR)    ((_MAXERROR) / (1 - cos(M_PI / max((float)(_N), M_PI))))
 
-#define MAX_VERTEX_SIZE 4096
-#define MAX_INDEX_SIZE 8192
+#define MAX_VERTEX_SIZE 2048
+#define MAX_INDEX_SIZE 4096
 
 GUIManager gui;
 
@@ -362,8 +362,10 @@ void GUIManagerCopyVertex(uint32_t vCount, uint32_t iCount){
         BuffersDestroyBuffer(&gui.vertBuffer);
         BuffersDestroyBuffer(&gui.indxBuffer);
 
-        GUICurrVertexMaxCount = vertCount;
-        GUICurrIndexMaxCount =  vertCount << 1;
+        while(GUICurrVertexMaxCount < vertCount)
+            GUICurrVertexMaxCount = GUICurrVertexMaxCount << 1;
+
+        GUICurrIndexMaxCount =  GUICurrVertexMaxCount << 1;
         
         BuffersCreate(sizeof(Vertex2D) * GUICurrVertexMaxCount, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, &gui.vertBuffer, TIGOR_BUFFER_ALLOCATE_VERTEX);
         BuffersCreate(sizeof(uint32_t) * GUICurrIndexMaxCount, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, &gui.indxBuffer, TIGOR_BUFFER_ALLOCATE_INDEX);
