@@ -26,7 +26,7 @@ int IntersectionCircleTriangle(vec2 sPos, float r, vec2 p0, vec2 p1, vec2 p2, ve
 int IntersectionCircleCircle(InterCircleParam *o1, InterCircleParam *o2, float *dist, float *depth, vec2 *dir);
 int IntersectionCircleSquare(InterCircleParam *sph, InterSquareParam *box, float *dist, float *depth, vec2 *dir);
 int IntersectionSquareSquare(InterSquareParam *box1, InterSquareParam *box2, float *dist, float *depth, vec2 *dir);
-Manfloid2D IntersectionSquareOOBSquareOOB(GameObject2D *sq1, GameObject2D *sq2);
+Manfloid2D IntersectionSquareOOBSquareOOB(void *sq1, void *sq2);
 int IntersectionTriangleSquare(InterTriangleParam triangle, InterSquareParam *box);
 int IntersectionSphapeSquare(void *obj1, InterSquareParam *square);
 int IntersectionShapeShape(void *obj1, void *obj2);

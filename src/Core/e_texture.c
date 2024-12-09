@@ -297,9 +297,13 @@ int TextureImageCreate(GameObjectImage *image, uint32_t indx, struct BluePrintDe
             FreeMemory(image->path);
 
             image->path = new_path;
+            image->imgWidth = temp_tex->image_data.texWidth;
+            image->imgHeight = temp_tex->image_data.texHeight;
         }else{
             descr->textures[indx] = *temp_tex;
             descr->flags |= TIGOR_BLUE_PRINT_FLAG_LINKED_TEXTURE;
+            image->imgWidth = 126;
+            image->imgHeight = 126;
             return 0;
         }
     }
@@ -350,6 +354,9 @@ int TextureImageCreate(GameObjectImage *image, uint32_t indx, struct BluePrintDe
     BuffersDestroyBuffer(&stagingBuffer);
 
     TextureGenerateMipmaps(&images[engine.DataR.e_var_num_images].texture);
+    
+    image->imgWidth = fileData.texWidth;
+    image->imgHeight = fileData.texHeight;
 
     return 1;
 }

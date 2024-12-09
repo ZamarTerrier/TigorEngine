@@ -98,49 +98,55 @@ add_executable(TestMemory tests/memory_test.c)
 target_link_libraries(TestMemory ${CMAKE_CURRENT_SOURCE_DIR}/${CMAKE_BUILD_TYPE}/libTigorEngine.a Vulkan::Vulkan)
 add_test(NAME Test1
 		COMMAND TestMemory)
-		
-add_executable(TestCreate tests/create_object_test.c)
-target_link_libraries(TestCreate ${CMAKE_CURRENT_SOURCE_DIR}/${CMAKE_BUILD_TYPE}/libTigorEngine.a Vulkan::Vulkan)
+	
+add_executable(TestCreate2D tests/create_2d.c)
+target_link_libraries(TestCreate2D ${CMAKE_CURRENT_SOURCE_DIR}/${CMAKE_BUILD_TYPE}/libTigorEngine.a Vulkan::Vulkan)
 add_test(NAME Test2
-		COMMAND TestCreate)
+		COMMAND TestCreate2D)
+
+add_executable(TestCreate3D tests/create_object_test.c)
+target_link_libraries(TestCreate3D ${CMAKE_CURRENT_SOURCE_DIR}/${CMAKE_BUILD_TYPE}/libTigorEngine.a Vulkan::Vulkan)
+add_test(NAME Test3
+		COMMAND TestCrTestCreate3Deate)
+
 		
 add_executable(TestShaderBuilder tests/shader_builder_test.c)
 target_link_libraries(TestShaderBuilder ${CMAKE_CURRENT_SOURCE_DIR}/${CMAKE_BUILD_TYPE}/libTigorEngine.a Vulkan::Vulkan)
-add_test(NAME Test3
+add_test(NAME Test4
 		COMMAND TestShaderBuilder)
 				
 add_executable(TestGUI tests/test_gui.c)
 target_link_libraries(TestGUI ${CMAKE_CURRENT_SOURCE_DIR}/${CMAKE_BUILD_TYPE}/libTigorEngine.a Vulkan::Vulkan)
-add_test(NAME Test4
+add_test(NAME Test5
 		COMMAND TestGUI)
 		
 add_executable(TestPath tests/file_path_test.c)
 target_link_libraries(TestPath ${CMAKE_CURRENT_SOURCE_DIR}/${CMAKE_BUILD_TYPE}/libTigorEngine.a Vulkan::Vulkan)
-add_test(NAME Test5
+add_test(NAME Test6
 		COMMAND TestPath)
 
 add_executable(TestParticle tests/test_particles.c)
 target_link_libraries(TestParticle ${CMAKE_CURRENT_SOURCE_DIR}/${CMAKE_BUILD_TYPE}/libTigorEngine.a Vulkan::Vulkan)
-add_test(NAME Test6
+add_test(NAME Test7
 		COMMAND TestParticle)
 		
 add_executable(TestModel tests/test_model.c)
 target_link_libraries(TestModel ${CMAKE_CURRENT_SOURCE_DIR}/${CMAKE_BUILD_TYPE}/libTigorEngine.a Vulkan::Vulkan)
-add_test(NAME Test7
+add_test(NAME Test8
 		COMMAND TestModel)
 		
 add_executable(TestTerrain tests/terrain_test.c)
 target_link_libraries(TestTerrain ${CMAKE_CURRENT_SOURCE_DIR}/${CMAKE_BUILD_TYPE}/libTigorEngine.a Vulkan::Vulkan)
-add_test(NAME Test8
+add_test(NAME Test9
 		COMMAND TestTerrain)
 		
 add_executable(TestPhysics2D tests/test_physics2D.c)
 target_link_libraries(TestPhysics2D ${CMAKE_CURRENT_SOURCE_DIR}/${CMAKE_BUILD_TYPE}/libTigorEngine.a Vulkan::Vulkan)
-add_test(NAME Test9
+add_test(NAME Test10
 		COMMAND TestPhysics2D)
 
 add_executable(TestPhysics3D tests/test_physics3D.c)
 target_link_libraries(TestPhysics3D ${CMAKE_CURRENT_SOURCE_DIR}/${CMAKE_BUILD_TYPE}/libTigorEngine.a Vulkan::Vulkan)
-add_test(NAME Test10
+add_test(NAME Test11
 		COMMAND TestPhysics3D)
 

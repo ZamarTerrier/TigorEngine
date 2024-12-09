@@ -53,6 +53,7 @@ void SpriteObjectCreateQuad(SpriteObject *so)
     GraphicsObjectSetVertex(&so->go.graphObj, verts, 4, sizeof(Vertex2D), tIndx, 6, sizeof(uint32_t));
 
     FreeMemory(verts);
+    FreeMemory(tIndx);
 }
 
 int SpriteObjectInit(SpriteObject *so, DrawParam *dParam){
@@ -69,7 +70,7 @@ int SpriteObjectInit(SpriteObject *so, DrawParam *dParam){
 
     if(strlen(dParam->diffuse) != 0)
     {
-        char *full_path = ToolsMakeString(currPath, dParam->normal);
+        char *full_path = ToolsMakeString(currPath, dParam->diffuse);
         
         if(!DirectIsFileExist(full_path)){
             GameObjectDestroy((GameObject *)so);
@@ -100,20 +101,39 @@ void SpriteObjectSetOffsetRect(SpriteObject *so, float x, float y, float width, 
 {
     Vertex2D *verts = so->go.graphObj.shapes[0].vParam.vertices;
 
+    if(so->go.image->imgWidth == 0 || so->go.image->imgHeight == 0){
+        
+        ImageFileData fileData;
+
+        fileData.path = so->go.image->path;
+        fileData.buffer = so->go.image->buffer;
+        fileData.buff_size = so->go.image->size;
+
+        ImageLoadFile(&fileData, 1);
+
+        so->go.image->imgWidth = fileData.texWidth;
+        so->go.image->imgHeight = fileData.texHeight;
+
+        free(fileData.data);
+    }
+
     float temp_x = x / so->go.image->imgWidth;
     float temp_y = y / so->go.image->imgHeight;
+
+    width /= so->go.image->imgWidth;
+    height /= so->go.image->imgHeight;
 
     verts[0].texCoord.x = temp_x;
     verts[0].texCoord.y = temp_y;
 
-    verts[1].texCoord.x = temp_x + width / so->go.image->imgWidth;
+    verts[1].texCoord.x = temp_x + width;
     verts[1].texCoord.y = temp_y;
 
-    verts[2].texCoord.x = temp_x + width / so->go.image->imgWidth;
-    verts[2].texCoord.y = temp_y + height / so->go.image->imgHeight;
+    verts[2].texCoord.x = temp_x + width;
+    verts[2].texCoord.y = temp_y + height;
 
     verts[3].texCoord.x = temp_x;
-    verts[3].texCoord.y = temp_y + height / so->go.image->imgHeight;
+    verts[3].texCoord.y = temp_y + height;
 
     BuffersUpdateVertex((struct VertexParam_T *) &so->go.graphObj.shapes[0].vParam);
 

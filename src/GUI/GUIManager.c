@@ -722,8 +722,9 @@ void GUIAddTextU8(float xpos, float ypos, vec3 color, float font_size, char *tex
     if(!GUIManagerIsInit())
         return;
 
-    uint32_t size = strlen(text);
+    uint32_t size = strlen(text) + 1;
     uint32_t buff[size + 1];
+    memset(buff, 0, size + 1);
 
     //ToolsStringToUInt32(buff, text);
 
