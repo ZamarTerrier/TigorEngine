@@ -3,6 +3,7 @@
 #include "Objects/gameObject2D.h"
 
 #include "math.h"
+#include "float.h"
 
 #include "Data/e_resource_data.h"
 #include "Data/e_resource_engine.h"
@@ -439,6 +440,110 @@ int IntersectionSquareSquare(InterSquareParam *box1, InterSquareParam *box2, flo
     *depth = 0.01f;
 
     return 1;
+}
+
+Point2D GetVertices2D(float rot, vec2 pos, vec2 size, vec3 color){
+	Point2D v;
+    memset(&v, 0, sizeof(Point2D));
+    v.num_points = 4;
+
+    mat2 orr = m2_rotate(rot);
+	const float* o = orr.arr;
+	vec2 A[] = {			// OBB Axis
+		{o[0], o[1]},
+		{o[3], o[4]},
+	};
+	
+	vec2 t1 = v2_muls(A[0], size.x);
+	vec2 t2 = v2_muls(A[1], size.y);
+
+	v.points[0] = v2_add(pos, m2_v2_mult(orr, v2_muls(size, -1)));
+	v.points[1] = v2_add(pos, m2_v2_mult(orr, vec2_f(-size.x, size.y)));
+	v.points[2] = v2_add(pos, m2_v2_mult(orr, vec2_f(size.x, size.y)));
+	v.points[3] = v2_add(pos, m2_v2_mult(orr, vec2_f(size.x, -size.y)));
+
+    for(int i=0; i < 4;i++)
+        GUIAddCircleFilled(v.points[i], 4, color, 0);
+
+    v.center = pos;
+	return v;
+}
+
+Point2D CheckContact(Point2D *a, Point2D *b, float *d_points){
+
+    Point2D result;
+    memset(&result, 0, sizeof(Point2D));
+
+    int res = 0;
+    float t;
+    vec2 t_v;
+    for(int i=0;i<4;i++){
+        for(int j=0;j<4;j++){
+            res = IntersectLineToLine(a->points[i], a->points[i < 3 ? i + 1 : 0], b->points[j], b->points[j < 3 ? j + 1 : 0], &t, &t_v);
+
+            if(res){
+                result.points[result.num_points] = t_v;
+                d_points[result.num_points] = t - FLT_EPSILON;
+                result.num_points ++;
+            }
+        }
+    }
+
+    for(int i=0;i<4;i++){
+        for(int j=0;j<4;j++){
+            res = IntersectLineToLine(b->points[i], b->points[i < 3 ? i + 1 : 0], a->points[j], a->points[j < 3 ? j + 1 : 0], &t, &t_v);
+
+            if(res){
+                result.points[result.num_points] = t_v;
+                d_points[result.num_points] = t - FLT_EPSILON;
+                result.num_points ++;
+            }
+        }
+    }
+
+    vec2 t_points[32];
+    float t_d_points[32];
+    uint32_t t_num_points = result.num_points;
+    result.num_points = 0; 
+    memcpy(t_points, result.points, sizeof(vec2) * 32);
+    memcpy(t_d_points, d_points, sizeof(float) * 32);
+    memset(result.points, 0, sizeof(vec2) * 32);
+    memset(d_points, 0, sizeof(float) * 32);
+
+    int finded = false;
+    for(int i=0;i < t_num_points;i++){
+        finded = false;
+        for(int j=0;j < result.num_points;j++){
+            if(v2_distance(t_points[i], result.points[j]) < 3.0f){
+                finded = true;
+                break;
+            }
+        }
+
+        if(!finded){
+            result.points[result.num_points] = t_points[i];
+            d_points[result.num_points] = t_d_points[i];
+            result.num_points ++;
+        }        
+    }
+
+    return result;
+}
+
+Manfloid2D IntersectionSquareOOBSquareOOB(GameObject2D *sq1, GameObject2D *sq2)
+{
+    vec2 pos1 = Transform2DGetPosition(sq1);
+    vec2 pos2 = Transform2DGetPosition(sq2);
+    float rot1 = Transform2DGetRotation(sq1);
+    float rot2 = Transform2DGetRotation(sq2);
+
+    Point2D points1 = GetVertices2D(rot1, pos1, Transform2DGetScale(sq1), vec3_f(1, 0, 0));
+    Point2D points2 = GetVertices2D(rot2, pos2, Transform2DGetScale(sq2), vec3_f(0, 1, 0));
+    
+    Manfloid2D result;
+    result.collisions = CheckContact(&points1, &points2, result.depths);
+    
+    return result;
 }
 
 int IntersectionTriangleSquare(InterTriangleParam triangle, InterSquareParam *box)

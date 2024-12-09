@@ -38,33 +38,6 @@ extern float RAD2DEG(float x);
 
 float start_rot = 35, grav = -1.0f, last_angle = 0;
 
-Point2D RigidBodyGetVertices2D(float rot, vec2 pos, vec2 size, vec3 color) {
-	Point2D v;
-    memset(&v, 0, sizeof(Point2D));
-    v.num_points = 4;
-
-    mat2 orr = m2_rotate(rot);
-	const float* o = orr.arr;
-	vec2 A[] = {			// OBB Axis
-		{o[0], o[1]},
-		{o[3], o[4]},
-	};
-	
-	vec2 t1 = v2_muls(A[0], size.x);
-	vec2 t2 = v2_muls(A[1], size.y);
-
-	v.points[0] = v2_add(pos, m2_v2_mult(orr, v2_muls(size, -1)));
-	v.points[1] = v2_add(pos, m2_v2_mult(orr, vec2_f(-size.x, size.y)));
-	v.points[2] = v2_add(pos, m2_v2_mult(orr, vec2_f(size.x, size.y)));
-	v.points[3] = v2_add(pos, m2_v2_mult(orr, vec2_f(size.x, -size.y)));
-
-    for(int i=0; i < 4;i++)
-        GUIAddCircleFilled(v.points[i], 4, color, 0);
-
-    v.center = pos;
-	return v;
-}
-
 void CalcRot(vec2 dir, GameObject2D *shape, float ang, float impulse){
 
     float res = ang * impulse;
@@ -87,86 +60,7 @@ void CalcRot(vec2 dir, GameObject2D *shape, float ang, float impulse){
     Transform2DSetRotation(shape, rot);
 }
 
-vec2 FindNear(Point2D points, vec2 point){
-
-    float distance = v2_distance(point, points.points[0]);\
-    vec2 res = points.points[0];
-    for(int i=1;i < points.num_points; i++){
-        
-        if(v2_distance(point, points.points[i]) < distance){
-            res = points.points[i];
-            distance = v2_distance(point, points.points[i]);
-        }
-    }
-
-    return res;
-}
-
-Point2D CheckContact(Point2D *a, Point2D *b, float *d_points){
-
-    Point2D result;
-    memset(&result, 0, sizeof(Point2D));
-
-    int res = 0;
-    float t;
-    vec2 t_v;
-    for(int i=0;i<4;i++){
-        for(int j=0;j<4;j++){
-            res = IntersectLineToLine(a->points[i], a->points[i < 3 ? i + 1 : 0], b->points[j], b->points[j < 3 ? j + 1 : 0], &t, &t_v);
-
-            if(res){
-                result.points[result.num_points] = t_v;
-                d_points[result.num_points] = t - FLT_EPSILON;
-                result.num_points ++;
-            }
-        }
-    }
-
-    for(int i=0;i<4;i++){
-        for(int j=0;j<4;j++){
-            res = IntersectLineToLine(b->points[i], b->points[i < 3 ? i + 1 : 0], a->points[j], a->points[j < 3 ? j + 1 : 0], &t, &t_v);
-
-            if(res){
-                result.points[result.num_points] = t_v;
-                d_points[result.num_points] = t - FLT_EPSILON;
-                result.num_points ++;
-            }
-        }
-    }
-
-    vec2 t_points[32];
-    float t_d_points[32];
-    uint32_t t_num_points = result.num_points;
-    result.num_points = 0; 
-    memcpy(t_points, result.points, sizeof(vec2) * 32);
-    memcpy(t_d_points, d_points, sizeof(float) * 32);
-    memset(result.points, 0, sizeof(vec2) * 32);
-    memset(d_points, 0, sizeof(float) * 32);
-
-    int finded = false;
-    for(int i=0;i < t_num_points;i++){
-        finded = false;
-        for(int j=0;j < result.num_points;j++){
-            if(v2_distance(t_points[i], result.points[j]) < 3.0f){
-                finded = true;
-                break;
-            }
-        }
-
-        if(!finded){
-            result.points[result.num_points] = t_points[i];
-            d_points[result.num_points] = t_d_points[i];
-            result.num_points ++;
-        }        
-    }
-
-    return result;
-}
-
-typedef struct{
-    Point2D collisions;
-    float depths[32];
-} Manfloid2D;
+extern Point2D GetVertices2D(float rot, vec2 pos, vec2 size, vec3 color);
 
 void ResolveCollisions(RigidBody2D *body, Manfloid2D *coll, float dTime){
     
@@ -181,7 +75,7 @@ void ResolveCollisions(RigidBody2D *body, Manfloid2D *coll, float dTime){
     float rot2 = Transform2DGetRotation(body->go);
     vec2 size = Transform2DGetScale(body->go);
     
-    Point2D points2 = RigidBodyGetVertices2D(rot2, pos2, Transform2DGetScale(body->go), vec3_f(0, 1, 0));
+    Point2D points2 = GetVertices2D(rot2, pos2, Transform2DGetScale(body->go), vec3_f(0, 1, 0));
 
     if(coll->collisions.num_points > 0){
         
@@ -392,19 +286,7 @@ void ResolveCollisions(RigidBody2D *body, Manfloid2D *coll, float dTime){
 }
 
 Manfloid2D CheckOOBOOBCollision(RigidBody2D *body1, RigidBody2D *body2, float dTime){
-    
-    vec2 pos1 = Transform2DGetPosition(body1->go);
-    vec2 pos2 = Transform2DGetPosition(body2->go);
-    float rot1 = Transform2DGetRotation(body1->go);
-    float rot2 = Transform2DGetRotation(body2->go);
-
-    Point2D points1 = RigidBodyGetVertices2D(rot1, pos1, Transform2DGetScale(body1->go), vec3_f(1, 0, 0));
-    Point2D points2 = RigidBodyGetVertices2D(rot2, pos2, Transform2DGetScale(body2->go), vec3_f(0, 1, 0));
-    
-    Manfloid2D result;
-    result.collisions = CheckContact(&points1, &points2, result.depths);
-    
-    return result;
+    return IntersectionSquareOOBSquareOOB(body1->go, body2->go);
 }
 
 void Update(float dTime){
