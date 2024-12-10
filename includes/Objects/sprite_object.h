@@ -30,7 +30,12 @@ int SpriteObjectInit(SpriteObject *go, DrawParam *dParam);
 /// @param width - ширина квадрата
 /// @param height - высота квадрата
 void SpriteObjectSetOffsetRect(SpriteObject *so, float x, float y, float width, float height);
-
+/// @brief Проверка на столкновение двух спрайтов
+///     Проверяются два спрайта на столкновение, с учетом их угла поворота.
+/// @param sprite1 - Превый объект спрайта
+/// @param sprite2 - Второй объект спрайта
+/// @return true - если столкновение произошло, false - если столкновения не было
+int SpriteObjectSpritesIsCollided(SpriteObject *sprite1, SpriteObject *sprite2);
 #ifdef __cplusplus
 }
 #endif

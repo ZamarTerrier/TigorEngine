@@ -9,6 +9,7 @@
 #include "Core/e_blue_print.h"
 
 #include "Tools/e_shaders.h"
+#include "Tools/intersections2D.h"
 
 #include "Data/e_resource_data.h"
 #include "Data/e_resource_engine.h"
@@ -137,4 +138,8 @@ void SpriteObjectSetOffsetRect(SpriteObject *so, float x, float y, float width, 
 
     BuffersUpdateVertex((struct VertexParam_T *) &so->go.graphObj.shapes[0].vParam);
 
+}
+
+int SpriteObjectSpritesIsCollided(SpriteObject *sprite1, SpriteObject *sprite2){
+    return IntersectionSquareOOBSquareOOB(sprite1, sprite2).collisions.num_points > 0;
 }
