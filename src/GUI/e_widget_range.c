@@ -34,7 +34,7 @@ int RangeWidgetRelease(EWidget* widget, void* entry, void* args){
 
 int RangeWidgetMove(EWidget* widget, void* entry, void* args){
 
-    vec2 te, te2;
+    vec2 te;
     double xpos, ypos;
 
     EWidgetRange *range = (EWidgetRange *)args;
@@ -48,6 +48,8 @@ int RangeWidgetMove(EWidget* widget, void* entry, void* args){
     int len = range->max - range->min;
 
     vec2 size = range->widget.scale;
+
+    te.x += range_temp.x;
 
     if(te.x < -range->range.scale.x / 2)
         te.x = -range->range.scale.x / 2;

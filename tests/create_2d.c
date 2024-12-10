@@ -43,7 +43,7 @@ int main(){
 
     SpriteObjectInit(&sprite, &dParam);
     Transform2DSetPosition(&sprite, 100, 100);
-    Transform2DSetScale(&sprite, 50, 50);
+    Transform2DSetScale(&sprite, 25, 27);
 
     uint32_t x_offset = 0;
     uint32_t y_offset = 520;
