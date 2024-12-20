@@ -21,6 +21,10 @@
 
 #include "wManager/window_manager.h"
 
+#if defined(__ANDROID__)
+    #include "Core/vulkan_android.h"
+#endif
+
 #define TIGOR_DEFINE_NON_DISPATCHABLE_HANDLE(object) typedef struct object##_T *object;
 
 #define MAX_FONTS 256

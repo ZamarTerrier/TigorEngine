@@ -22,6 +22,7 @@ extern TEngine engine;
 void querySwapChainSupport(VkPhysicalDevice device, SwapChainSupportDetails* details) {
     TWindow *window = (TWindow *)engine.window;
 
+#ifndef __ANDROID__
     vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, window->surface, (VkSurfaceCapabilitiesKHR  *)&details->capabilities);
 
     vkGetPhysicalDeviceSurfaceFormatsKHR(device, window->surface, &details->sizeFormats, NULL);
@@ -37,7 +38,7 @@ void querySwapChainSupport(VkPhysicalDevice device, SwapChainSupportDetails* det
         details->presentModes = (VkPresentModeKHR*) AllocateMemory(details->sizeModes, sizeof(VkPresentModeKHR));
         vkGetPhysicalDeviceSurfacePresentModesKHR(device, window->surface, &details->sizeModes, details->presentModes);
     }
-
+#endif
 }
 
 EDSurfaceFormatKHR chooseSwapSurfaceFormat(const EDSurfaceFormatKHR* availableFormats, uint32_t sizeFormats) {
@@ -163,12 +164,14 @@ void RecreateSwapChain() {
     TWindow *window = (TWindow *)engine.window;
     TDevice *device = (TDevice *)engine.device;
 
+#ifndef __ANDROID__
     wManagerGetFramebufferSize(window->e_window, &engine.width, &engine.height);
 
     while (engine.width == 0 || engine.height == 0) {
         wManagerGetFramebufferSize(window->e_window, &engine.width, &engine.height);
         wManagerWaitEvents();
     }
+#endif
 
     engine.diffSize.x =  1;
     engine.diffSize.y =  1;

@@ -2,7 +2,9 @@
 
 #include <vulkan/vulkan.h>
 
+#ifndef __ANDROID__
 #include <direct.h>
+#endif
 
 #include "wManager/window_manager.h"
 

@@ -5,7 +5,10 @@
 char* DirectGetCurrectFilePath(){
     
     char *currPath = (char *)AllocateMemory(256, sizeof(char));
+
+#ifndef __ANDROID__
 	_getcwd(currPath, 256);
+#endif
 
     return currPath;
 }

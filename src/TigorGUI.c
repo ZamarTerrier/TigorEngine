@@ -162,7 +162,7 @@ void GUIAddEllipse(vec2 center, const vec2 radius, vec3 col, float rot, int num_
         center.y /= engine.height; 
 
     if (num_segments <= 0)
-        num_segments = _CalcCircleAutoSegmentCount(max(radius.x, radius.y)); // A bit pessimistic, maybe there's a better computation to do here.
+        num_segments = _CalcCircleAutoSegmentCount(e_max(radius.x, radius.y)); // A bit pessimistic, maybe there's a better computation to do here.
 
     // Because we are filling a closed shape we remove 1 from the count of segments/points
     const float a_max = M_PI * 2.0f * ((float)num_segments - 1.0f) / (float)num_segments;
@@ -173,7 +173,7 @@ void GUIAddEllipse(vec2 center, const vec2 radius, vec3 col, float rot, int num_
 void GUIAddEllipseFilled(vec2 center, const vec2 radius, vec3 col, float rot, int num_segments){
     
     if (num_segments <= 0)
-        num_segments = _CalcCircleAutoSegmentCount(max(radius.x, radius.y)); // A bit pessimistic, maybe there's a better computation to do here.
+        num_segments = _CalcCircleAutoSegmentCount(e_max(radius.x, radius.y)); // A bit pessimistic, maybe there's a better computation to do here.
 
     // Because we are filling a closed shape we remove 1 from the count of segments/points
     const float a_max = M_PI * 2.0f * ((float)num_segments - 1.0f) / (float)num_segments;

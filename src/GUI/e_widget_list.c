@@ -1,4 +1,5 @@
 #include "GUI/e_widget_list.h"
+#include "GUI/GUIManager.h"
 
 #include "Tools/e_math.h"
 

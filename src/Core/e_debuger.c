@@ -16,9 +16,7 @@ uint32_t CreateDebugUtilsMessengerEXT(void* arg, const EdDebugUtilsMessengerCrea
     VkInstance *instance = arg;
     VkDebugUtilsMessengerEXT* pDebugMessenger = (struct VkDebugUtilsMessengerEXT_t **) messenger;
 
-    int (*func1)(VkInstance, const VkDebugUtilsMessengerCreateInfoEXT*, const EdAllocationCallbacks*, VkDebugUtilsMessengerEXT*);
-
-    func1 = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
+    PFN_vkCreateDebugUtilsMessengerEXT func1 = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
     if (func1 != NULL) {
         return func1((VkInstance)instance, pCreateInfo, pAllocator, pDebugMessenger);
     } else {
@@ -30,9 +28,7 @@ void DestroyDebugUtilsMessengerEXT(void* arg, void* debugMessenger, const EdAllo
 
     VkInstance *instance = arg;
 
-    int (*func2)(VkInstance, VkDebugUtilsMessengerEXT, const VkAllocationCallbacks*);
-
-    func2 = (PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
+    PFN_vkDestroyDebugUtilsMessengerEXT func2 = (PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
     if (func2 != NULL) {
         func2((VkInstance)instance, debugMessenger, pAllocator);
     }

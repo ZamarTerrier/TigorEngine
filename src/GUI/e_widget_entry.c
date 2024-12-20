@@ -1,4 +1,5 @@
 #include "GUI/e_widget_entry.h"
+#include "GUI/GUIManager.h"
 
 #include "Core/e_window.h"
 
@@ -40,6 +41,33 @@ int EntryWidgetCharInput(EWidget* widget, uint32_t codepoint, void *arg){
     }
 
     return 0;
+}
+
+void EntryWidgetMakeBackspace(EWidgetEntry *temp){
+    temp->text[temp->currPos] = 0;
+
+    temp->currPos--;
+
+    if(temp->currPos < 0)
+    {
+        temp->currPos = 0;
+    }
+
+
+    if(e_ctrl_press){
+        while(temp->text[temp->currPos] != ' ' && temp->currPos > 0){
+            temp->text[temp->currPos] = 0;
+
+            temp->currPos--;
+        }
+    }else if(temp->text[temp->currPos] < 0)
+    {
+        temp->text[temp->currPos] = 0;
+
+        temp->currPos--;
+    }
+
+    temp->text[temp->currPos] = '|';
 }
 
 int EntryWidgetKeyPressInput(EWidget* widget, int key, void *arg){
@@ -104,33 +132,6 @@ int EntryWidgetKeyPressInput(EWidget* widget, int key, void *arg){
     return 0;
 }
 
-void EntryWidgetMakeBackspace(EWidgetEntry *temp){
-    temp->text[temp->currPos] = 0;
-
-    temp->currPos--;
-
-    if(temp->currPos < 0)
-    {
-        temp->currPos = 0;
-    }
-
-        
-    if(e_ctrl_press){
-        while(temp->text[temp->currPos] != ' ' && temp->currPos > 0){
-            temp->text[temp->currPos] = 0;
-
-            temp->currPos--;
-        }
-    }else if(temp->text[temp->currPos] < 0)
-    {
-        temp->text[temp->currPos] = 0;
-
-        temp->currPos--;
-    }
-        
-    temp->text[temp->currPos] = '|';
-}
-
 int EntryWidgetKeyRepeatInput(EWidget* widget, int key, void *arg){
     EWidgetEntry *temp = (EWidgetEntry *)widget;
 
@@ -174,11 +175,11 @@ void EntryWidgetKeyCallback(void* arg,  int key, int scancode, int action, int m
     }
 
     if(action == TIGOR_PRESS)
-        WidgetConfirmTrigger(engine.e_var_current_entry, TIGOR_WIDGET_TRIGGER_ENTRY_KEY_PRESS_INPUT, key);
+        WidgetConfirmTrigger(engine.e_var_current_entry, TIGOR_WIDGET_TRIGGER_ENTRY_KEY_PRESS_INPUT, (void *)key);
     else if(action == TIGOR_REPEAT)
-        WidgetConfirmTrigger(engine.e_var_current_entry, TIGOR_WIDGET_TRIGGER_ENTRY_KEY_REPEAT_INPUT, key);
+        WidgetConfirmTrigger(engine.e_var_current_entry, TIGOR_WIDGET_TRIGGER_ENTRY_KEY_REPEAT_INPUT, (void *)key);
     else if(action == TIGOR_RELEASE)
-        WidgetConfirmTrigger(engine.e_var_current_entry, TIGOR_WIDGET_TRIGGER_ENTRY_KEY_RELEASE_INPUT, key);
+        WidgetConfirmTrigger(engine.e_var_current_entry, TIGOR_WIDGET_TRIGGER_ENTRY_KEY_RELEASE_INPUT, (void *)key);
 }
 
 void EntryWidgetCharacterCallback(void* arg, uint32_t codepoint)
@@ -186,7 +187,7 @@ void EntryWidgetCharacterCallback(void* arg, uint32_t codepoint)
     if(engine.e_var_current_entry == NULL)
             return;
 
-    WidgetConfirmTrigger(engine.e_var_current_entry, TIGOR_WIDGET_TRIGGER_ENTRY_CHAR_INPUT, codepoint);
+    WidgetConfirmTrigger(engine.e_var_current_entry, TIGOR_WIDGET_TRIGGER_ENTRY_CHAR_INPUT, (void *)codepoint);
 
 }
 
@@ -287,8 +288,8 @@ void EntryWidgetInit(EWidgetEntry *entry, vec2 scale, EWidget *parent){
     WidgetConnect(entry, TIGOR_WIDGET_TRIGGER_MOUSE_PRESS, EntryWidgetPress, NULL);
     WidgetConnect(entry, TIGOR_WIDGET_TRIGGER_WIDGET_UNFOCUS, EntryWidgetUnfocus, NULL);
 
-    WidgetConnect(entry, TIGOR_WIDGET_TRIGGER_ENTRY_CHAR_INPUT, EntryWidgetCharInput, NULL);
-    WidgetConnect(entry, TIGOR_WIDGET_TRIGGER_ENTRY_KEY_PRESS_INPUT, EntryWidgetKeyPressInput, NULL);
-    WidgetConnect(entry, TIGOR_WIDGET_TRIGGER_ENTRY_KEY_REPEAT_INPUT, EntryWidgetKeyRepeatInput, NULL);
+    WidgetConnect(entry, TIGOR_WIDGET_TRIGGER_ENTRY_CHAR_INPUT, (widget_callback )EntryWidgetCharInput, NULL);
+    WidgetConnect(entry, TIGOR_WIDGET_TRIGGER_ENTRY_KEY_PRESS_INPUT, (widget_callback )EntryWidgetKeyPressInput, NULL);
+    WidgetConnect(entry, TIGOR_WIDGET_TRIGGER_ENTRY_KEY_REPEAT_INPUT, (widget_callback )EntryWidgetKeyRepeatInput, NULL);
 
 }

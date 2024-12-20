@@ -1,5 +1,6 @@
 #include "GUI/e_widget_scroll.h"
 #include "GUI/e_widget_list.h"
+#include "GUI/GUIManager.h"
 
 #include "TigorEngine.h"
 

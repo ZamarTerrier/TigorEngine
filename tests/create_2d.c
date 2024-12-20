@@ -50,7 +50,7 @@ int main(){
 
     float timer = 1.0f, degreaser = 10;
 
-    RangeWidgetInit(&range, vec2_f(100, 30), 1, 100, NULL);
+    RangeWidgetInit(&range, vec2_f(100, 30), 10, 100, NULL);
     WidgetSetPosition(&range, 400, 300);
     RangeWidgetSetValueDestin(&range, &degreaser);
 

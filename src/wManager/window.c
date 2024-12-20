@@ -4,6 +4,8 @@
 
 #include "Data/e_resource_engine.h"
 
+#ifndef __ANDROID__
+
 extern wManagerWindow _wMWindow;
 
 void _wManagerInputWindowDamage(wManagerWindow* window)
@@ -61,4 +63,4 @@ void _wManagerInputWindowMonitor(wManagerWindow* window, _wManagerMonitor* monit
 {
     window->monitor = monitor;
 }
-
+#endif

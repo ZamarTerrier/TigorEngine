@@ -3,6 +3,7 @@
 
 #include "window_manager.h"
 
+#ifndef __ANDROID__
 void _wManagerInputKey(wManagerWindow* window, int key, int scancode, int action, int mods);
 void _wManagerInputChar(wManagerWindow* window, uint32_t codepoint, int mods, int32_t plain);
 
@@ -13,5 +14,6 @@ void _wManagerInputMouseClick(wManagerWindow* window, int button, int action, in
 void _wManagerInputScroll(wManagerWindow* window, double xoffset, double yoffset);
 
 void _wManagerInputDrop(wManagerWindow* window, int count, const char** paths);
+#endif
 
 #endif // INPUT_MANAGER_H

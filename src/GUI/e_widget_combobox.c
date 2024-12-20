@@ -1,4 +1,5 @@
 #include "GUI/e_widget_combobox.h"
+#include "GUI/GUIManager.h"
 
 int ComboboxWidgetPressMain(EWidget* widget, void* entry, void *arg){
 

@@ -41,8 +41,8 @@ double GUIRsqrt(double x)          { return 1.0 / sqrt(x); }
 #define GUI_ROUNDUP_TO_EVEN(_V)                                  ((((_V) + 1) / 2) * 2)
 #define GUI_DRAWLIST_CIRCLE_AUTO_SEGMENT_MIN                     4
 #define GUI_DRAWLIST_CIRCLE_AUTO_SEGMENT_MAX                     512
-#define GUI_DRAWLIST_CIRCLE_AUTO_SEGMENT_CALC(_RAD,_MAXERROR)    clamp(GUI_ROUNDUP_TO_EVEN((int)ceil(M_PI / acos(1 - min((_MAXERROR), (_RAD)) / (_RAD)))), GUI_DRAWLIST_CIRCLE_AUTO_SEGMENT_MIN, GUI_DRAWLIST_CIRCLE_AUTO_SEGMENT_MAX)
-#define GUI_DRAWLIST_CIRCLE_AUTO_SEGMENT_CALC_R(_N,_MAXERROR)    ((_MAXERROR) / (1 - cos(M_PI / max((float)(_N), M_PI))))
+#define GUI_DRAWLIST_CIRCLE_AUTO_SEGMENT_CALC(_RAD,_MAXERROR)    clamp(GUI_ROUNDUP_TO_EVEN((int)ceil(M_PI / acos(1 - e_min((_MAXERROR), (_RAD)) / (_RAD)))), GUI_DRAWLIST_CIRCLE_AUTO_SEGMENT_MIN, GUI_DRAWLIST_CIRCLE_AUTO_SEGMENT_MAX)
+#define GUI_DRAWLIST_CIRCLE_AUTO_SEGMENT_CALC_R(_N,_MAXERROR)    ((_MAXERROR) / (1 - cos(M_PI / e_max((float)(_N), M_PI))))
 
 #define MAX_VERTEX_SIZE 2048
 #define MAX_INDEX_SIZE 4096
@@ -208,7 +208,7 @@ void PathArcTo(const vec2 center, float radius, float a_min, float a_max, int nu
 
         const int a_min_sample = a_is_reverse ? (int)floor(a_min_sample_f) : (int)ceil(a_min_sample_f);
         const int a_max_sample = a_is_reverse ? (int)ceil(a_max_sample_f) : (int)floor(a_max_sample_f);
-        const int a_mid_samples = a_is_reverse ? max(a_min_sample - a_max_sample, 0) : max(a_max_sample - a_min_sample, 0);
+        const int a_mid_samples = a_is_reverse ? e_max(a_min_sample - a_max_sample, 0) : e_max(a_max_sample - a_min_sample, 0);
 
         const float a_min_segment_angle = a_min_sample * M_PI * 2.0f / GUI_DRAWLIST_ARCFAST_SAMPLE_MAX;
         const float a_max_segment_angle = a_max_sample * M_PI * 2.0f / GUI_DRAWLIST_ARCFAST_SAMPLE_MAX;
@@ -234,7 +234,7 @@ void PathArcTo(const vec2 center, float radius, float a_min, float a_max, int nu
     {
         const float arc_length = abs(a_max - a_min);
         const int circle_segment_count = _CalcCircleAutoSegmentCount(radius);
-        const int arc_segment_count = max((int)ceil(circle_segment_count * arc_length / (M_PI * 2.0f)), (int)(2.0f * M_PI / arc_length));
+        const int arc_segment_count = e_max((int)ceil(circle_segment_count * arc_length / (M_PI * 2.0f)), (int)(2.0f * M_PI / arc_length));
         _PathArcToN(center, radius, a_min, a_max, arc_segment_count);
     }
 }
@@ -260,7 +260,7 @@ void PathArcToFast(vec2 center, float radius, int a_min_of_12, int a_max_of_12)
 void PathEllipticalArcTo(const vec2 center, const vec2 radius, float rot, float a_min, float a_max, int num_segments)
 {
     if (num_segments <= 0)
-        num_segments = _CalcCircleAutoSegmentCount(max(radius.x, radius.y)); // A bit pessimistic, maybe there's a better computation to do here.
+        num_segments = _CalcCircleAutoSegmentCount(e_max(radius.x, radius.y)); // A bit pessimistic, maybe there's a better computation to do here.
 
     const float cos_rot = cos(rot);
     const float sin_rot = sin(rot);
@@ -1137,8 +1137,8 @@ void PathRect(vec2 a, vec2 b, float rounding, uint32_t flags){
     if (rounding >= 0.5f)
     {
         flags = FixRectCornerFlags(flags);
-        rounding = min(rounding, fabs(b.x - a.x) * (((flags & GUIDrawFlags_RoundCornersTop) == GUIDrawFlags_RoundCornersTop) || ((flags & GUIDrawFlags_RoundCornersBottom) == GUIDrawFlags_RoundCornersBottom) ? 0.5f : 1.0f) - 1.0f);
-        rounding = min(rounding, fabs(b.y - a.y) * (((flags & GUIDrawFlags_RoundCornersLeft) == GUIDrawFlags_RoundCornersLeft) || ((flags & GUIDrawFlags_RoundCornersRight) == GUIDrawFlags_RoundCornersRight) ? 0.5f : 1.0f) - 1.0f);
+        rounding = e_min(rounding, fabs(b.x - a.x) * (((flags & GUIDrawFlags_RoundCornersTop) == GUIDrawFlags_RoundCornersTop) || ((flags & GUIDrawFlags_RoundCornersBottom) == GUIDrawFlags_RoundCornersBottom) ? 0.5f : 1.0f) - 1.0f);
+        rounding = e_min(rounding, fabs(b.y - a.y) * (((flags & GUIDrawFlags_RoundCornersLeft) == GUIDrawFlags_RoundCornersLeft) || ((flags & GUIDrawFlags_RoundCornersRight) == GUIDrawFlags_RoundCornersRight) ? 0.5f : 1.0f) - 1.0f);
     }
 
     if (rounding < 0.5f || (flags & GUIDrawFlags_RoundCornersMask_) == GUIDrawFlags_RoundCornersNone)

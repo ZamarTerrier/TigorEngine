@@ -12,6 +12,7 @@
 #include "Objects/light_object.h"
 
 #include "GUI/GUIManager.h"
+#include "GUI/e_widget_entry.h."
 
 #include "wManager/window_manager.h"
 
@@ -23,7 +24,11 @@ TEngine engine;
 
 extern bool enableValidationLayers;
 
-void EngineCharacterCallback(wManagerWindow* window, uint32_t codepoint)
+#ifdef __ANDROID__
+    extern struct android_app *androidApp;
+#endif
+
+void EngineCharacterCallback(void* window, uint32_t codepoint)
 {
     EntryWidgetCharacterCallback(window, codepoint);
 
@@ -31,7 +36,7 @@ void EngineCharacterCallback(wManagerWindow* window, uint32_t codepoint)
         engine.func.charCallbacks[i](window, codepoint);
 }
 
-void EngineKeyCallback(wManagerWindow* window,  unsigned int key, unsigned int scancode, unsigned int action, unsigned int mods)
+void EngineKeyCallback(void* window,  unsigned int key, unsigned int scancode, unsigned int action, unsigned int mods)
 {
     EntryWidgetKeyCallback(window, key, scancode, action, mods);
 
@@ -85,8 +90,11 @@ void TEngineInitSystem(int width, int height, const char* name){
     EngineInitVulkan();
     
     TWindow *window = (TWindow *)engine.window;
+
+#ifndef __ANDROID__
     wManagerSetCharCallback(window->e_window, EngineCharacterCallback);
     wManagerSetKeyCallback(window->e_window, EngineKeyCallback);
+#endif
     
     char *text = "Null texture";
     engine_buffered_image *images = engine.DataR.e_var_images;
@@ -108,6 +116,12 @@ void TEngineInitSystem(int width, int height, const char* name){
 
     GUIManagerInit(true);
 }
+
+#ifdef __ANDROID__
+void EngineHandleAppCommand(struct android_app * app, int32_t cmd){
+
+}
+#endif
 
 void TEngineSetRender(void *obj, uint32_t count)
 {
@@ -308,7 +322,9 @@ void TEngineDraw(GameObject *go){
 }
 
 void TEnginePoolEvents(){
+#ifndef __ANDROID__
     wManagerPoolEvents();
+#endif
 }
 
 void TEngineSetKeyCallback(void *callback){
@@ -328,13 +344,17 @@ void TEngineSetCharCallback(void *callback){
 void TEngineSetMouseKeyCallback(void *callback){
     TWindow *window = (TWindow *)engine.window;
 
+#ifndef __ANDROID__
     wManagerSetMouseButtonCallback(window->e_window, callback);
+#endif
 }
 
 void TEngineSetCursorPoscallback(void * callback){
     TWindow *window = (TWindow *)engine.window;
 
+#ifndef __ANDROID__
     wManagerSetCursorPosCallback(window->e_window, callback);
+#endif
 }
 
 void TEngineGetWindowSize(int *width, int *height){
@@ -346,24 +366,31 @@ void TEngineGetWindowSize(int *width, int *height){
 void TEngineFixedCursorCenter(){
     TWindow *window = (TWindow *)engine.window;
 
+#ifndef __ANDROID__
     wManagerSetCursorPos(window->e_window, engine.width / 2, engine.height / 2);
+#endif
 }
 
 void TEngineGetCursorPos(double *xpos, double *ypos){
     TWindow *window = (TWindow *)engine.window;
 
+#ifndef __ANDROID__
     wManagerGetCursorPos(window->e_window, xpos, ypos);
+#endif
 }
 
 void TEngineSetCursorPos(float xpos, float ypos){
     TWindow *window = (TWindow *)engine.window;
 
+#ifndef __ANDROID__
     wManagerSetCursorPos(window->e_window, xpos, ypos);
+#endif
 }
 
 void TEngineHideCursor(char state){
     TWindow *window = (TWindow *)engine.window;
 
+#ifndef __ANDROID__
     switch(state){
         case 0 :
             wManagerSetInputMode(window->e_window, TIGOR_CURSOR, TIGOR_CURSOR_DISABLED);
@@ -375,42 +402,71 @@ void TEngineHideCursor(char state){
             wManagerSetInputMode(window->e_window, TIGOR_CURSOR, TIGOR_CURSOR_NORMAL);
             break;
     }
+#endif
 }
 
 int TEngineGetMousePress(int Key){
     TWindow *window = (TWindow *)engine.window;
 
-    int state = wManagerGetMouseButton(window->e_window, Key);
+    int state = 0;
+
+#ifndef __ANDROID__
+    state = wManagerGetMouseButton(window->e_window, Key);
+#endif
 
     return state;
 }
 
 int TEngineWindowIsClosed(){
-    return wManagerWindowIsClosed();
+    int state = 0;
+
+#ifndef __ANDROID__
+    state = wManagerWindowIsClosed();
+#endif
+
+    return state;
 }
 
 double TEngineGetTime(){
-    return wManagerGetTime();
+    int state = 0;
+
+#ifndef __ANDROID__
+    state =  wManagerGetTime();
+#endif
+
+    return state;
 }
 
 int TEngineGetKeyPress(int Key){
     TWindow *window = (TWindow *)engine.window;
 
-    int res = wManagerGetKey(window->e_window, Key);
+    int state = 0;
 
-    return res;
+#ifndef __ANDROID__
+    state =  wManagerGetKey(window->e_window, Key);
+#endif
+
+    return state;
 }
 
 const char *TEngineGetClipBoardString(){
     TWindow *window = (TWindow *)engine.window;
 
-    return wManagerGetClipboardString(window->e_window);
+    char *state = 0;
+
+#ifndef __ANDROID__
+    state = wManagerGetClipboardString(window->e_window);
+#endif
+
+    return state;
 }
 
 void TEngineSetClipBoardString(const char *string){
     TWindow *window = (TWindow *)engine.window;
 
+#ifndef __ANDROID__
     wManagerSetClipboardString(window->e_window, string);
+#endif
 }
 
 void TEngineSetFont(char *font_path){
@@ -517,9 +573,11 @@ void TEngineCleanUp(){
 
     vkDestroyInstance(window->instance, NULL);
 
+#ifndef __ANDROID__
     wManagerDestroyWindow(window->e_window);
 
     wManagerTerminate();
+#endif
 
     FreeMemory(engine.window);
     FreeMemory(engine.device);

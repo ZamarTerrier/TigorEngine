@@ -43,7 +43,11 @@ bool checkValidationLayerSupport(){
 
 const char** getRequiredExtensions(){
 
-    const char** extensions = wManagerGetRequiredInstanceExtensions(&engine.wManagerExtensionCount);
+    const char** extensions;
+
+#ifndef __ANDROID__
+    extensions = wManagerGetRequiredInstanceExtensions(&engine.wManagerExtensionCount);
+#endif
 
     if(enableValidationLayers)
         engine.wManagerExtensionCount ++;
@@ -65,6 +69,7 @@ const char** getRequiredExtensions(){
 void InitWindow(){
     TWindow *window = (TWindow *)engine.window;
 
+#ifndef __ANDROID__
     wManagerInit();
     //wManagerWindowHint(TIGOR_RESIZABLE, false);
     if(!wManagerCreateWindow(window->e_window, engine.width, engine.height, engine.app_name)){
@@ -74,7 +79,7 @@ void InitWindow(){
     }
 
     wManagerSetFramebufferSizeCallback(window->e_window, (wManagerFrameBufferSizeFun)framebufferResizeCallback);
-
+#endif
 }
 
 static void framebufferResizeCallback(void* window, int width, int height) {
@@ -139,10 +144,12 @@ void createInstance(){
 void createSurface() {
     TWindow *window = (TWindow *)engine.window;
 
+#ifndef __ANDROID__
     if (wManagerCreateWindowSurface(window->instance, window->e_window, NULL, (VkSurfaceKHR *) &window->surface) != VK_SUCCESS) {
         printf("failed to create window surface!");
         exit(1);
     }
+#endif
 }
 
 vec2 getWindowSize()

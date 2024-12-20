@@ -1,6 +1,15 @@
 #ifndef WINDOW_MANAGER_H
 #define WINDOW_MANAGER_H
 
+#include <stdint.h>
+
+#include "key_defines.h"
+
+typedef void (*e_charCallback)(void *, uint32_t);
+typedef void (*e_keyCallback)(void *, int , int , int , int );
+
+#ifndef __ANDROID__
+
 #include "manager_includes.h"
 
 #include "win_defines.h"
@@ -10,7 +19,6 @@
 
 #define WINPARAM void*
 
-#include <stdint.h>
 
 typedef void (*wManagerMonitorFun)(_wManagerMonitor* monitor, int event);
 
@@ -32,10 +40,6 @@ typedef void (*wManagerDropFun)(wManagerWindow* window, int path_count, const ch
 typedef void (*wManagerWindowSizeFunc)(wManagerWindow *window, int32_t width, int32_t height);
 typedef void (*wManagerWindowContentScaleFun)(wManagerWindow* window, float xscale, float yscale);
 typedef void (*wManagerFrameBufferSizeFun)(wManagerWindow* window, int32_t width, int32_t height);
-
-typedef void (*e_charCallback)(wManagerWindow *, uint32_t);
-typedef void (*e_keyCallback)(wManagerWindow *, int , int , int , int );
-
 
 typedef struct wManagerWindow{
 
@@ -189,5 +193,7 @@ void wManagerWaitEvents();
 void WManagerWaitEventsTimeout(double timeout);
 
 void wManagerTerminate();
+
+#endif
 
 #endif // WINDOW_MANAGER_H

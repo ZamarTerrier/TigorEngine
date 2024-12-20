@@ -1,6 +1,7 @@
 #include "wManager/window_manager.h"
 #include "wManager/x11_defines.h"
 
+#ifndef __ANDROID__
 extern wManagerWindow _wMWindow;
 
 void _wManagerPollMonitorsX11(void)
@@ -129,3 +130,4 @@ void _wManagerPollMonitorsX11(void)
                           _TIGOR_INSERT_FIRST);
     }*/
 }
+#endif

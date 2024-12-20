@@ -1,4 +1,5 @@
 #include "GUI/e_widget_button.h"
+#include "GUI/GUIManager.h"
 
 #include "TigorGUI.h"
 

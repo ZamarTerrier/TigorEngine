@@ -15,7 +15,7 @@ typedef struct{
     void* instance;
     void* surface;
 
-    wManagerWindow *e_window;
+    void *e_window;
 
 } TWindow;
 

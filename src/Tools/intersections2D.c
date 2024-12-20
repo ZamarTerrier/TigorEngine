@@ -2,6 +2,8 @@
 
 #include "Objects/gameObject2D.h"
 
+#include "TigorGUI.h"
+
 #include "math.h"
 #include "float.h"
 

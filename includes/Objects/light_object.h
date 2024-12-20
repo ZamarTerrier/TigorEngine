@@ -51,4 +51,6 @@ float LightObjectGetOutCutOff(LightObject *light);
 void LightObjectSetRadius(LightObject *light, float radius);
 float LightObjectGetRadius(LightObject *light);
 
+void LightObjectClear();
+
 #endif //LIGHT_OBJECT_H

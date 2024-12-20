@@ -1314,7 +1314,9 @@ void ToolsCopyImageToBuffer(void *buffer, void *image, uint32_t width, uint32_t 
     region.bufferRowLength = 0;
     region.bufferImageHeight = 0;
 
+#ifndef __ANDROID__
     vkCmdCopyImageToBuffer(commandBuffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, buffer, 1, &region);
+#endif
 
     endSingleTimeCommands(commandBuffer);
 }

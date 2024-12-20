@@ -1,4 +1,5 @@
 #include "GUI/e_widget_roller.h"
+#include "GUI/GUIManager.h"
 
 #include "TigorGUI.h"
 #include "TigorEngine.h"

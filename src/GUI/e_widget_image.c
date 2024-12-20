@@ -1,4 +1,5 @@
 #include <GUI/e_widget_image.h>
+#include "GUI/GUIManager.h"
 
 #include "Objects/gameObject2D.h"
 

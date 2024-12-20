@@ -12,9 +12,9 @@ void ShadersMakeDefault2DShader(ShaderBuilder *vert, ShaderBuilder *frag, bool h
         ShaderBuilderInit(vert, SHADER_TYPE_VERTEX);
 
         ShaderStructConstr uniform_arr[] = {
-            {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "model", NULL, 0, NULL},
-            {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "view", NULL, 0, NULL},
-            {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "proj", NULL, 0, NULL},
+            {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "model", NULL, 0, (char)NULL},
+            {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "view", NULL, 0, (char)NULL},
+            {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "proj", NULL, 0, (char)NULL},
         };
 
         uint32_t uniform = ShaderBuilderAddUniform(uniform_arr, 3, "TransformBufferObjects", 0, 1);
@@ -43,8 +43,8 @@ void ShadersMakeDefault2DShader(ShaderBuilder *vert, ShaderBuilder *frag, bool h
         ShaderBuilderInit(frag, SHADER_TYPE_FRAGMENT);
 
         ShaderStructConstr uniform_arr_2[] = {
-            {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "model", NULL, 0, NULL},
-            {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "proj", NULL, 0, NULL},
+            {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "model", NULL, 0, (char)NULL},
+            {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "proj", NULL, 0, (char)NULL},
         };
 
         uint32_t uniform2 = ShaderBuilderAddUniform(uniform_arr_2, 2, "ImageBufferObjects", 0, 2);
@@ -102,9 +102,9 @@ void ShaderMakeDefaultParticle2DShader(ShaderBuilder *vert, ShaderBuilder *frag)
         ShaderBuilderInit(vert, SHADER_TYPE_VERTEX);
         
         ShaderStructConstr uniform_arr[] = {
-            {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "model", NULL, 0, NULL},
-            {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "view", NULL, 0, NULL},
-            {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "proj", NULL, 0, NULL},
+            {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "model", NULL, 0, (char)NULL},
+            {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "view", NULL, 0, (char)NULL},
+            {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "proj", NULL, 0, (char)NULL},
         };
 
         uint32_t uniform = ShaderBuilderAddUniform(uniform_arr, 3, "TransformBufferObjects", 0, 1);
@@ -183,9 +183,9 @@ void ShadersMakeDefault3DShader(ShaderBuilder *vert, ShaderBuilder *frag, bool h
     ShaderBuilderInit(vert, SHADER_TYPE_VERTEX);
 
     ShaderStructConstr uniform_arr[] = {
-        {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "model", NULL, 0, NULL},
-        {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "view", NULL, 0, NULL},
-        {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "proj", NULL, 0, NULL},
+        {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "model", NULL, 0, (char)NULL},
+        {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "view", NULL, 0, (char)NULL},
+        {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "proj", NULL, 0, (char)NULL},
     };
 
     uint32_t uniform = ShaderBuilderAddUniform(uniform_arr, 3, "ModelBufferObjects", 0, 1);
@@ -635,9 +635,9 @@ void ShadersMakeDeafult3DShaderWithLight(ShaderBuilder *vert, ShaderBuilder *fra
     ShaderBuilderInit(vert, SHADER_TYPE_VERTEX);
 
     ShaderStructConstr uniform_arr[] = {
-        {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "model", NULL, 0, NULL},
-        {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "view" , NULL, 0, NULL},
-        {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "porl" , NULL, 0, NULL},
+        {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "model", NULL, 0, (char)NULL},
+        {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "view" , NULL, 0, (char)NULL},
+        {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "porl" , NULL, 0, (char)NULL},
     };
 
     uint32_t uniform = ShaderBuilderAddUniform(uniform_arr, 3, "ModelBufferObjects", 0, 1);
@@ -700,20 +700,20 @@ void ShadersMakeDeafult3DShaderWithLight(ShaderBuilder *vert, ShaderBuilder *fra
     ShaderBuilderInit(frag, SHADER_TYPE_FRAGMENT);
 
     ShaderStructConstr light_str[] = {
-        {SHADER_VARIABLE_TYPE_VECTOR, 3, 0, "position", NULL, 0, NULL},
-        {SHADER_VARIABLE_TYPE_VECTOR, 3, 0, "color" , NULL, 0, NULL},
-        {SHADER_VARIABLE_TYPE_VECTOR, 3, 0, "direction" , NULL, 0, NULL},
-        {SHADER_VARIABLE_TYPE_FLOAT , 0, 0, "intensity" , NULL, 0, NULL},
-        {SHADER_VARIABLE_TYPE_INT   , 1, 0, "type" , NULL, 0, NULL},
-        {SHADER_VARIABLE_TYPE_FLOAT , 0, 0, "cutoff" , NULL, 0, NULL},
-        {SHADER_VARIABLE_TYPE_FLOAT , 0, 0, "outCutOff" , NULL, 0, NULL},
-        {SHADER_VARIABLE_TYPE_FLOAT , 0, 0, "radius" , NULL, 0, NULL},
+        {SHADER_VARIABLE_TYPE_VECTOR, 3, 0, "position", NULL, 0, (char)NULL},
+        {SHADER_VARIABLE_TYPE_VECTOR, 3, 0, "color" , NULL, 0, (char)NULL},
+        {SHADER_VARIABLE_TYPE_VECTOR, 3, 0, "direction" , NULL, 0, (char)NULL},
+        {SHADER_VARIABLE_TYPE_FLOAT , 0, 0, "intensity" , NULL, 0, (char)NULL},
+        {SHADER_VARIABLE_TYPE_INT   , 1, 0, "type" , NULL, 0, (char)NULL},
+        {SHADER_VARIABLE_TYPE_FLOAT , 0, 0, "cutoff" , NULL, 0, (char)NULL},
+        {SHADER_VARIABLE_TYPE_FLOAT , 0, 0, "outCutOff" , NULL, 0, (char)NULL},
+        {SHADER_VARIABLE_TYPE_FLOAT , 0, 0, "radius" , NULL, 0, (char)NULL},
     };
 
     ShaderStructConstr light_arr[] = {
         {SHADER_VARIABLE_TYPE_ARRAY, 10, 0, "lights", light_str, 8, "LightsStruct"},
-        {SHADER_VARIABLE_TYPE_INT, 1, 0, "num_lights" , NULL, 0, NULL},
-        {SHADER_VARIABLE_TYPE_INT, 1, 0, "light_enable" , NULL, 0, NULL},
+        {SHADER_VARIABLE_TYPE_INT, 1, 0, "num_lights" , NULL, 0, (char)NULL},
+        {SHADER_VARIABLE_TYPE_INT, 1, 0, "light_enable" , NULL, 0, (char)NULL},
     };
 
     uint32_t lights = ShaderBuilderAddUniform(light_arr, 3, "LightBufferObject", 0, 2);
@@ -761,20 +761,20 @@ void ShadersMakeDefault3DModelShader(ShaderBuilder *vert, ShaderBuilder *frag, u
         ShaderBuilderInit(vert, SHADER_TYPE_VERTEX);
 
         ShaderStructConstr uniform_arr[] = {
-            {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "model", NULL, 0, NULL},
-            {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "view", NULL, 0, NULL},
-            {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "proj", NULL, 0, NULL},
+            {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "model", NULL, 0, (char)NULL},
+            {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "view", NULL, 0, (char)NULL},
+            {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "proj", NULL, 0, (char)NULL},
         };
 
         uint32_t uniform = ShaderBuilderAddUniform(uniform_arr, 3, "ModelBufferObjects", 0, 1);
 
         ShaderStructConstr mat_ptr[] = {
-            {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "mat4", NULL, 0, NULL},
+            {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "mat4", NULL, 0, (char)NULL},
         };
 
         ShaderStructConstr uniform_arr2[] = {
-            {SHADER_VARIABLE_TYPE_ARRAY, 128, 0, "mats", mat_ptr, 1, NULL},
-            {SHADER_VARIABLE_TYPE_INT, 4, 0, "size", NULL, 0, NULL}
+            {SHADER_VARIABLE_TYPE_ARRAY, 128, 0, "mats", mat_ptr, 1, (char)NULL},
+            {SHADER_VARIABLE_TYPE_INT, 4, 0, "size", NULL, 0, (char)NULL}
         };
 
         uint32_t bones = ShaderBuilderAddUniform(uniform_arr2, 2, "InvMatBuffer", 0, 2);
@@ -873,7 +873,7 @@ void ShadersMakeDefault3DModelShader(ShaderBuilder *vert, ShaderBuilder *frag, u
         if(count_texture > 1){
             
             ShaderStructConstr arr_textures[] = {                
-                {SHADER_VARIABLE_TYPE_IMAGE, 0, 0, "textures", NULL, 0, NULL},
+                {SHADER_VARIABLE_TYPE_IMAGE, 0, 0, "textures", NULL, 0, (char)NULL},
             };
 
             diffuse = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_ARRAY, SHADER_DATA_FLAG_UNIFORM_CONSTANT, arr_textures, count_texture, "diffuse", 0, 3);
@@ -937,20 +937,20 @@ void ShadersMakeDeafult3DModelShaderWithLight(ShaderBuilder *vert, ShaderBuilder
         ShaderBuilderInit(vert, SHADER_TYPE_VERTEX);
 
         ShaderStructConstr uniform_arr[] = {
-            {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "model", NULL, 0, NULL},
-            {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "view", NULL, 0, NULL},
-            {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "proj", NULL, 0, NULL},
+            {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "model", NULL, 0, (char)NULL},
+            {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "view", NULL, 0, (char)NULL},
+            {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "proj", NULL, 0, (char)NULL},
         };
 
         uint32_t uniform = ShaderBuilderAddUniform(uniform_arr, 3, "ModelBufferObjects", 0, 1);
 
         ShaderStructConstr mat_ptr[] = {
-            {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "mat4", NULL, 0, NULL},
+            {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "mat4", NULL, 0, (char)NULL},
         };
 
         ShaderStructConstr uniform_arr2[] = {
-            {SHADER_VARIABLE_TYPE_ARRAY, 128, 0, "mats", mat_ptr, 1, NULL},
-            {SHADER_VARIABLE_TYPE_INT, 1, 0, "size", NULL, 0, NULL}
+            {SHADER_VARIABLE_TYPE_ARRAY, 128, 0, "mats", mat_ptr, 1, (char)NULL},
+            {SHADER_VARIABLE_TYPE_INT, 1, 0, "size", NULL, 0, (char)NULL}
         };
 
         uint32_t bones = ShaderBuilderAddUniform(uniform_arr2, 2, "InvMatBuffer", 0, 2);
@@ -1072,20 +1072,20 @@ void ShadersMakeDeafult3DModelShaderWithLight(ShaderBuilder *vert, ShaderBuilder
         ShaderBuilderInit(frag, SHADER_TYPE_FRAGMENT);
 
         ShaderStructConstr light_str[] = {
-            {SHADER_VARIABLE_TYPE_VECTOR, 3, 0, "position", NULL, 0, NULL},
-            {SHADER_VARIABLE_TYPE_VECTOR, 3, 0, "color" , NULL, 0, NULL},
-            {SHADER_VARIABLE_TYPE_VECTOR, 3, 0, "direction" , NULL, 0, NULL},
-            {SHADER_VARIABLE_TYPE_FLOAT , 0, 0, "intensity" , NULL, 0, NULL},
-            {SHADER_VARIABLE_TYPE_INT   , 1, 0, "type" , NULL, 0, NULL},
-            {SHADER_VARIABLE_TYPE_FLOAT , 0, 0, "cutoff" , NULL, 0, NULL},
-            {SHADER_VARIABLE_TYPE_FLOAT , 0, 0, "outCutOff" , NULL, 0, NULL},
-            {SHADER_VARIABLE_TYPE_FLOAT , 0, 0, "radius" , NULL, 0, NULL},
+            {SHADER_VARIABLE_TYPE_VECTOR, 3, 0, "position", NULL, 0, (char)NULL},
+            {SHADER_VARIABLE_TYPE_VECTOR, 3, 0, "color" , NULL, 0, (char)NULL},
+            {SHADER_VARIABLE_TYPE_VECTOR, 3, 0, "direction" , NULL, 0, (char)NULL},
+            {SHADER_VARIABLE_TYPE_FLOAT , 0, 0, "intensity" , NULL, 0, (char)NULL},
+            {SHADER_VARIABLE_TYPE_INT   , 1, 0, "type" , NULL, 0, (char)NULL},
+            {SHADER_VARIABLE_TYPE_FLOAT , 0, 0, "cutoff" , NULL, 0, (char)NULL},
+            {SHADER_VARIABLE_TYPE_FLOAT , 0, 0, "outCutOff" , NULL, 0, (char)NULL},
+            {SHADER_VARIABLE_TYPE_FLOAT , 0, 0, "radius" , NULL, 0, (char)NULL},
         };
 
         ShaderStructConstr light_arr[] = {
             {SHADER_VARIABLE_TYPE_ARRAY, 10, 0, "lights", light_str, 8, "LightsStruct"},
-            {SHADER_VARIABLE_TYPE_INT, 1, 0, "num_lights" , NULL, 0, NULL},
-            {SHADER_VARIABLE_TYPE_INT, 1, 0, "light_enable" , NULL, 0, NULL},
+            {SHADER_VARIABLE_TYPE_INT, 1, 0, "num_lights" , NULL, 0, (char)NULL},
+            {SHADER_VARIABLE_TYPE_INT, 1, 0, "light_enable" , NULL, 0, (char)NULL},
         };
 
         uint32_t lights = ShaderBuilderAddUniform(light_arr, 3, "LightBufferObject", 0, 3);
@@ -1103,7 +1103,7 @@ void ShadersMakeDeafult3DModelShaderWithLight(ShaderBuilder *vert, ShaderBuilder
         if(count_texture > 1){
             
             ShaderStructConstr arr_textures[] = {                
-                {SHADER_VARIABLE_TYPE_IMAGE, 0, 0, "textures", NULL, 0, NULL},
+                {SHADER_VARIABLE_TYPE_IMAGE, 0, 0, "textures", NULL, 0, (char)NULL},
             };
 
             diffuse = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_ARRAY, SHADER_DATA_FLAG_UNIFORM_CONSTANT, arr_textures, count_texture, "diffuse", 0, 4);
@@ -1113,7 +1113,7 @@ void ShadersMakeDeafult3DModelShaderWithLight(ShaderBuilder *vert, ShaderBuilder
         if(count_normal > 1){
             
             ShaderStructConstr arr_textures[] = {                
-                {SHADER_VARIABLE_TYPE_IMAGE, 0, 0, "textures", NULL, 0, NULL},
+                {SHADER_VARIABLE_TYPE_IMAGE, 0, 0, "textures", NULL, 0, (char)NULL},
             };
             normal = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_IMAGE, SHADER_DATA_FLAG_UNIFORM_CONSTANT, arr_textures, count_normal, "normal", 0, 5);
         }else if(count_normal > 0)
@@ -1123,7 +1123,7 @@ void ShadersMakeDeafult3DModelShaderWithLight(ShaderBuilder *vert, ShaderBuilder
         if(count_specular > 1){
             
             ShaderStructConstr arr_textures[] = {                
-                {SHADER_VARIABLE_TYPE_IMAGE, 0, 0, "textures", NULL, 0, NULL},
+                {SHADER_VARIABLE_TYPE_IMAGE, 0, 0, "textures", NULL, 0, (char)NULL},
             };
             specular = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_IMAGE, SHADER_DATA_FLAG_UNIFORM_CONSTANT, arr_textures, count_specular, "specular", 0, 6);
         }else if(count_specular > 0)
@@ -1197,9 +1197,9 @@ void ShaderMakeDefaultParticle3DShader(ShaderBuilder *vert, ShaderBuilder *frag)
         ShaderBuilderInit(vert, SHADER_TYPE_VERTEX);
         
         ShaderStructConstr uniform_arr[] = {
-            {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "model", NULL, 0, NULL},
-            {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "view", NULL, 0, NULL},
-            {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "porl", NULL, 0, NULL},
+            {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "model", NULL, 0, (char)NULL},
+            {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "view", NULL, 0, (char)NULL},
+            {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "porl", NULL, 0, (char)NULL},
         };
 
         uint32_t uniform = ShaderBuilderAddUniform(uniform_arr, 3, "TransformBufferObjects", 0, 1);
@@ -1354,9 +1354,9 @@ void ShadersMakeDefault2DTextShader(ShaderBuilder *vert, ShaderBuilder *frag){
         ShaderBuilderInit(vert, SHADER_TYPE_VERTEX);
 
         ShaderStructConstr uniform_arr[] = {
-            {SHADER_VARIABLE_TYPE_VECTOR, 2, 0,"position", NULL, 0, NULL},
-            {SHADER_VARIABLE_TYPE_VECTOR, 2, 0,"rotation", NULL, 0, NULL},
-            {SHADER_VARIABLE_TYPE_VECTOR, 2, 0,"scale", NULL, 0, NULL},
+            {SHADER_VARIABLE_TYPE_VECTOR, 2, 0,"position", NULL, 0, (char)NULL},
+            {SHADER_VARIABLE_TYPE_VECTOR, 2, 0,"rotation", NULL, 0, (char)NULL},
+            {SHADER_VARIABLE_TYPE_VECTOR, 2, 0,"scale", NULL, 0, (char)NULL},
         };
 
         uint32_t uniform = ShaderBuilderAddUniform(uniform_arr, 3, "TransformBufferObjects", 0, 1);
@@ -1439,48 +1439,48 @@ void ShadersMakeTerrainShader(ShaderBuilder *vert, ShaderBuilder *tesc, ShaderBu
         ShaderFunc *frustrumCheck = ShaderBuilderAddFunction(SHADER_VARIABLE_TYPE_BOOL, 0, "frustrumCheck", NULL, 0);
 
         ShaderStructConstr uniform_arr[] = {
-            {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "model", NULL, 0, NULL},
-            {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "view" , NULL, 0, NULL},
-            {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "porl" , NULL, 0, NULL},
+            {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "model", NULL, 0, (char)NULL},
+            {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "view" , NULL, 0, (char)NULL},
+            {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "porl" , NULL, 0, (char)NULL},
         };
 
         uint32_t uniform = ShaderBuilderAddUniform(uniform_arr, 3, "ModelBufferObjects", 0, 1);
 
         ShaderStructConstr sub_arr[] = {
-            {SHADER_VARIABLE_TYPE_VECTOR, 4, 0, "vec4", NULL, 0, NULL},
+            {SHADER_VARIABLE_TYPE_VECTOR, 4, 0, "vec4", NULL, 0, (char)NULL},
         };
 
         ShaderStructConstr uniform_arr2[] = {
-            {SHADER_VARIABLE_TYPE_VECTOR, 4, 0, "lightPos", NULL, 0, NULL},
-            {SHADER_VARIABLE_TYPE_ARRAY, 6, 0, "frustumPlanes" , sub_arr, 1, NULL},
-            {SHADER_VARIABLE_TYPE_FLOAT, 0, 0, "displacementFactor" , NULL, 0, NULL},
-            {SHADER_VARIABLE_TYPE_FLOAT, 0, 0, "tessellationFactor" , NULL, 0, NULL},
-            {SHADER_VARIABLE_TYPE_VECTOR, 2, 0, "viewportDim" , NULL, 0, NULL},
-            {SHADER_VARIABLE_TYPE_FLOAT, 0, 0, "tessellatedEdgeSize" , NULL, 0, NULL},
+            {SHADER_VARIABLE_TYPE_VECTOR, 4, 0, "lightPos", NULL, 0, (char)NULL},
+            {SHADER_VARIABLE_TYPE_ARRAY, 6, 0, "frustumPlanes" , sub_arr, 1, (char)NULL},
+            {SHADER_VARIABLE_TYPE_FLOAT, 0, 0, "displacementFactor" , NULL, 0, (char)NULL},
+            {SHADER_VARIABLE_TYPE_FLOAT, 0, 0, "tessellationFactor" , NULL, 0, (char)NULL},
+            {SHADER_VARIABLE_TYPE_VECTOR, 2, 0, "viewportDim" , NULL, 0, (char)NULL},
+            {SHADER_VARIABLE_TYPE_FLOAT, 0, 0, "tessellatedEdgeSize" , NULL, 0, (char)NULL},
         };
 
         uint32_t uniform2 = ShaderBuilderAddUniform(uniform_arr2, 6, "TesselationBuffer", 0, 2);
 
         
         ShaderStructConstr float_str[] = {
-            {SHADER_VARIABLE_TYPE_FLOAT, 0, 0, NULL, NULL, 0, NULL}
+            {SHADER_VARIABLE_TYPE_FLOAT, 0, 0, (char)NULL, (char)NULL, 0, (char)NULL}
         };
 
         ShaderStructConstr gl_str[] = {
-            {SHADER_VARIABLE_TYPE_VECTOR, 4, 0, "gl_Position", NULL, 0, NULL},
-            {SHADER_VARIABLE_TYPE_FLOAT, 32, 1, "gl_PointSize", NULL, 0, NULL},
-            {SHADER_VARIABLE_TYPE_ARRAY, 1,  3, "gl_ClipDistance", float_str, 1, NULL},
-            {SHADER_VARIABLE_TYPE_ARRAY, 1,  4, "gl_CullDistance", float_str, 1, NULL}
+            {SHADER_VARIABLE_TYPE_VECTOR, 4, 0, "gl_Position", NULL, 0, (char)NULL},
+            {SHADER_VARIABLE_TYPE_FLOAT, 32, 1, "gl_PointSize", NULL, 0, (char)NULL},
+            {SHADER_VARIABLE_TYPE_ARRAY, 1,  3, "gl_ClipDistance", float_str, 1, (char)NULL},
+            {SHADER_VARIABLE_TYPE_ARRAY, 1,  4, "gl_CullDistance", float_str, 1, (char)NULL}
         };
 
         ShaderStructConstr gl_arr[] = {
-            {SHADER_VARIABLE_TYPE_ARRAY, 32,  0, "gl_srt", gl_str, 4, NULL},
+            {SHADER_VARIABLE_TYPE_ARRAY, 32,  0, "gl_srt", gl_str, 4, (char)NULL},
         };
         
         uint32_t gl_in = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_STRUCT, SHADER_DATA_FLAG_SYSTEM, gl_arr, 1, "gl_in", 0, 0);
         
         ShaderStructConstr gl_arr2[] = {
-            {SHADER_VARIABLE_TYPE_ARRAY, 4,  0, "gl_srt", gl_str, 4, NULL},
+            {SHADER_VARIABLE_TYPE_ARRAY, 4,  0, "gl_srt", gl_str, 4, (char)NULL},
         };
 
         uint32_t gl_out = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_STRUCT, SHADER_DATA_FLAG_OUTPUT | SHADER_DATA_FLAG_SYSTEM, gl_arr2, 1, "gl_out", 0, 0);
@@ -1488,13 +1488,13 @@ void ShadersMakeTerrainShader(ShaderBuilder *vert, ShaderBuilder *tesc, ShaderBu
         uint32_t gl_Inv = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_INT, SHADER_DATA_FLAG_SYSTEM, NULL, 1, "gl_InvocationID", 0, 8);
 
         ShaderStructConstr gl_tes_level_in[] = {
-            {SHADER_VARIABLE_TYPE_FLOAT, 0,  0, "float", NULL, 0, NULL},
+            {SHADER_VARIABLE_TYPE_FLOAT, 0,  0, "float", NULL, 0, (char)NULL},
         };
         
         uint32_t gl_t_l_in = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_ARRAY, SHADER_DATA_FLAG_OUTPUT | SHADER_DATA_FLAG_SYSTEM, gl_tes_level_in, 2, "gl_TessLevelInner", 0, 12);
 
         ShaderStructConstr gl_tes_level_out[] = {
-            {SHADER_VARIABLE_TYPE_FLOAT, 0,  0, "float", NULL, 0, NULL},
+            {SHADER_VARIABLE_TYPE_FLOAT, 0,  0, "float", NULL, 0, (char)NULL},
         };
 
         uint32_t gl_t_l_out = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_ARRAY, SHADER_DATA_FLAG_OUTPUT | SHADER_DATA_FLAG_SYSTEM, gl_tes_level_out, 4, "gl_TessLevelOuter", 0, 11);
@@ -1502,10 +1502,10 @@ void ShadersMakeTerrainShader(ShaderBuilder *vert, ShaderBuilder *tesc, ShaderBu
         uint32_t height_map = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_IMAGE, SHADER_DATA_FLAG_UNIFORM_CONSTANT, NULL, 0, "samplerHeight", 0, 4);
 
         ShaderStructConstr norm_str[] = {
-            {SHADER_VARIABLE_TYPE_VECTOR, 3,  0, "vec3", NULL, 0, NULL},
+            {SHADER_VARIABLE_TYPE_VECTOR, 3,  0, "vec3", NULL, 0, (char)NULL},
         };
         ShaderStructConstr uv_str[] = {
-            {SHADER_VARIABLE_TYPE_VECTOR, 2,  0, "vec2", NULL, 0, NULL},
+            {SHADER_VARIABLE_TYPE_VECTOR, 2,  0, "vec2", NULL, 0, (char)NULL},
         };
 
         uint32_t Normal_in = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_ARRAY, 0, norm_str, 32, "inNormal", 0, 0);
@@ -1874,43 +1874,43 @@ void ShadersMakeTerrainShader(ShaderBuilder *vert, ShaderBuilder *tesc, ShaderBu
         ShaderBuilderInit(tese, SHADER_TYPE_TESELLATION_EVALUATION);
         
         ShaderStructConstr float_str[] = {
-            {SHADER_VARIABLE_TYPE_FLOAT, 0, 0, NULL, NULL, 0, NULL}
+            {SHADER_VARIABLE_TYPE_FLOAT, 0, 0, (char)NULL, (char)NULL, 0, (char)NULL}
         };
 
         ShaderStructConstr gl_str[] = {
-            {SHADER_VARIABLE_TYPE_VECTOR, 4, 0, "gl_Position", NULL, 0, NULL},
-            {SHADER_VARIABLE_TYPE_FLOAT, 32, 1, "gl_PointSize", NULL, 0, NULL},
-            {SHADER_VARIABLE_TYPE_ARRAY, 1,  3, "gl_ClipDistance", float_str, 1, NULL},
-            {SHADER_VARIABLE_TYPE_ARRAY, 1,  4, "gl_CullDistance", float_str, 1, NULL}
+            {SHADER_VARIABLE_TYPE_VECTOR, 4, 0, "gl_Position", NULL, 0, (char)NULL},
+            {SHADER_VARIABLE_TYPE_FLOAT, 32, 1, "gl_PointSize", NULL, 0, (char)NULL},
+            {SHADER_VARIABLE_TYPE_ARRAY, 1,  3, "gl_ClipDistance", float_str, 1, (char)NULL},
+            {SHADER_VARIABLE_TYPE_ARRAY, 1,  4, "gl_CullDistance", float_str, 1, (char)NULL}
         };
 
         uint32_t gl_PerVertex = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_STRUCT, SHADER_DATA_FLAG_SYSTEM | SHADER_DATA_FLAG_OUTPUT, gl_str, 4, "gl_PerVertex", 0, 0);
 
         ShaderStructConstr gl_arr[] = {
-            {SHADER_VARIABLE_TYPE_ARRAY, 32,  0, "gl_srt", gl_str, 4, NULL},
+            {SHADER_VARIABLE_TYPE_ARRAY, 32,  0, "gl_srt", gl_str, 4, (char)NULL},
         };
         
         uint32_t gl_in = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_STRUCT, SHADER_DATA_FLAG_SYSTEM, gl_arr, 1, "gl_in", 0, 0);
         
         ShaderStructConstr uniform_arr[] = {
-            {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "model", NULL, 0, NULL},
-            {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "view" , NULL, 0, NULL},
-            {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "porl" , NULL, 0, NULL},
+            {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "model", NULL, 0, (char)NULL},
+            {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "view" , NULL, 0, (char)NULL},
+            {SHADER_VARIABLE_TYPE_MATRIX, 4, 0, "porl" , NULL, 0, (char)NULL},
         };
 
         uint32_t uniform = ShaderBuilderAddUniform(uniform_arr, 3, "ModelBufferObjects", 0, 1);
 
         ShaderStructConstr sub_arr[] = {
-            {SHADER_VARIABLE_TYPE_VECTOR, 4, 0, "vec4", NULL, 0, NULL},
+            {SHADER_VARIABLE_TYPE_VECTOR, 4, 0, "vec4", NULL, 0, (char)NULL},
         };
 
         ShaderStructConstr uniform_arr2[] = {
-            {SHADER_VARIABLE_TYPE_VECTOR, 4, 0, "lightPos", NULL, 0, NULL},
-            {SHADER_VARIABLE_TYPE_ARRAY, 6, 0, "frustumPlanes" , sub_arr, 1, NULL},
-            {SHADER_VARIABLE_TYPE_FLOAT, 0, 0, "displacementFactor" , NULL, 0, NULL},
-            {SHADER_VARIABLE_TYPE_FLOAT, 0, 0, "tessellationFactor" , NULL, 0, NULL},
-            {SHADER_VARIABLE_TYPE_VECTOR, 2, 0, "viewportDim" , NULL, 0, NULL},
-            {SHADER_VARIABLE_TYPE_FLOAT, 0, 0, "tessellatedEdgeSize" , NULL, 0, NULL},
+            {SHADER_VARIABLE_TYPE_VECTOR, 4, 0, "lightPos", NULL, 0, (char)NULL},
+            {SHADER_VARIABLE_TYPE_ARRAY, 6, 0, "frustumPlanes" , sub_arr, 1, (char)NULL},
+            {SHADER_VARIABLE_TYPE_FLOAT, 0, 0, "displacementFactor" , NULL, 0, (char)NULL},
+            {SHADER_VARIABLE_TYPE_FLOAT, 0, 0, "tessellationFactor" , NULL, 0, (char)NULL},
+            {SHADER_VARIABLE_TYPE_VECTOR, 2, 0, "viewportDim" , NULL, 0, (char)NULL},
+            {SHADER_VARIABLE_TYPE_FLOAT, 0, 0, "tessellatedEdgeSize" , NULL, 0, (char)NULL},
         };
 
         uint32_t uniform2 = ShaderBuilderAddUniform(uniform_arr2, 6, "TesselationBuffer", 0, 2);
@@ -1920,10 +1920,10 @@ void ShadersMakeTerrainShader(ShaderBuilder *vert, ShaderBuilder *tesc, ShaderBu
         uint32_t height_map = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_IMAGE, SHADER_DATA_FLAG_UNIFORM_CONSTANT, NULL, 0, "displacementMap", 0, 4);
 
         ShaderStructConstr norm_str[] = {
-            {SHADER_VARIABLE_TYPE_VECTOR, 3,  0, "vec3", NULL, 0, NULL},
+            {SHADER_VARIABLE_TYPE_VECTOR, 3,  0, "vec3", NULL, 0, (char)NULL},
         };
         ShaderStructConstr uv_str[] = {
-            {SHADER_VARIABLE_TYPE_VECTOR, 2,  0, "vec2", NULL, 0, NULL},
+            {SHADER_VARIABLE_TYPE_VECTOR, 2,  0, "vec2", NULL, 0, (char)NULL},
         };
 
         uint32_t Normal_in = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_ARRAY, 0, norm_str, 32, "inNormal", 0, 0);

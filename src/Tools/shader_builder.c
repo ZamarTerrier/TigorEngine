@@ -1791,14 +1791,14 @@ void ShaderBuilderInit(ShaderBuilder *builder, ShaderType type){
     if(type == SHADER_TYPE_VERTEX){
 
         ShaderStructConstr float_str[] = {
-            {SHADER_VARIABLE_TYPE_FLOAT, 0, 0, NULL, NULL, 0, NULL}
+            {SHADER_VARIABLE_TYPE_FLOAT, 0, 0, (char)NULL, (char)NULL, 0, (char)NULL}
         };
 
         ShaderStructConstr struct_arr[] = {
-            {SHADER_VARIABLE_TYPE_VECTOR, 4, 0, "gl_Position", NULL, 0, NULL},
-            {SHADER_VARIABLE_TYPE_FLOAT, 32, 1, "gl_PointSize", NULL, 0, NULL},
-            {SHADER_VARIABLE_TYPE_ARRAY, 1,  3, "gl_ClipDistance", float_str, 1, NULL},
-            {SHADER_VARIABLE_TYPE_ARRAY, 1,  4, "gl_CullDistance", float_str, 1, NULL}
+            {SHADER_VARIABLE_TYPE_VECTOR, 4, 0, "gl_Position", NULL, 0, (char)NULL},
+            {SHADER_VARIABLE_TYPE_FLOAT, 32, 1, "gl_PointSize", NULL, 0, (char)NULL},
+            {SHADER_VARIABLE_TYPE_ARRAY, 1,  3, "gl_ClipDistance", float_str, 1, (char)NULL},
+            {SHADER_VARIABLE_TYPE_ARRAY, 1,  4, "gl_CullDistance", float_str, 1, (char)NULL}
         };
 
         curr_builder->gl_struct_indx = ShaderBuilderAddIOData(SHADER_VARIABLE_TYPE_STRUCT, SHADER_DATA_FLAG_OUTPUT | SHADER_DATA_FLAG_SYSTEM, struct_arr, 4, "gl_PerVertex", 0, 0);
@@ -3265,7 +3265,12 @@ void ShaderBuilderMakeUniformsFromShader(ShaderBuilder *builder, uint32_t *code,
 
 void ShaderBuilderWriteToFile(ShaderBuilder *builder, const char *path){
 
+#ifndef __ANDROID__
     int somefile = open(path, O_WRONLY | O_CREAT | O_BINARY);
+#else
+    int somefile = open(path, O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR);
+#endif
+
 
     write(somefile, builder->code, builder->size * sizeof(uint32_t));
 

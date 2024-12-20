@@ -41,7 +41,9 @@ void EngineCreateSilent(){
     engine.cache.alloc_descriptor_head = calloc(1, sizeof(ChildStack));
     engine.cache.alloc_pipeline_head = calloc(1, sizeof(ChildStack));
 
+#ifndef __ANDROID__
     wManagerInit();
+#endif
     createInstance();
     setupDebugMessenger();
     pickPhysicalDevice();
@@ -96,5 +98,7 @@ void EngineCreateSyncobjects() {
 
 void EngineWaitEvents()
 {
+#ifndef __ANDROID__
     wManagerWaitEvents();
+#endif
 }
