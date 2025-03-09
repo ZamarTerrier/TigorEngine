@@ -91,6 +91,7 @@ int wManagerInit(){
     TWindow *window = (TWindow *)engine.window;
 
     window->e_window = calloc(1, sizeof(wManagerWindow));
+    wManagerWindow *e_window = window->e_window;
 
     memset(&_wMInfo, 0, sizeof(wManagerInfo));
 
@@ -105,13 +106,14 @@ int wManagerInit(){
         _wManagerConnectX11(&e_window->platform);
     #elif _WIN_
 
-        window->e_window->WindowData = calloc(1, sizeof(wManagerWin));
+
+        e_window->WindowData = calloc(1, sizeof(wManagerWin));
         _wMWindow.WindowData = calloc(1, sizeof(wManagerWin));
 
         extern int32_t _wManagerConnectWin32(_wManagerPlatform* platform);
 
         _wManagerConnectWin32(&_wMWindow.platform);
-        _wManagerConnectWin32(&window->e_window->platform);
+        _wManagerConnectWin32(&e_window->platform);
     #endif
 
 
@@ -128,7 +130,7 @@ int wManagerInit(){
     wManagerDefaultWindowHints(window->e_window);
 
     createKeyTables(_wMWindow.WindowData);
-    createKeyTables(window->e_window->WindowData);
+    createKeyTables(e_window->WindowData);
 
     return true;
 }
@@ -316,8 +318,9 @@ void wManagerWaitEvents()
 void wManagerTerminate()
 {
     TWindow *window = (TWindow *)engine.window;
+    wManagerWindow *e_window = window->e_window;
 
-    free(window->e_window->WindowData);
+    free(e_window->WindowData);
     free(_wMWindow.WindowData);
 
     free(window->e_window);
