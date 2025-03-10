@@ -30,7 +30,7 @@ void DestroyDebugUtilsMessengerEXT(void* arg, void* debugMessenger, const EdAllo
 
     PFN_vkDestroyDebugUtilsMessengerEXT func2 = (PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
     if (func2 != NULL) {
-        func2((VkInstance)instance, debugMessenger, pAllocator);
+        func2((VkInstance)instance, (VkDebugUtilsMessengerEXT)debugMessenger, pAllocator);
     }
 }
 

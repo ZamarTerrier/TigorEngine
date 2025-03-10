@@ -12,6 +12,8 @@
 	#include <android/log.h>
 	#include <dlfcn.h>
 	#include <android/native_window_jni.h>
+    #include <android/configuration.h>
+    #include <android/native_activity.h>
 
 struct android_app* androidApp;
 
@@ -348,18 +350,19 @@ void AndroidGetDeviceConfig()
 
 // Displays a native alert dialog using JNI
 void AndroidShowAlert(const char* message) {
-    /*JNIEnv* jni;
-    androidApp->activity->vm->AttachCurrentThread(&jni, NULL);
+    /*struct JNINativeInterface* jni;
+    struct JNIInvokeInterface *vm = (struct JNIInvokeInterface *)androidApp->activity->vm;
+    vm->AttachCurrentThread((JavaVM *)vm, (JNIEnv **)jni, NULL);
 
-    jstring jmessage = jni->NewStringUTF(message);
+    jstring jmessage = jni->NewStringUTF((JNIEnv *)jni, message);
 
-    jclass clazz = jni->GetObjectClass(androidApp->activity->clazz);
+    jclass clazz = jni->GetObjectClass((JNIEnv *)jni,androidApp->activity->clazz);
     // Signature has to match java implementation (arguments)
-    jmethodID methodID = jni->GetMethodID(clazz, "showAlert", "(Ljava/lang/String;)V");
-    jni->CallVoidMethod(androidApp->activity->clazz, methodID, jmessage);
-    jni->DeleteLocalRef(jmessage);
+    jmethodID methodID = jni->GetMethodID((JNIEnv *)jni, clazz, "showAlert", "(Ljava/lang/String;)V");
+    jni->CallVoidMethod((JNIEnv *)jni,androidApp->activity->clazz, methodID, jmessage);
+    jni->DeleteLocalRef((JNIEnv *)jni,jmessage);
 
-    androidApp->activity->vm->DetachCurrentThread();*/
+    vm->DetachCurrentThread((JavaVM *)vm);*/
     return;
 }
 

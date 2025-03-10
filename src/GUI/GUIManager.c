@@ -493,9 +493,9 @@ void GUIManagerInitFont(int default_font){
 
     TextureCreateImage(gui.font.fontWidth, gui.font.fontHeight, 1,VK_FORMAT_R8_UNORM, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 0, texture);
 
-    ToolsTransitionImageLayout(texture->image, VK_FORMAT_R8_UNORM, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1);
-    ToolsCopyBufferToImage(stagingBuffer.buffer, texture->image, gui.font.fontWidth, gui.font.fontHeight);
-    ToolsTransitionImageLayout(texture->image, VK_FORMAT_R8_UNORM, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, 1);
+    ToolsTransitionImageLayout((void *)texture->image, VK_FORMAT_R8_UNORM, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1);
+    ToolsCopyBufferToImage((void *)stagingBuffer.buffer, (void *)texture->image, gui.font.fontWidth, gui.font.fontHeight);
+    ToolsTransitionImageLayout((void *)texture->image, VK_FORMAT_R8_UNORM, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, 1);
 
     BuffersDestroyBuffer(&stagingBuffer);
 
@@ -1251,7 +1251,7 @@ void GUIManagerDraw(){
         {
             ShaderPack *shader_pack = &gui.go.graphObj.gItems.shader_packs[i];
 
-            vkCmdBindPipeline(command, VK_PIPELINE_BIND_POINT_GRAPHICS, shader_pack->pipeline.pipeline);
+            vkCmdBindPipeline(command, VK_PIPELINE_BIND_POINT_GRAPHICS, (VkPipeline)shader_pack->pipeline.pipeline);
 
             PipelineSetting *settings = &pack->setting;
 
@@ -1270,7 +1270,7 @@ void GUIManagerDraw(){
             VkDeviceSize offsets[] = {0};
 
             vkCmdBindVertexBuffers(command, 0, 1, vertexBuffers, offsets);
-            vkCmdBindDescriptorSets(command, VK_PIPELINE_BIND_POINT_GRAPHICS, shader_pack->pipeline.layout, 0, 1, &shader_pack->descriptor.descr_sets[engine.imageIndex], 0, NULL);
+            vkCmdBindDescriptorSets(command, VK_PIPELINE_BIND_POINT_GRAPHICS, (VkPipelineLayout)shader_pack->pipeline.layout, 0, 1, &shader_pack->descriptor.descr_sets[engine.imageIndex], 0, NULL);
 
             vkCmdBindIndexBuffer(command, gui.indxBuffer.buffer, 0, VK_INDEX_TYPE_UINT32);
             vkCmdDrawIndexed(command, iCount, 1, 0, 0, 0);

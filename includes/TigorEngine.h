@@ -12,6 +12,7 @@ extern "C"
 
 typedef void (*DrawFunc_T)();
 typedef void (*RecreateFunc_T)();
+typedef void (*UpdateFunc_T)(float deltaTime);
 
 /// @brief Инициализация Движка
 /// @param width - Ширина экрана
@@ -31,9 +32,11 @@ void TEngineSetRecreateFunc(RecreateFunc_T func);
 /// @brief Функция для добавления объекта в очередь отрисовки
 /// @param go - объект отрисовки
 void TEngineDraw(GameObject *go);
+void TEngineSetUpdater(UpdateFunc_T update);
 /// @brief Вызов цикла отрисовки оъектов
 ///     Будет вызвана отрисовка указанных через TEngineDraw объектов на все указанные через EngineSetRender рендеры
 void TEngineRender();
+void TEngineRenderLoop();
 /// @brief Функция обработки событий окна
 void TEnginePoolEvents();
 /// @brief Установка обратного вызова событий кнопок клавиатуры

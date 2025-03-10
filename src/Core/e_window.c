@@ -7,6 +7,14 @@
 #include "Data/e_resource_data.h"
 #include "Data/e_resource_engine.h"
 
+
+#ifdef __ANDROID__
+    #include "Core/vulkan_android.h"
+#endif
+
+#define VK_KHR_SURFACE_EXTENSION_NAME     "VK_KHR_surface"
+#define VK_KHR_ANDROID_SURFACE_EXTENSION_NAME "VK_KHR_android_surface"
+
 extern TEngine engine;
 
 bool checkValidationLayerSupport(){
@@ -47,6 +55,13 @@ const char** getRequiredExtensions(){
 
 #ifndef __ANDROID__
     extensions = wManagerGetRequiredInstanceExtensions(&engine.wManagerExtensionCount);
+#else
+    extensions = AllocateMemory(2, sizeof(char *));
+    extensions[0] = VK_KHR_SURFACE_EXTENSION_NAME;
+    extensions[1] = VK_KHR_ANDROID_SURFACE_EXTENSION_NAME;
+
+    engine.wManagerExtensionCount = 2;
+
 #endif
 
     if(enableValidationLayers)

@@ -251,11 +251,11 @@ void BluePrintAddRenderImageArray(Blueprints *blueprints, uint32_t indx_pack, vo
         {
             if(renders[j]->flags & TIGOR_RENDER_FLAG_ONE_SHOT)
             {
-                textures[i][j].image_view = renders[j]->frames[0].render_texture.image_view;
-                textures[i][j].sampler = renders[j]->frames[0].render_texture.sampler;
+                textures[i][j].image_view = (VkImageView)renders[j]->frames[0].render_texture.image_view;
+                textures[i][j].sampler = (VkSampler)renders[j]->frames[0].render_texture.sampler;
             }else{
-                textures[i][j].image_view = renders[j]->frames[i].render_texture.image_view;
-                textures[i][j].sampler = renders[j]->frames[i].render_texture.sampler;
+                textures[i][j].image_view = (VkImageView)renders[j]->frames[i].render_texture.image_view;
+                textures[i][j].sampler = (VkSampler)renders[j]->frames[i].render_texture.sampler;
             }
         }
     }
@@ -321,11 +321,11 @@ void BluePrintAddRenderImageCube(Blueprints *blueprints, uint32_t indx_pack, uin
 
         if(render->flags & TIGOR_RENDER_FLAG_ONE_SHOT)
         {
-            textures[i][0].image_view = render->frames[0].shadowCubeMapFaceImageViews[indx_cube];
-            textures[i][0].sampler = render->frames[0].render_texture.sampler;
+            textures[i][0].image_view = (VkImageView)render->frames[0].shadowCubeMapFaceImageViews[indx_cube];
+            textures[i][0].sampler = (VkSampler)render->frames[0].render_texture.sampler;
         }else{
-            textures[i][0].image_view = render->frames[i].shadowCubeMapFaceImageViews[indx_cube];
-            textures[i][0].sampler = render->frames[i].render_texture.sampler;
+            textures[i][0].image_view = (VkImageView)render->frames[i].shadowCubeMapFaceImageViews[indx_cube];
+            textures[i][0].sampler = (VkSampler)render->frames[i].render_texture.sampler;
         }
         textures[i][0].flags = 0;
 
@@ -351,11 +351,11 @@ void BluePrintAddRenderImage(Blueprints *blueprints, uint32_t indx_pack, void *o
     {
         if(render->flags & TIGOR_RENDER_FLAG_ONE_SHOT)
         {
-            descriptor->textures[i].image_view = render->frames[0].render_texture.image_view;
-            descriptor->textures[i].sampler = render->frames[0].render_texture.sampler;
+            descriptor->textures[i].image_view = (VkImageView)render->frames[0].render_texture.image_view;
+            descriptor->textures[i].sampler = (VkSampler)render->frames[0].render_texture.sampler;
         }else{
-            descriptor->textures[i].image_view = render->frames[i].render_texture.image_view;
-            descriptor->textures[i].sampler = render->frames[i].render_texture.sampler;
+            descriptor->textures[i].image_view = (VkImageView)render->frames[i].render_texture.image_view;
+            descriptor->textures[i].sampler = (VkSampler)render->frames[i].render_texture.sampler;
         }
         descriptor->textures[i].flags = 0;
 

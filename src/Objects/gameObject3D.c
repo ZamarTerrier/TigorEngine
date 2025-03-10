@@ -123,14 +123,14 @@ void GameObject3DDefaultDraw(GameObject3D* go){
             if(num_verts == 0)
                 continue;
 
-            vkCmdBindPipeline(command, VK_PIPELINE_BIND_POINT_GRAPHICS, pack->pipeline.pipeline);
+            vkCmdBindPipeline(command, VK_PIPELINE_BIND_POINT_GRAPHICS, (VkPipeline)pack->pipeline.pipeline);
 
             if(settings->flags & TIGOR_PIPELINE_FLAG_DYNAMIC_VIEW){
                 vkCmdSetViewport(command, 0, 1, (const VkViewport *)&settings->viewport);
                 vkCmdSetScissor(command, 0, 1, (const VkRect2D *)&settings->scissor);
             }
 
-            vkCmdBindDescriptorSets(command, VK_PIPELINE_BIND_POINT_GRAPHICS, pack->pipeline.layout, 0, 1, (const VkDescriptorSet *)&pack->descriptor.descr_sets[engine.imageIndex], 0, NULL);
+            vkCmdBindDescriptorSets(command, VK_PIPELINE_BIND_POINT_GRAPHICS, (VkPipelineLayout)pack->pipeline.layout, 0, 1, (const VkDescriptorSet *)&pack->descriptor.descr_sets[engine.imageIndex], 0, NULL);
 
             if(num_verts > 0)
             {

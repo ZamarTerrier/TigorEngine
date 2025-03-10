@@ -196,9 +196,9 @@ void TextureCreateEmptyDefault(Texture2D *texture)
 
     ImageCreateEmpty(texture, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT);
 
-    ToolsTransitionImageLayout(texture->image, texture->textureType, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1);
-    ToolsCopyBufferToImage(stagingBuffer.buffer, texture->image, EMPTY_IMAGE_WIDTH, EMPTY_IMAGE_HEIGHT);
-    ToolsTransitionImageLayout(texture->image, texture->textureType, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, 1);
+    ToolsTransitionImageLayout((void *)texture->image, texture->textureType, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1);
+    ToolsCopyBufferToImage((void *)stagingBuffer.buffer, (void *)texture->image, EMPTY_IMAGE_WIDTH, EMPTY_IMAGE_HEIGHT);
+    ToolsTransitionImageLayout((void *)texture->image, texture->textureType, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, 1);
 
     BuffersDestroyBuffer(&stagingBuffer);
 }
@@ -222,9 +222,9 @@ void TextureCreateEmpty(Texture2D *texture)
 
     ImageCreateEmpty(texture, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT);
 
-    ToolsTransitionImageLayout(texture->image, texture->textureType, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1);
-    ToolsCopyBufferToImage(stagingBuffer.buffer, texture->image, texture->image_data.texWidth, texture->image_data.texHeight);
-    ToolsTransitionImageLayout(texture->image, texture->textureType, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, 1);
+    ToolsTransitionImageLayout((void *)texture->image, texture->textureType, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1);
+    ToolsCopyBufferToImage((void *)stagingBuffer.buffer, (void *)texture->image, texture->image_data.texWidth, texture->image_data.texHeight);
+    ToolsTransitionImageLayout((void *)texture->image, texture->textureType, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, 1);
 
     BuffersDestroyBuffer(&stagingBuffer);
 }
@@ -347,8 +347,8 @@ int TextureImageCreate(GameObjectImage *image, uint32_t indx, struct BluePrintDe
                         VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 
                         0, &images[engine.DataR.e_var_num_images].texture);
 
-    ToolsTransitionImageLayout(images[engine.DataR.e_var_num_images].texture.image, images[engine.DataR.e_var_num_images].texture.textureType, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, mip_levels);
-    ToolsCopyBufferToImage(stagingBuffer.buffer, images[engine.DataR.e_var_num_images].texture.image, fileData.texWidth, fileData.texHeight);
+    ToolsTransitionImageLayout((void *)images[engine.DataR.e_var_num_images].texture.image, images[engine.DataR.e_var_num_images].texture.textureType, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, mip_levels);
+    ToolsCopyBufferToImage((void *)stagingBuffer.buffer, (void *)images[engine.DataR.e_var_num_images].texture.image, fileData.texWidth, fileData.texHeight);
     //ToolsTransitionImageLayout(images[e_var_num_images].texture.textureImage, images[e_var_num_images].texture.textureType, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, mip_levels);
 
     BuffersDestroyBuffer(&stagingBuffer);
@@ -525,7 +525,7 @@ void* TextureCreateImageViewCube(void* image, void **shadowCubeMapFaceImageViews
 
     VkImageViewCreateInfo *viewInfo = AllocateMemory(1, sizeof(VkImageViewCreateInfo));
     viewInfo->sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-    viewInfo->image = image;
+    viewInfo->image = (VkImage)image;
     viewInfo->viewType = VK_IMAGE_VIEW_TYPE_CUBE; //VK_IMAGE_VIEW_TYPE_2D;
     viewInfo->format = format; //VK_FORMAT_R8G8B8A8_SRGB;
     viewInfo->subresourceRange.aspectMask = aspect_mask;
@@ -542,7 +542,7 @@ void* TextureCreateImageViewCube(void* image, void **shadowCubeMapFaceImageViews
 
     viewInfo->viewType = VK_IMAGE_VIEW_TYPE_2D;
     viewInfo->subresourceRange.layerCount = 1;
-    viewInfo->image = image;
+    viewInfo->image = (VkImage)image;
 
     for (uint32_t i = 0; i < 6; i++)
     {
@@ -552,7 +552,7 @@ void* TextureCreateImageViewCube(void* image, void **shadowCubeMapFaceImageViews
 
     FreeMemory(viewInfo);
 
-    return imageView;
+    return (void *)imageView;
 }
 
 void TextureCreateSampler(void *sampler, uint32_t texture_type, uint32_t mip_levels) {
@@ -712,9 +712,9 @@ void TextureUpdate(struct BluePrintDescriptor_T *descriptor, void *in_data, uint
     memcpy(data + offset, in_data, size_data);
     vkUnmapMemory(device->e_device, stagingBuffer.memory);
 
-    ToolsTransitionImageLayout(texture->image, texture->textureType, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, texture->image_data.mip_levels);
-    ToolsCopyBufferToImage(stagingBuffer.buffer, texture->image, texture->image_data.texWidth, texture->image_data.texHeight);
-    ToolsTransitionImageLayout(texture->image, texture->textureType, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, texture->image_data.mip_levels);
+    ToolsTransitionImageLayout((void *)texture->image, texture->textureType, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, texture->image_data.mip_levels);
+    ToolsCopyBufferToImage((void *)stagingBuffer.buffer, (void *)texture->image, texture->image_data.texWidth, texture->image_data.texHeight);
+    ToolsTransitionImageLayout((void *)texture->image, texture->textureType, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, texture->image_data.mip_levels);
 
     BuffersDestroyBuffer(&stagingBuffer);
 }

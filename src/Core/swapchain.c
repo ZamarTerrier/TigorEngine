@@ -101,7 +101,7 @@ void SwapChainCreate() {
     memset(&createInfo, 0, sizeof(VkSwapchainCreateInfoKHR));
 
     createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-    createInfo.surface = window->surface;
+    createInfo.surface = (VkSurfaceKHR)window->surface;
 
     createInfo.minImageCount = engine.imagesCount;
     createInfo.imageFormat = surfaceFormat.format;
@@ -211,7 +211,7 @@ void CleanupSwapChain() {
     TDevice *device = (TDevice *)engine.device;
     TSwapChain *swapchain = (TSwapChain *)engine.swapchain;
 
-    vkFreeCommandBuffers(device->e_device, device->commandPool, engine.imagesCount, (const VkCommandBuffer *) device->commandBuffers);
+    vkFreeCommandBuffers(device->e_device, (VkCommandPool)device->commandPool, engine.imagesCount, (const VkCommandBuffer *) device->commandBuffers);
     FreeMemory(device->commandBuffers);
     device->commandBuffers = NULL;
 

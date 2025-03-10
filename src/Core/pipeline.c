@@ -114,8 +114,8 @@ void PipelineDestroyStack(void *pipeline)
     }
 
     if(child->next != NULL){
-        vkDestroyPipeline(device->e_device, stack->GraphicsPipeline, NULL);
-        vkDestroyPipelineLayout(device->e_device, stack->GraphicsPipelineLayout, NULL);
+        vkDestroyPipeline(device->e_device, (VkPipeline)stack->GraphicsPipeline, NULL);
+        vkDestroyPipelineLayout(device->e_device, (VkPipelineLayout)stack->GraphicsPipelineLayout, NULL);
         free(child->node);
         child->node = NULL;
 
@@ -185,7 +185,7 @@ void PipelineMakePipeline(GraphicsObject *graphObj, uint32_t indx_pack)
             some_shader_code.code = setting->stages[count_stages].code_shader;
             some_shader_code.size = setting->stages[count_stages].size_code_shader;
 
-            shaderStages[count_stages].module = createShaderModule(some_shader_code);
+            shaderStages[count_stages].module = (VkShaderModule)createShaderModule(some_shader_code);
 
             count_stages ++;
 
@@ -375,8 +375,8 @@ void PipelineMakePipeline(GraphicsObject *graphObj, uint32_t indx_pack)
     if(setting->flags & TIGOR_PIPELINE_FLAG_DYNAMIC_VIEW)
         pipelineInfo.pDynamicState = &dynamicState;
 
-    pipelineInfo.layout = pipeline->layout;
-    pipelineInfo.renderPass = render->render_pass;
+    pipelineInfo.layout = (VkPipelineLayout)pipeline->layout;
+    pipelineInfo.renderPass = (VkRenderPass)render->render_pass;
     pipelineInfo.subpass = 0;
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE; // Optional
     pipelineInfo.pDepthStencilState = &depthStencil;

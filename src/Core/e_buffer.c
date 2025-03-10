@@ -36,7 +36,7 @@ void BuffersCreateCommand(){
 
     VkCommandBufferAllocateInfo allocInfo = {};
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    allocInfo.commandPool = device->commandPool;
+    allocInfo.commandPool = (VkCommandPool)device->commandPool;
     allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
     allocInfo.commandBufferCount = (uint32_t) engine.imagesCount;
 

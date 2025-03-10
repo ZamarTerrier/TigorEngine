@@ -25,7 +25,7 @@ void RenderTextureCreateDepthResource(RenderTexture *render, RenderFrame *frame)
     TextureCreateImage(render->width, render->height, 1,depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 0, &frame->depth_texture);
     frame->depth_texture.image_view = TextureCreateImageView(frame->depth_texture.image, VK_IMAGE_VIEW_TYPE_2D, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT, 1);
 
-    ToolsTransitionImageLayout(frame->depth_texture.image, depthFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, 1);
+    ToolsTransitionImageLayout((void *)frame->depth_texture.image, depthFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, 1);
 
 }
 
@@ -238,7 +238,7 @@ void RenderTextureCreateFrames(RenderTexture *render, uint32_t flags)
                 if(render->type & TIGOR_RENDER_TYPE_CUBEMAP)
                 {
                     frame->shadowCubeMapFaceImageViews = AllocateMemoryP(6, sizeof(VkImageView), render);
-                    frame->render_texture.image_view = TextureCreateImageViewCube(frame->render_texture.image, frame->shadowCubeMapFaceImageViews, render->m_format, render->flags & TIGOR_RENDER_FLAG_DEPTH ? VK_IMAGE_ASPECT_DEPTH_BIT : VK_IMAGE_ASPECT_COLOR_BIT);
+                    frame->render_texture.image_view = (VkImageView)TextureCreateImageViewCube((void *)frame->render_texture.image, frame->shadowCubeMapFaceImageViews, render->m_format, render->flags & TIGOR_RENDER_FLAG_DEPTH ? VK_IMAGE_ASPECT_DEPTH_BIT : VK_IMAGE_ASPECT_COLOR_BIT);
                     frame->framebufers = AllocateMemoryP(6, sizeof(VkFramebuffer), render);
                 }else{
                     frame->render_texture.image_view = TextureCreateImageView(frame->render_texture.image, VK_IMAGE_VIEW_TYPE_2D, render->m_format, render->type == TIGOR_RENDER_TYPE_DEPTH || (render->flags & TIGOR_RENDER_FLAG_DEPTH) ? VK_IMAGE_ASPECT_DEPTH_BIT : VK_IMAGE_ASPECT_COLOR_BIT, 1);
@@ -261,7 +261,7 @@ void RenderTextureCreateFrames(RenderTexture *render, uint32_t flags)
 
         VkFramebufferCreateInfo *framebufferInfo = AllocateMemory(1, sizeof(VkFramebufferCreateInfo));
         framebufferInfo->sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-        framebufferInfo->renderPass = render->render_pass;
+        framebufferInfo->renderPass = (VkRenderPass)render->render_pass;
         framebufferInfo->width = render->width;
         framebufferInfo->height = render->height;
         framebufferInfo->layers = 1;
@@ -295,7 +295,7 @@ void RenderTextureCreateFrames(RenderTexture *render, uint32_t flags)
             {
                 for(int j=0;j < 6;j++)
                 {
-                    VkImageView attachments[] = { frame->shadowCubeMapFaceImageViews[j] };
+                    VkImageView attachments[] = { (VkImageView)frame->shadowCubeMapFaceImageViews[j] };
 
                     framebufferInfo->attachmentCount = 1;
                     framebufferInfo->pAttachments = attachments;
@@ -312,7 +312,7 @@ void RenderTextureCreateFrames(RenderTexture *render, uint32_t flags)
 
                 for(int j=0;j < 6;j++)
                 {
-                    attachments[0] = frame->shadowCubeMapFaceImageViews[j];
+                    attachments[0] = (VkImageView)frame->shadowCubeMapFaceImageViews[j];
 
                     framebufferInfo->attachmentCount = 2;
                     framebufferInfo->pAttachments = attachments;
@@ -450,12 +450,12 @@ void RenderTextureBeginRendering(RenderTexture *render, void *cmd_buff)
 
     VkRenderPassBeginInfo *renderBeginInfo = AllocateMemory(1, sizeof(VkRenderPassBeginInfo));
     renderBeginInfo->sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-    renderBeginInfo->renderPass = render->render_pass;
+    renderBeginInfo->renderPass = (VkRenderPass)render->render_pass;
 
     if(render->type & TIGOR_RENDER_TYPE_CUBEMAP)
-        renderBeginInfo->framebuffer = frame->framebufers[render->currFrame];
+        renderBeginInfo->framebuffer = (VkFramebuffer)frame->framebufers[render->currFrame];
     else{
-        renderBeginInfo->framebuffer = frame->framebufers[0];
+        renderBeginInfo->framebuffer = (VkFramebuffer)frame->framebufers[0];
     }
     renderBeginInfo->renderArea.offset.x = 0;
     renderBeginInfo->renderArea.offset.y = 0;
@@ -520,16 +520,16 @@ void RenderTextureDestroy(RenderTexture *render)
         if(render->type & TIGOR_RENDER_TYPE_CUBEMAP)
         {
             for(int i=0;i < 6;i++){
-                vkDestroyFramebuffer(device->e_device, render->frames[j].framebufers[i], NULL);
-                vkDestroyImageView(device->e_device, render->frames[j].shadowCubeMapFaceImageViews[i], NULL);
+                vkDestroyFramebuffer(device->e_device, (VkFramebuffer)render->frames[j].framebufers[i], NULL);
+                vkDestroyImageView(device->e_device, (VkImageView)render->frames[j].shadowCubeMapFaceImageViews[i], NULL);
             }
         }else
-            vkDestroyFramebuffer(device->e_device, render->frames[j].framebufers[0], NULL);
+            vkDestroyFramebuffer(device->e_device, (VkFramebuffer)render->frames[j].framebufers[0], NULL);
             
         FreeMemory(render->frames[j].framebufers);
     }
 
     FreeMemory(render->frames);
 
-    vkDestroyRenderPass(device->e_device, render->render_pass, NULL);
+    vkDestroyRenderPass(device->e_device, (VkRenderPass)render->render_pass, NULL);
 }

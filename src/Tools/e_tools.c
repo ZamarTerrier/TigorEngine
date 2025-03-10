@@ -58,7 +58,7 @@ void* beginSingleTimeCommands() {
     memset(&allocInfo, 0, sizeof(VkCommandBufferAllocateInfo));
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
     allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocInfo.commandPool = device->commandPool;
+    allocInfo.commandPool = (VkCommandPool)device->commandPool;
     allocInfo.commandBufferCount = 1;
 
     VkCommandBuffer commandBuffer;
@@ -87,7 +87,7 @@ void endSingleTimeCommands(void* commandBuffer) {
     vkQueueSubmit(device->graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
     vkQueueWaitIdle(device->graphicsQueue);
 
-    vkFreeCommandBuffers(device->e_device, device->commandPool, 1, (const VkCommandBuffer *)&commandBuffer);
+    vkFreeCommandBuffers(device->e_device, (VkCommandPool)device->commandPool, 1, (const VkCommandBuffer *)&commandBuffer);
 }
 
 bool isComplete(QueueFamilyIndices self) {
@@ -120,7 +120,7 @@ QueueFamilyIndices findQueueFamilies(void* arg) {
 
         if(engine.present){
             bool presentSupport = false;
-            vkGetPhysicalDeviceSurfaceSupportKHR(device, i, window->surface, (VkBool32 *)&presentSupport);
+            vkGetPhysicalDeviceSurfaceSupportKHR(device, i, (VkSurfaceKHR)window->surface, (VkBool32 *)&presentSupport);
 
             if (presentSupport) {
                 indices.presentFamily = i;
@@ -183,7 +183,7 @@ void* createShaderModule(ShaderObject shdr) {
         printf("failed to create shader module!");
         exit(1);
     }
-    return shaderModule;
+    return (void *)shaderModule;
 }
 
 void MakeSomeIndex(indexParam *iParam, uint32_t size, uint32_t last_indx, VertextIterator *vi)
@@ -1181,7 +1181,7 @@ void ToolsCreateDepthResources() {
     TextureCreateImage(swapchain->swapChainExtent.width, swapchain->swapChainExtent.height, 1, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 0, &swapchain->depth_texture);
     swapchain->depth_texture.image_view = TextureCreateImageView(swapchain->depth_texture.image, VK_IMAGE_VIEW_TYPE_2D, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT, 1);
 
-    ToolsTransitionImageLayout(swapchain->depth_texture.image, depthFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, 1);
+    ToolsTransitionImageLayout((void *)swapchain->depth_texture.image, depthFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, 1);
 
 }
 
@@ -1196,7 +1196,7 @@ void ToolsTransitionImageLayoutLite(void* image, uint32_t oldLayout, uint32_t ne
     imgBar.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
     imgBar.oldLayout = oldLayout;
     imgBar.newLayout = newLayout;
-    imgBar.image = image;
+    imgBar.image = (VkImage)image;
     imgBar.subresourceRange.aspectMask = aspect_mask;
     imgBar.subresourceRange.levelCount = mip_levels;
     imgBar.subresourceRange.layerCount = 1;
@@ -1220,7 +1220,7 @@ void ToolsTransitionImageLayout(void* image, uint32_t format, uint32_t oldLayout
     barrier.newLayout = newLayout;
     barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
     barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-    barrier.image = image;
+    barrier.image = (VkImage)image;
     barrier.subresourceRange.baseMipLevel = 0;
     barrier.subresourceRange.levelCount = mip_levels;
     barrier.subresourceRange.baseArrayLayer = 0;
@@ -1289,7 +1289,7 @@ void ToolsCopyBufferToImage(void *buffer, void *image, uint32_t width, uint32_t 
     region.bufferRowLength = 0;
     region.bufferImageHeight = 0;
 
-    vkCmdCopyBufferToImage( commandBuffer, buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+    vkCmdCopyBufferToImage( commandBuffer, (VkBuffer)buffer, (VkImage)image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
 
     endSingleTimeCommands(commandBuffer);
@@ -1343,7 +1343,7 @@ void ToolsCopyImage(void *cmdBuffer, void *srcImageId, void * dstImageId, uint32
     region.extent.height = height;
     region.extent.depth = 1;
 
-    vkCmdCopyImage( cmdBuffer, srcImageId, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, dstImageId, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, 1, &region);
+    vkCmdCopyImage( cmdBuffer, (VkImage)srcImageId, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, (VkImage)dstImageId, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, 1, &region);
 
 }
 

@@ -34,6 +34,7 @@ target_sources(${PROJECT_NAME} PRIVATE
 				src/Core/graphicsObject.c
 				src/Core/pipeline.c
 				src/Core/swapchain.c
+				src/Core/vulkan_android.c
 				src/Data/e_resource_data.c
 				src/Data/e_resource_descriptors.c
 				src/Data/e_resource_engine.c

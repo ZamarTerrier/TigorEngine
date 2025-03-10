@@ -143,7 +143,7 @@ void DescriptorUpdate(BluePrintDescriptor *descriptor, char *data, uint32_t size
 
 }
 
-void DescriptorSetImage(VkWriteDescriptorSet* descriptorWrites, void *descr_set, uint32_t array_size, BluePrintDescriptor *blueprint_descriptor)
+void DescriptorSetImage(VkWriteDescriptorSet* descriptorWrites, VkDescriptorSet descr_set, uint32_t array_size, BluePrintDescriptor *blueprint_descriptor)
 {
     descriptorWrites->pImageInfo = AllocateMemoryP(array_size, sizeof(VkDescriptorImageInfo), descriptorWrites);
 
@@ -169,25 +169,25 @@ void DescriptorSetImage(VkWriteDescriptorSet* descriptorWrites, void *descr_set,
     }
 
     descriptorWrites->sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-    descriptorWrites->dstSet = descr_set;
+    descriptorWrites->dstSet = (VkDescriptorSet)descr_set;
     descriptorWrites->dstBinding = blueprint_descriptor->binding;
     descriptorWrites->dstArrayElement = 0;
     descriptorWrites->descriptorCount = blueprint_descriptor->count;
     descriptorWrites->descriptorType = blueprint_descriptor->descrType;
 }
 
-void DescriptorSetBuffer(VkWriteDescriptorSet* descriptorWrites, void *descr_set, void *uniform_buffer, BluePrintDescriptor *blueprint_descriptor)
+void DescriptorSetBuffer(VkWriteDescriptorSet* descriptorWrites, VkDescriptorSet descr_set, VkBuffer uniform_buffer, BluePrintDescriptor *blueprint_descriptor)
 {
     descriptorWrites->pBufferInfo = AllocateMemoryP(1, sizeof(VkDescriptorBufferInfo), descriptorWrites);
 
     VkDescriptorBufferInfo *bufferInfo = (VkDescriptorBufferInfo *)descriptorWrites->pBufferInfo;
 
-    bufferInfo->buffer = uniform_buffer;//юнибавер
+    bufferInfo->buffer = (VkBuffer)uniform_buffer;//юнибавер
     bufferInfo->offset = 0;
     bufferInfo->range = blueprint_descriptor->uniform.type_size;//размер юниформ бафера
 
     descriptorWrites->sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-    descriptorWrites->dstSet = descr_set;
+    descriptorWrites->dstSet = (VkDescriptorSet)descr_set;
     descriptorWrites->dstBinding = blueprint_descriptor->binding;
     descriptorWrites->dstArrayElement = 0;
     descriptorWrites->descriptorCount = blueprint_descriptor->count;
@@ -256,12 +256,12 @@ void DescriptorCreate(ShaderDescriptor *descriptor, BluePrintDescriptor *descrip
 
         for(int i=0; i < num_frame;i++)
         {
-            layouts[i] = descriptor->descr_set_layout;
+            layouts[i] = (VkDescriptorSetLayout)descriptor->descr_set_layout;
         }
 
         VkDescriptorSetAllocateInfo allocInfo = {};
         allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-        allocInfo.descriptorPool = descriptor->descr_pool;
+        allocInfo.descriptorPool = (VkDescriptorPool)descriptor->descr_pool;
         allocInfo.descriptorSetCount = num_frame;
         allocInfo.pSetLayouts = layouts;
 
