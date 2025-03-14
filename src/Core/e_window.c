@@ -8,10 +8,6 @@
 #include "Data/e_resource_engine.h"
 
 
-#ifdef __ANDROID__
-    #include "Core/vulkan_android.h"
-#endif
-
 #define VK_KHR_SURFACE_EXTENSION_NAME     "VK_KHR_surface"
 #define VK_KHR_ANDROID_SURFACE_EXTENSION_NAME "VK_KHR_android_surface"
 
@@ -53,16 +49,7 @@ const char** getRequiredExtensions(){
 
     const char** extensions;
 
-#ifndef __ANDROID__
     extensions = wManagerGetRequiredInstanceExtensions(&engine.wManagerExtensionCount);
-#else
-    extensions = AllocateMemory(2, sizeof(char *));
-    extensions[0] = VK_KHR_SURFACE_EXTENSION_NAME;
-    extensions[1] = VK_KHR_ANDROID_SURFACE_EXTENSION_NAME;
-
-    engine.wManagerExtensionCount = 2;
-
-#endif
 
     if(enableValidationLayers)
         engine.wManagerExtensionCount ++;
@@ -84,7 +71,6 @@ const char** getRequiredExtensions(){
 void InitWindow(){
     TWindow *window = (TWindow *)engine.window;
 
-#ifndef __ANDROID__
     wManagerInit();
     //wManagerWindowHint(TIGOR_RESIZABLE, false);
     if(!wManagerCreateWindow(window->e_window, engine.width, engine.height, engine.app_name)){
@@ -94,7 +80,6 @@ void InitWindow(){
     }
 
     wManagerSetFramebufferSizeCallback(window->e_window, (wManagerFrameBufferSizeFun)framebufferResizeCallback);
-#endif
 }
 
 static void framebufferResizeCallback(void* window, int width, int height) {
@@ -159,12 +144,10 @@ void createInstance(){
 void createSurface() {
     TWindow *window = (TWindow *)engine.window;
 
-#ifndef __ANDROID__
     if (wManagerCreateWindowSurface(window->instance, window->e_window, NULL, (VkSurfaceKHR *) &window->surface) != VK_SUCCESS) {
         printf("failed to create window surface!");
         exit(1);
     }
-#endif
 }
 
 vec2 getWindowSize()

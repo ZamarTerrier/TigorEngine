@@ -7,7 +7,6 @@
 
 #define USER_DEFAULT_SCREEN_DPI 96
 
-#ifndef __ANDROID__
 wManagerWindow _wMWindow;
 extern wManagerInfo _wMInfo;
 
@@ -591,5 +590,3 @@ void WManagerWaitEventsTimeout(double timeout)
 
     _wMWindow.platform.waitEventsTimeout(timeout);
 }
-
-#endif

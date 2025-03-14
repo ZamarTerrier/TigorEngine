@@ -41,7 +41,7 @@ typedef struct{
     ChildStack *draw_list;
     BufferObject vertBuffer;
     BufferObject indxBuffer;
-    vec2 _Path[256];
+    vec2 _Path[2048];
     uint32_t _Path_Size;
     float _FringeScale;
     uint32_t currIndx;
@@ -108,7 +108,11 @@ void PathRect(vec2 a, vec2 b, float rounding, uint32_t flags);
 /// @param col - цвет фигуры 
 /// @param flags - флаги фигуры
 /// @param thickness - толщина линий
+void PathFillConvex(vec3 col);
 void PathStroke(vec3 color, uint32_t flags, float thickness);
+void PathArcTo(const vec2 center, float radius, float a_min, float a_max, int num_segments);
+void PathBezierCubicCurveTo( vec2 p2,  vec2 p3, vec2 p4, int num_segments);
+void PathBezierQuadraticCurveTo( vec2 p2, vec2 p3, int num_segments);
 /// @brief Функция инициализация обхекта интрефейса
 void GUIManagerInit();
 /// @brief Функция проверки инициализации отрисовщика интерфейса

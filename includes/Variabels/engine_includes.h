@@ -1,8 +1,6 @@
 #ifndef STDINC_H
 #define STDINC_H
 
-#define _USE_MATH_DEFINES
-
 #include <vulkan/vulkan.h>
 
 #include <stdio.h>
@@ -21,10 +19,6 @@
 
 #include "wManager/window_manager.h"
 
-#if defined(__ANDROID__)
-    #include "Core/vulkan_android.h"
-#endif
-
 #define TIGOR_DEFINE_NON_DISPATCHABLE_HANDLE(object) typedef struct object##_T *object;
 
 #define MAX_FONTS 256
@@ -36,6 +30,11 @@
 #define MAX_DRAW_OBJECTS 256
 
 #define MAX_GUI_CALLBACKS 64
+
+
+#ifndef M_PI
+#define M_PI		3.14159265358979323846
+#endif
 
 #ifdef __cplusplus
 extern "C"

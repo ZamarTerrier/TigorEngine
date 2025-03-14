@@ -279,9 +279,7 @@ int WidgetCheck(EWidget *widget){
 
     double xpos, ypos;
 
-#ifndef __ANDROID__
     wManagerGetCursorPos(window->e_window, &xpos, &ypos);
-#endif
 
     xpos *= 2;
     ypos *= 2;
@@ -397,9 +395,7 @@ void WidgetEventsPipe(ChildStack *child)
 
     int state = 0;
 
-#ifndef __ANDROID__
     state = wManagerGetMouseButton(window->e_window, TIGOR_MOUSE_BUTTON_LEFT);
-#endif
 
     if(state == TIGOR_PRESS)
         e_var_leftMouse = true;

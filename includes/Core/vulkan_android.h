@@ -6,18 +6,11 @@
 * This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
 */
 
-#pragma once
-
 #ifndef VULKANANDROID_H
 #define VULKANANDROID_H
 
 // Vulkan needs to be loaded dynamically on android
 // While SDK 26 (and up) come with a loader, we also want to support older devices, so we manually load function pointers
-
-#pragma once
-
-#ifndef VULKANANDROID_HPP
-#define VULKANANDROID_HPP
 
 #include "vulkan/vulkan.h"
 
@@ -182,8 +175,6 @@ void AndroidGetDeviceConfig();
 void AndroidShowAlert(const char* message);
 #endif
 
-#endif // VULKANANDROID_HPP
-
-
 #endif // VULKANANDROID_H
+
  

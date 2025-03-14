@@ -120,6 +120,8 @@ void GUIAddEllipse(vec2 center, const vec2 radius, vec3 col, float rot, int num_
 /// @param num_segments - количество сегментов эллипса
 void GUIAddEllipseFilled(vec2 center, const vec2 radius, vec3 col, float rot, int num_segments);
 
+void GUIAddPolyline(vec2* points, int points_count, vec3 color, DrawListFlags flags, float thicknes);
+
 #ifndef GUIAddText
 
 /// @brief Отрисавка текста в формате char

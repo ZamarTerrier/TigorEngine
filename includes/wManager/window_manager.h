@@ -8,8 +8,6 @@
 typedef void (*e_charCallback)(void *, uint32_t);
 typedef void (*e_keyCallback)(void *, int , int , int , int );
 
-#ifndef __ANDROID__
-
 #include "manager_includes.h"
 
 #include "win_defines.h"
@@ -193,7 +191,5 @@ void wManagerWaitEvents();
 void WManagerWaitEventsTimeout(double timeout);
 
 void wManagerTerminate();
-
-#endif
 
 #endif // WINDOW_MANAGER_H

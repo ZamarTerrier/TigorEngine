@@ -3,10 +3,6 @@
 #include <vulkan/vulkan.h>
 #include <assert.h>
 
-#ifdef __ANDROID__
-#include <android/log.h>
-#endif
-
 #include "Core/engine.h"
 #include "Core/e_memory.h"
 #include "Core/e_buffer.h"
@@ -29,9 +25,6 @@ TEngine engine;
 
 extern bool enableValidationLayers;
 
-#ifdef __ANDROID__
-    extern struct android_app *androidApp;
-#endif
 
 void EngineCharacterCallback(void* window, uint32_t codepoint)
 {
@@ -50,152 +43,6 @@ void EngineKeyCallback(void* window,  unsigned int key, unsigned int scancode, u
 }
 
 
-void TEngineRenderLoop(){
-    TEnginePoolEvents();
-
-    TWindow *window = (TWindow *)engine.window;
-
-    #if defined(_WIN32)
-
-    while (!TEngineWindowIsClosed())
-    {    
-        if(engine.func.UpdateFunc != NULL)
-            Updater(1.0); 
-        
-        TEngineRender();  
-    }
-
-    #elif defined(VK_USE_PLATFORM_ANDROID_KHR)
-
-    while (!TEngineWindowIsClosed())
-    {
-    
-        if(engine.func.UpdateFunc != NULL)
-            engine.func.UpdateFunc(1.0);
-        
-        TEngineRender();  
-    }
-
-    #elif defined(__EMSCRIPTEN__)
-        SDL_GL_MakeCurrent(window->instance, engine.gl_context);
-        SDL_Event e;
-        while(SDL_PollEvent(&e))
-        {
-            _wManagerPoolEventWeb(window->e_window, e);
-        }   
-        if(engine.func.UpdateFunc != NULL)
-            Updater(1.0);   
-
-        if(GUIManagerIsInit())
-            GUIManagerUpdate();
-
-        for( int i=0;i < engine.gameObjects.size;i++){
-            if(!(engine.gameObjects.objects[i]->flags & TIGOR_GAME_OBJECT_FLAG_INIT))
-                GameObjectInit(engine.gameObjects.objects[i]);
-        }   
-        // render
-        // ------
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  
-        for( int i=0;i < engine.gameObjects.size;i++){
-            GameObjectDraw(engine.gameObjects.objects[i]);
-        }
-
-        if(GUIManagerIsInit())
-            GUIManagerDraw();
-
-        engine.gameObjects.size = 0;    
-        SDL_GL_SwapWindow(window->instance);
-
-        if(GUIManagerIsInit())
-            GUIManagerClear();
-    #endif
-}
-
-void EngineClassicInit(){
-      
-#ifndef __ANDROID__  
-    InitWindow(engine.window);
-    
-    TWindow *window = (TWindow *)engine.window;
-    
-    wManagerSetCharCallback(window->e_window, EngineCharacterCallback);
-    wManagerSetKeyCallback(window->e_window, EngineKeyCallback);
-#endif
-
-    EngineInitVulkan();
-    
-    char *text = "Null texture";
-    engine_buffered_image *images = engine.DataR.e_var_images;
-    TextureCreateEmptyDefault(&images[engine.DataR.e_var_num_images].texture);
-    TextureCreateTextureImageView(&images[engine.DataR.e_var_num_images].texture, VK_IMAGE_VIEW_TYPE_2D);
-    TextureCreateSampler(&images[engine.DataR.e_var_num_images].texture.sampler, images[engine.DataR.e_var_num_images].texture.textureType,  images[engine.DataR.e_var_num_images].texture.image_data.mip_levels);
-
-    memcpy(images[engine.DataR.e_var_num_images].path, text, strlen(text));
-    engine.DataR.e_var_num_images ++;
-    
-    memset(&engine.renders, 0, sizeof(EngineRenderItems));
-    memset(&engine.lights, 0, sizeof(EngineLightItems));
-    
-    engine.main_render = AllocateMemory(1, sizeof(RenderTexture));
-    
-    RenderTextureInit(engine.main_render, TIGOR_RENDER_TYPE_WINDOW, 0, 0, 0);
-
-    TEngineSetRender(engine.main_render, 1);
-
-    GUIManagerInit();
-}
-
-
-#ifdef __ANDROID__
-void TEngineHandleAppCommand(struct android_app * app, int32_t cmd){
-    //assert(app->userData != NULL);
-	//VulkanExampleBase* vulkanExample = reinterpret_cast<VulkanExampleBase*>(app->userData);
-	switch (cmd)
-	{
-	case APP_CMD_SAVE_STATE:
-        printf("APP_CMD_SAVE_STATE");
-		/*
-		vulkanExample->app->savedState = malloc(sizeof(struct saved_state));
-		*((struct saved_state*)vulkanExample->app->savedState) = vulkanExample->state;
-		vulkanExample->app->savedStateSize = sizeof(struct saved_state);
-		*/
-		break;
-	case APP_CMD_INIT_WINDOW:
-		printf("APP_CMD_INIT_WINDOW");
-		if (androidApp->window != NULL)
-		{
-			//EngineClassicInit();
-		}
-		else
-		{
-            printf("No window assigned!");
-		}
-		break;
-	case APP_CMD_LOST_FOCUS:
-        printf("APP_CMD_LOST_FOCUS");
-		//vulkanExample->focused = false;
-		break;
-	case APP_CMD_GAINED_FOCUS:
-        printf("APP_CMD_GAINED_FOCUS");
-		//vulkanExample->focused = true;
-		break;
-	case APP_CMD_TERM_WINDOW:
-		// Window is hidden or closed, clean up resources
-        printf("APP_CMD_TERM_WINDOW");
-		/*if (vulkanExample->prepared) {
-			vulkanExample->swapChain.cleanup();
-		}*/
-		break;
-	}
-}
-int32_t TEngineHandleAppInput(struct android_app* app, AInputEvent* event){
-
-    return 0;
-}
-#endif
 
 void TEngineInitSystem(int width, int height, const char* name){
     memset(&engine, 0, sizeof(TEngine));
@@ -238,11 +85,34 @@ void TEngineInitSystem(int width, int height, const char* name){
     engine.DataR.e_var_fonts = AllocateMemoryP(MAX_FONTS, sizeof(FontCache), &engine);
     engine.DataR.e_var_num_fonts = 0;
 
-    #ifdef _WIN32
-        void EngineClassicInit(width, height, name);
-    #elif defined(__ANDROID_)
-        AndroidLoadVulkanLibrary();
-    #endif
+    InitWindow(engine.window);
+    
+    TWindow *window = (TWindow *)engine.window;
+    
+    wManagerSetCharCallback(window->e_window, EngineCharacterCallback);
+    wManagerSetKeyCallback(window->e_window, EngineKeyCallback);
+
+    EngineInitVulkan();
+    
+    char *text = "Null texture";
+    engine_buffered_image *images = engine.DataR.e_var_images;
+    TextureCreateEmptyDefault(&images[engine.DataR.e_var_num_images].texture);
+    TextureCreateTextureImageView(&images[engine.DataR.e_var_num_images].texture, VK_IMAGE_VIEW_TYPE_2D);
+    TextureCreateSampler(&images[engine.DataR.e_var_num_images].texture.sampler, images[engine.DataR.e_var_num_images].texture.textureType,  images[engine.DataR.e_var_num_images].texture.image_data.mip_levels);
+
+    memcpy(images[engine.DataR.e_var_num_images].path, text, strlen(text));
+    engine.DataR.e_var_num_images ++;
+    
+    memset(&engine.renders, 0, sizeof(EngineRenderItems));
+    memset(&engine.lights, 0, sizeof(EngineLightItems));
+    
+    engine.main_render = AllocateMemory(1, sizeof(RenderTexture));
+    
+    RenderTextureInit(engine.main_render, TIGOR_RENDER_TYPE_WINDOW, 0, 0, 0);
+
+    TEngineSetRender(engine.main_render, 1);
+
+    GUIManagerInit();
 }
 
 void TEngineSetRender(void *obj, uint32_t count)
@@ -447,9 +317,7 @@ void TEngineDraw(GameObject *go){
 }
 
 void TEnginePoolEvents(){
-#ifndef __ANDROID__
     wManagerPoolEvents();
-#endif
 }
 
 void TEngineSetKeyCallback(void *callback){
@@ -469,17 +337,13 @@ void TEngineSetCharCallback(void *callback){
 void TEngineSetMouseKeyCallback(void *callback){
     TWindow *window = (TWindow *)engine.window;
 
-#ifndef __ANDROID__
     wManagerSetMouseButtonCallback(window->e_window, callback);
-#endif
 }
 
 void TEngineSetCursorPoscallback(void * callback){
     TWindow *window = (TWindow *)engine.window;
 
-#ifndef __ANDROID__
     wManagerSetCursorPosCallback(window->e_window, callback);
-#endif
 }
 
 void TEngineGetWindowSize(int *width, int *height){
@@ -491,31 +355,24 @@ void TEngineGetWindowSize(int *width, int *height){
 void TEngineFixedCursorCenter(){
     TWindow *window = (TWindow *)engine.window;
 
-#ifndef __ANDROID__
     wManagerSetCursorPos(window->e_window, engine.width / 2, engine.height / 2);
-#endif
 }
 
 void TEngineGetCursorPos(double *xpos, double *ypos){
     TWindow *window = (TWindow *)engine.window;
 
-#ifndef __ANDROID__
     wManagerGetCursorPos(window->e_window, xpos, ypos);
-#endif
 }
 
 void TEngineSetCursorPos(float xpos, float ypos){
     TWindow *window = (TWindow *)engine.window;
 
-#ifndef __ANDROID__
     wManagerSetCursorPos(window->e_window, xpos, ypos);
-#endif
 }
 
 void TEngineHideCursor(char state){
     TWindow *window = (TWindow *)engine.window;
 
-#ifndef __ANDROID__
     switch(state){
         case 0 :
             wManagerSetInputMode(window->e_window, TIGOR_CURSOR, TIGOR_CURSOR_DISABLED);
@@ -527,7 +384,7 @@ void TEngineHideCursor(char state){
             wManagerSetInputMode(window->e_window, TIGOR_CURSOR, TIGOR_CURSOR_NORMAL);
             break;
     }
-#endif
+
 }
 
 int TEngineGetMousePress(int Key){
@@ -535,9 +392,7 @@ int TEngineGetMousePress(int Key){
 
     int state = 0;
 
-#ifndef __ANDROID__
     state = wManagerGetMouseButton(window->e_window, Key);
-#endif
 
     return state;
 }
@@ -545,9 +400,7 @@ int TEngineGetMousePress(int Key){
 int TEngineWindowIsClosed(){
     int state = 0;
 
-#ifndef __ANDROID__
     state = wManagerWindowIsClosed();
-#endif
 
     return state;
 }
@@ -555,9 +408,7 @@ int TEngineWindowIsClosed(){
 double TEngineGetTime(){
     int state = 0;
 
-#ifndef __ANDROID__
     state =  wManagerGetTime();
-#endif
 
     return state;
 }
@@ -567,9 +418,7 @@ int TEngineGetKeyPress(int Key){
 
     int state = 0;
 
-#ifndef __ANDROID__
     state =  wManagerGetKey(window->e_window, Key);
-#endif
 
     return state;
 }
@@ -579,9 +428,7 @@ const char *TEngineGetClipBoardString(){
 
     char *state = 0;
 
-#ifndef __ANDROID__
     state = wManagerGetClipboardString(window->e_window);
-#endif
 
     return state;
 }
@@ -589,9 +436,7 @@ const char *TEngineGetClipBoardString(){
 void TEngineSetClipBoardString(const char *string){
     TWindow *window = (TWindow *)engine.window;
 
-#ifndef __ANDROID__
     wManagerSetClipboardString(window->e_window, string);
-#endif
 }
 
 void TEngineSetFont(char *font_path){
@@ -697,11 +542,9 @@ void TEngineCleanUp(){
 
     vkDestroyInstance(window->instance, NULL);
 
-#ifndef __ANDROID__
     wManagerDestroyWindow(window->e_window);
 
     wManagerTerminate();
-#endif
 
     FreeMemory(engine.window);
     FreeMemory(engine.device);

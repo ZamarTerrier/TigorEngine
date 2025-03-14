@@ -18,9 +18,10 @@ extern wManagerWindow _wMWindow;
                        TIGOR_MOD_CONTROL | \
                        TIGOR_MOD_ALT | \
                        TIGOR_MOD_SUPER | \
-                       TIGOR_MOD_CAPS_LOCK |
+                       TIGOR_MOD_CAPS_LOCK | \
+                       TIGOR_MOD_NUM_LOCK)
 
-#ifndef __ANDROID__
+
 void _wManagerCenterCursorInContentArea(wManagerWindow* window)
 {
     int width, height;
@@ -134,5 +135,3 @@ void _wManagerInputDrop(wManagerWindow* window, int count, const char** paths)
     if (window->callbacks.drop)
         window->callbacks.drop((wManagerWindow*) window, count, paths);
 }
-
-#endif

@@ -103,11 +103,9 @@ void DescriptorDestroy(ShaderDescriptor *descriptor)
     }
 
     if(child->next != NULL){
-#ifndef __ANDROID__
         vkFreeDescriptorSets(device->e_device, descriptor->descr_pool, engine.imagesCount, descriptor->descr_sets);
         vkDestroyDescriptorPool(device->e_device, descriptor->descr_pool, NULL);
         vkDestroyDescriptorSetLayout(device->e_device, descriptor->descr_set_layout, NULL);
-#endif
         FreeMemory(descriptor->descr_sets);
         child->node = NULL;
         

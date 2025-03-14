@@ -6,7 +6,6 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-#ifndef __ANDROID__
 wManagerInfo _wMInfo;
 extern wManagerWindow _wMWindow;
 
@@ -141,5 +140,3 @@ int wManagerVulkanInit()
 
         return true;
 }
-
-#endif

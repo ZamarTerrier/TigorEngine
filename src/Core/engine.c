@@ -41,9 +41,7 @@ void EngineCreateSilent(){
     engine.cache.alloc_descriptor_head = calloc(1, sizeof(ChildStack));
     engine.cache.alloc_pipeline_head = calloc(1, sizeof(ChildStack));
 
-#ifndef __ANDROID__
     wManagerInit();
-#endif
     createInstance();
     setupDebugMessenger();
     pickPhysicalDevice();
@@ -75,9 +73,9 @@ void EngineCreateSyncobjects() {
 
     TDevice *device = (TDevice *)engine.device;
 
-    engine.Sync.imageAvailableSemaphores = (VkSemaphore *)AllocateMemoryP(engine.MAX_FRAMES_IN_FLIGHT, sizeof(VkSemaphore), &engine);
-    engine.Sync.renderFinishedSemaphores = (VkSemaphore *)AllocateMemoryP(engine.MAX_FRAMES_IN_FLIGHT, sizeof(VkSemaphore), &engine);
-    engine.Sync.inFlightFences = (VkFence *)AllocateMemoryP(engine.MAX_FRAMES_IN_FLIGHT, sizeof(VkFence), &engine);
+    engine.Sync.imageAvailableSemaphores = (VkSemaphore *)AllocateMemoryP(engine.imagesCount, sizeof(VkSemaphore), &engine);
+    engine.Sync.renderFinishedSemaphores = (VkSemaphore *)AllocateMemoryP(engine.imagesCount, sizeof(VkSemaphore), &engine);
+    engine.Sync.inFlightFences = (VkFence *)AllocateMemoryP(engine.imagesCount, sizeof(VkFence), &engine);
 
     VkSemaphoreCreateInfo semaphoreInfo = {};
     semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
@@ -86,7 +84,7 @@ void EngineCreateSyncobjects() {
     fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
     fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-    for (int i = 0; i < engine.MAX_FRAMES_IN_FLIGHT; i++) {
+    for (int i = 0; i < engine.imagesCount; i++) {
         if (vkCreateSemaphore(device->e_device, &semaphoreInfo, NULL, &engine.Sync.imageAvailableSemaphores[i]) != VK_SUCCESS ||
                 vkCreateSemaphore(device->e_device, &semaphoreInfo, NULL, &engine.Sync.renderFinishedSemaphores[i]) != VK_SUCCESS ||
                 vkCreateFence(device->e_device, &fenceInfo, NULL, &engine.Sync.inFlightFences[i]) != VK_SUCCESS) {
@@ -98,7 +96,5 @@ void EngineCreateSyncobjects() {
 
 void EngineWaitEvents()
 {
-#ifndef __ANDROID__
     wManagerWaitEvents();
-#endif
 }

@@ -180,3 +180,16 @@ void GUIAddEllipseFilled(vec2 center, const vec2 radius, vec3 col, float rot, in
     PathEllipticalArcTo(center, radius, rot, 0.0f, a_max, num_segments - 1);
     PathFillConvex(col);
 }
+
+void GUIAddPolyline(vec2* points, int points_count, vec3 color, DrawListFlags flags, float thickness){
+
+    for(int i = 0;i < points_count;i++){
+        if(points->x != 0) 
+            points->x /= engine.width; 
+            
+        if(points->y != 0) 
+            points->y /= engine.height; 
+    }
+
+    GUIManagerAddPolyline(points, points_count, color, flags, thickness);
+}
