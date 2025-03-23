@@ -398,14 +398,14 @@ void GUIAddBezierCubic(const vec2 p1, const vec2 p2, const vec2 p3, const vec2 p
 {
     PathLineTo(p1);
     PathBezierCubicCurveTo(p2, p3, p4, num_segments);
-    PathStroke(col, 0, thickness);
+    PathStroke(col, 0, thickness, false);
 }
 // Quadratic Bezier takes 3 controls points
 void GUIAddBezierQuadratic(const vec2 p1, const vec2 p2, const vec2 p3, vec3 col, float thickness, int num_segments)
 {
     PathLineTo(p1);
     PathBezierQuadraticCurveTo(p2, p3, num_segments);
-    PathStroke(col, 0, thickness);
+    PathStroke(col, 0, thickness, false);
 }
 
 GUIObj *GUIManagerAddObject(){
@@ -778,7 +778,7 @@ void GUIAddRectFilled(const vec2 p_min, const vec2 p_max, vec3 col, float roundi
     else
     {
         PathRect(p_min, p_max, rounding, flags);
-        PathFillConvex(col);
+        PathFillConvex(col, false);
     }
 }
 
@@ -1304,7 +1304,7 @@ void PathLineTo(vec2 pos)  {
 
 }
 
-void PathFillConvex(vec3 col){ 
+void PathFillConvex(vec3 col, int save){ 
     
     if(!GUIManagerIsInit()){
         memset(gui._Path, 0, sizeof(vec2) * 32);
@@ -1314,11 +1314,13 @@ void PathFillConvex(vec3 col){
 
     AddConvexPolyFilled(gui._Path, gui._Path_Size, col); 
     
-    memset(gui._Path, 0, sizeof(vec2) * 32);
-    gui._Path_Size = 0; 
+    if(!save){
+        memset(gui._Path, 0, sizeof(vec2) * 32);
+        gui._Path_Size = 0; 
+    }
 }
 
-void PathStroke(vec3 color, uint32_t flags, float thickness) { 
+void PathStroke(vec3 color, uint32_t flags, float thickness, int save) { 
     
     if(!GUIManagerIsInit()){
         memset(gui._Path, 0, sizeof(vec2) * 32);
@@ -1328,8 +1330,10 @@ void PathStroke(vec3 color, uint32_t flags, float thickness) {
 
     GUIManagerAddPolyline(gui._Path, gui._Path_Size, color, flags, thickness); 
     
-    memset(gui._Path, 0, sizeof(vec2) * 32);
-    gui._Path_Size = 0; 
+    if(!save){
+        memset(gui._Path, 0, sizeof(vec2) * 32);
+        gui._Path_Size = 0; 
+    }
 }
 
 int GUIManagerIsInit(){

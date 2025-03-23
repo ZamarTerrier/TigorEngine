@@ -1,6 +1,6 @@
-#include "shader_builder.h"
+#include "Tools/shader_builder.h"
 
-#include "e_blue_print.h"
+#include "Core/e_blue_print.h"
 
 #include "spirv.h"
 

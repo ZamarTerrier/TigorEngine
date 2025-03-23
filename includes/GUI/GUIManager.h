@@ -97,7 +97,7 @@ void GUIManagerAddPolyline(const vec2* points, int num_points, vec3 color, uint3
 void PathLineTo(vec2 pos);
 /// @brief Функция для вызова формирования фигуры из стека
 /// @param col - цвет фигуры
-void PathFillConvex(vec3 col);
+void PathFillConvex(vec3 col, int save);
 /// @brief Функция формирования квадрата
 /// @param a - левый верхний угол
 /// @param b - правый нижний
@@ -108,8 +108,7 @@ void PathRect(vec2 a, vec2 b, float rounding, uint32_t flags);
 /// @param col - цвет фигуры 
 /// @param flags - флаги фигуры
 /// @param thickness - толщина линий
-void PathFillConvex(vec3 col);
-void PathStroke(vec3 color, uint32_t flags, float thickness);
+void PathStroke(vec3 color, uint32_t flags, float thickness, int save);
 void PathArcTo(const vec2 center, float radius, float a_min, float a_max, int num_segments);
 void PathBezierCubicCurveTo( vec2 p2,  vec2 p3, vec2 p4, int num_segments);
 void PathBezierQuadraticCurveTo( vec2 p2, vec2 p3, int num_segments);
