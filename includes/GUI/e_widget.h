@@ -116,8 +116,6 @@ typedef struct{
 
 typedef int(*widget_callback)(EWidget *widget, void *, void*);
 
-void WidgetGUIBufferUpdate(EWidget *ew, BluePrintDescriptor *descriptor);
-
 void WidgetRemoveStack(EWidget *ew);
 
 int WidgetFindIdChild(EWidget* widget);

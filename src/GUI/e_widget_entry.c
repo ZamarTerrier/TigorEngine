@@ -1,6 +1,8 @@
 #include "GUI/e_widget_entry.h"
 #include "GUI/GUIManager.h"
 
+#include "TigorGUI.h"
+
 #include "Core/e_window.h"
 
 #include "TigorEngine.h"
@@ -248,20 +250,28 @@ void EntryWidgetDraw(EWidgetEntry *entry){
 
         GUIAddRectFilled(pos, v2_add(pos, entry->widget.scale), entry->widget.color, entry->widget.rounding, GUIDrawFlags_RoundCornersAll);
         
-        int len = strlen(entry->text);
-        int max_len = entry->widget.scale.x / engine.width * 8 * 10;
-        if(len > max_len){
-            char buff[max_len + 1];
+        uint32_t temp_size = strlen(entry->text) + 1;
+        uint32_t temp[temp_size + 1];
+        memset(temp, 0, temp_size + 1);
 
-            int t_pos = len - max_len;
+        //ToolsStringToUInt32(buff, text);
 
-            memcpy(buff, entry->text + t_pos, max_len);
-            buff[max_len] = 0;
+        ToolsTextStrFromUtf8(temp, temp_size, entry->text, 0, NULL);
+        int len = ToolsStr32BitLength((uint32_t *)temp);
+        vec2 size = GUIGetTextSize(entry->text);
+        float max_len = entry->widget.scale.x - 2;
+        if(size.x > max_len){
+            int o_len = GUICalcTextLengthFromEnd(max_len, temp);
+            
+            uint32_t buff[o_len + 1];
 
-            GUIAddText(pos.x, pos.y + entry->widget.scale.y / 2, vec3_f(0,0,0), 7, buff);
+            memcpy(buff, temp + len - o_len - 1, o_len);
+            buff[o_len] = 0;
+
+            GUIAddText(pos.x, pos.y + entry->widget.scale.y / 2, vec3_f(0, 0, 0), entry->fontSize, buff);
         }
         else
-            GUIAddText(pos.x, pos.y + entry->widget.scale.y / 2, vec3_f(0,0,0), 7, entry->text);
+            GUIAddText(pos.x, pos.y + entry->widget.scale.y / 2, vec3_f(0 ,0 , 0), entry->fontSize, entry->text);
     }            
 }
 
@@ -278,7 +288,8 @@ void EntryWidgetInit(EWidgetEntry *entry, vec2 scale, EWidget *parent){
     GameObjectSetDrawFunc((GameObject *)entry, (void *)EntryWidgetDraw);
 
     entry->widget.type = TIGOR_WIDGET_TYPE_BUTTON;
-    entry->widget.rounding = 5.0f;    
+    entry->widget.rounding = 5.0f;   
+    entry->fontSize = 7.0f; 
 
     memset(entry->text, 0, MAX_ENTERY_LENGTH);
 

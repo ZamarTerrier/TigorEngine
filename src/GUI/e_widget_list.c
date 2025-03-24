@@ -3,8 +3,6 @@
 
 #include "Tools/e_math.h"
 
-int max_size = 2;
-
 int ListWidgetPressItem(EWidget *widget, void *entry, void *arg){
 
     EWidgetList *list = (EWidgetList *)widget->parent;

@@ -5,6 +5,7 @@
 #include <Core/e_camera.h>
 
 #include <GUI/e_widget_range.h>
+#include <GUI/e_widget_entry.h>
 
 #include <Objects/sprite_object.h>
 
@@ -16,6 +17,7 @@ Camera3D cam3D;
 SpriteObject sprite;
 
 EWidgetRange range;
+EWidgetEntry entry;
 
 vec3 dir, l_pos;
 
@@ -53,6 +55,9 @@ int main(){
     RangeWidgetInit(&range, vec2_f(100, 30), 10, 100, NULL);
     WidgetSetPosition(&range, 400, 300);
     RangeWidgetSetValueDestin(&range, &degreaser);
+
+    EntryWidgetInit(&entry, vec2_f(130, 30), NULL);
+    WidgetSetPosition(&entry, 100, 100);
 
     while (!TEngineWindowIsClosed())
     {

@@ -8,6 +8,7 @@
 typedef struct{
     EWidget widget;
     char text[MAX_ENTERY_LENGTH];
+    float fontSize;
     int currPos;
 } EWidgetEntry;
 
