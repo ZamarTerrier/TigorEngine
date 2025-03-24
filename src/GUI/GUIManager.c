@@ -947,7 +947,7 @@ void GUIRenderText(float xpos, float ypos, vec3 color, const vec4 *clip_rect, fl
     rect->vert_count = v_iter;
 }
 
-void GUIAddTextClippedU8(float xpos, float ypos, vec3 color, float font_size, uint32_t *text, const vec4 *cpu_fine_clip_rect){
+void GUIAddTextClippedU8(float xpos, float ypos, vec3 color, float font_size, const char *text, const vec4 *cpu_fine_clip_rect){
 
     if(!GUIManagerIsInit())
         return;

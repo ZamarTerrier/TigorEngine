@@ -260,18 +260,19 @@ void EntryWidgetDraw(EWidgetEntry *entry){
         int len = ToolsStr32BitLength((uint32_t *)temp);
         vec2 size = GUIGetTextSize(entry->text);
         float max_len = entry->widget.scale.x - 2;
+        vec4 clip_plane = vec4_f(entry->widget.position.x, entry->widget.position.y, entry->widget.position.x + entry->widget.scale.x, entry->widget.position.y + entry->widget.scale.y);
         if(size.x > max_len){
             int o_len = GUICalcTextLengthFromEndU32(max_len, temp);
             
             uint32_t buff[o_len + 1];
 
-            memcpy(buff, temp + len - o_len - 1, o_len);
+            memcpy(buff, temp + len - o_len, o_len * sizeof(uint32_t));
             buff[o_len] = 0;
 
-            GUIAddText(pos.x, pos.y + entry->widget.scale.y / 2, vec3_f(0, 0, 0), entry->fontSize, buff);
+            GUIAddTextClippedU32(pos.x, pos.y + entry->widget.scale.y / 2, vec3_f(0, 0, 0), entry->fontSize, buff, &clip_plane);
         }
         else
-            GUIAddText(pos.x, pos.y + entry->widget.scale.y / 2, vec3_f(0 ,0 , 0), entry->fontSize, entry->text);
+            GUIAddTextClippedU8(pos.x, pos.y + entry->widget.scale.y / 2, vec3_f(0 ,0 , 0), entry->fontSize, entry->text, &clip_plane);
     }            
 }
 

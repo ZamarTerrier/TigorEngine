@@ -174,7 +174,7 @@ extern int GUICalcTextLengthU32(float max_size, uint32_t *text);
 extern int GUICalcTextLengthFromEndU8(float max_size, const char *text);
 extern int GUICalcTextLengthFromEndU32(float max_size, uint32_t *text);
 
-extern void GUIAddTextClippedU8(float xpos, float ypos, vec3 color, float font_size, uint32_t *text, const vec4 *cpu_fine_clip_rect);
+extern void GUIAddTextClippedU8(float xpos, float ypos, vec3 color, float font_size, const char *text, const vec4 *cpu_fine_clip_rect);
 extern void GUIAddTextClippedU32(float xpos, float ypos, vec3 color, float font_size, uint32_t *text, const vec4 *cpu_fine_clip_rect);
 
 #endif //#ifndef TigorGUI_H
