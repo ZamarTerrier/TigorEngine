@@ -82,8 +82,9 @@ int main(){
         
         SpriteObjectSetOffsetRect(&sprite, x_offset, y_offset, 120, 130);
 
-        GUIAddText(30, 30, vec3_f(1, 0, 0), 9, "У попа была собака");
-        GUIAddText(30, 70, vec3_f(1, 0, 0), 9, "Entscheidungsschwierigkeiten");
+        vec4 cliper = vec4_f(0, 0, 200, 75);
+        GUIAddTextClippedU8(30, 30, vec3_f(1, 0, 0), 7, "У попа была собака", &cliper);
+        GUIAddTextClippedU8(30, 70, vec3_f(1, 0, 0), 7, "Entscheidungsschwierigkeiten", &cliper);
 
         TEngineDraw(&sprite);
         //TEngineDraw(&shape);

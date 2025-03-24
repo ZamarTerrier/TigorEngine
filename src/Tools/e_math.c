@@ -449,9 +449,10 @@ vec4  v4_sub(vec4 a, vec4 b) { return (vec4){a.x - b.x, a.y - b.y, a.z - b.z, a.
 vec4  v4_mul  (vec4 a, vec4 b) { return (vec4){ a.x * a.x,   a.y * a.y,   a.z * a.z,   a.w * a.w  }; }
 vec4  v4_muls  (vec4 a, float s) { return (vec4){ a.x * s,   a.y * s,   a.z * s,   a.w * s   }; }
 vec4  v4_mad(vec4 a, vec4 b, float c) { return (vec4){a.x + b.x * c, a.y + b.y * c, a.z + b.z * c, a.w + b.w * c}; }
-vec4  v4_div(vec4 a, float b) { float v = 1.0f / b; return (vec4){a.x * v, a.y * v, a.z * v, a.w * v}; }
+vec4  v4_div(vec4 a, vec4 b) { return (vec4){a.x / b.x, a.y / b.y, a.z / b.z, a.w / b.w}; }
+vec4  v4_divs(vec4 a, float s) { return (vec4){ a.x / s,   a.y / s,   a.z / s, a.w / s   }; }
 vec4  v4_neg(vec4 a) { return (vec4){-a.x, -a.y, -a.z, -a.w}; }
-vec4  v4_inverse(vec4 a) { return v4_div((vec4){-a.x, -a.y, -a.z, a.w}, (a.x*a.x + a.y*a.y + a.z*a.z + a.w*a.w)); }
+vec4  v4_inverse(vec4 a) { return v4_divs((vec4){-a.x, -a.y, -a.z, a.w}, (a.x*a.x + a.y*a.y + a.z*a.z + a.w*a.w)); }
 vec4  v4_inverse_normalized(vec4 a) { return (vec4){-a.x, -a.y, -a.z, a.w}; }
 float v4_dot(vec4 a, vec4 b) { return a.x*b.x + a.y*b.y + a.z*b.z + a.w*b.w; }
 float v4_length(vec4 a) { return sqrtf(a.x*a.x + a.y*a.y + a.z*a.z + a.w*a.w); }

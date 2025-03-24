@@ -847,6 +847,137 @@ void GUISetText(float xpos, float ypos, vec3 color, float font_size, uint32_t *t
     rect->vert_count = v_iter;
 }
 
+void GUIRenderText(float xpos, float ypos, vec3 color, const vec4 *clip_rect, float font_size, uint32_t *text, bool cpu_fine_clip){
+
+    if(xpos != 0)
+        xpos /= engine.width;
+        
+    if(ypos != 0)
+        ypos /= engine.height;
+
+    int len = ToolsStr32BitLength((uint32_t *)text);
+
+    stbtt_aligned_quad q;
+    
+    float x = 0.0f;
+    float y = 0.0f;
+    
+    if(gui.draw_list == NULL)
+        gui.draw_list = calloc(1, sizeof(ChildStack));
+        
+    GUIObj *rect = GUIManagerAddObject();
+
+    uint32_t *tempI = text;
+
+    rect->points = calloc(len * 4, sizeof(Vertex2D));
+    rect->indeces = calloc(len * 6, sizeof(uint32_t));
+    
+    float mulX = font_size / engine.width / GUIFontResizer;
+    float mulY = font_size / engine.height / GUIFontResizer;
+    
+    const float scale = GUIFontResizer / font_size;
+    float temp = font_size / engine.height;
+
+    uint32_t v_iter = 0;
+    uint32_t i_iter = 0;
+    // Generate a uv mapped quad per char in the new text
+    for (int i=0;i < len;i++)
+    {
+        stbtt_GetBakedQuad(gui.font.cdata, 512,512, *tempI, &x,&y,&q,1);//1=opengl & d3d10+,0=d3d9
+
+        
+        float x1 = xpos + q.x0 * mulX ;
+        float x2 = xpos + q.x1 * mulX ;
+        float y1 = ypos + q.y0 * mulY  + temp;
+        float y2 = ypos + q.y1 * mulY  + temp;
+        float u1 = q.s0;
+        float v1 = q.t0;
+        float u2 = q.s1;
+        float v2 = q.t1;
+
+        if (cpu_fine_clip)
+        {
+            if (x1 < clip_rect->x)
+            {
+                u1 = u1 + (1.0f - (x2 - clip_rect->x) / (x2 - x1)) * (u2 - u1);
+                x1 = clip_rect->x;
+            }
+            if (y1 < clip_rect->y)
+            {
+                v1 = v1 + (1.0f - (y2 - clip_rect->y) / (y2 - y1)) * (v2 - v1);
+                y1 = clip_rect->y;
+            }
+            if (x2 > clip_rect->z)
+            {
+                u2 = u1 + ((clip_rect->z - x1) / (x2 - x1)) * (u2 - u1);
+                x2 = clip_rect->z;
+            }
+            if (y2 > clip_rect->w)
+            {
+                v2 = v1 + ((clip_rect->w - y1) / (y2 - y1)) * (v2 - v1);
+                y2 = clip_rect->w;
+            }
+            /*if (y1 >= y2)
+            {
+                xpos += (q.x1 - q.x0);
+                continue;
+            }*/
+        }
+
+        x1 -= 1.0f;
+        x2 -= 1.0f;
+        y1 -= 1.0f;
+        y2 -= 1.0f;
+
+        rect->points[v_iter + 0].position.x = x1; rect->points[v_iter + 0].position.y = y1; rect->points[v_iter + 0].color = color; rect->points[v_iter + 0].texCoord.x = u1; rect->points[v_iter + 0].texCoord.y = v1;
+        rect->points[v_iter + 1].position.x = x2; rect->points[v_iter + 1].position.y = y1; rect->points[v_iter + 1].color = color; rect->points[v_iter + 1].texCoord.x = u2; rect->points[v_iter + 1].texCoord.y = v1;
+        rect->points[v_iter + 2].position.x = x2; rect->points[v_iter + 2].position.y = y2; rect->points[v_iter + 2].color = color; rect->points[v_iter + 2].texCoord.x = u2; rect->points[v_iter + 2].texCoord.y = v2;
+        rect->points[v_iter + 3].position.x = x1; rect->points[v_iter + 3].position.y = y2; rect->points[v_iter + 3].color = color; rect->points[v_iter + 3].texCoord.x = u1; rect->points[v_iter + 3].texCoord.y = v2;
+        
+        rect->indeces[i_iter + 0] = gui.currIndx; rect->indeces[i_iter + 1] = gui.currIndx + 1; rect->indeces[i_iter + 2] =  gui.currIndx + 2;
+        rect->indeces[i_iter + 3] = gui.currIndx; rect->indeces[i_iter + 4] = gui.currIndx + 2; rect->indeces[i_iter + 5] =  gui.currIndx + 3;
+
+        v_iter += 4;
+        i_iter += 6;
+        gui.currIndx += 4;
+        ++tempI;
+    }
+
+    rect->indx_count = i_iter;
+    rect->vert_count = v_iter;
+}
+
+void GUIAddTextClippedU8(float xpos, float ypos, vec3 color, float font_size, uint32_t *text, const vec4 *cpu_fine_clip_rect){
+
+    if(!GUIManagerIsInit())
+        return;
+
+    uint32_t size = strlen(text) + 1;
+    uint32_t buff[size + 1];
+    memset(buff, 0, size + 1);
+
+    //ToolsStringToUInt32(buff, text);
+
+    ToolsTextStrFromUtf8(buff, size, text, 0, NULL);
+
+    GUIAddTextClippedU32(xpos, ypos, color, font_size, buff, cpu_fine_clip_rect);
+}
+
+void GUIAddTextClippedU32(float xpos, float ypos, vec3 color, float font_size, uint32_t *text, const vec4 *cpu_fine_clip_rect){
+
+    vec4 clip_rect = vec4_f(0, 0, engine.width, engine.height);
+    if (cpu_fine_clip_rect)
+    {
+        clip_rect.x = e_max(clip_rect.x, cpu_fine_clip_rect->x);
+        clip_rect.y = e_max(clip_rect.y, cpu_fine_clip_rect->y);
+        clip_rect.z = e_min(clip_rect.z, cpu_fine_clip_rect->z);
+        clip_rect.w = e_min(clip_rect.w, cpu_fine_clip_rect->w);
+    }
+
+    clip_rect = v4_div(clip_rect, vec4_f(engine.width, engine.height, engine.width, engine.height));
+    GUIRenderText(xpos, ypos, color, &clip_rect, font_size, text, cpu_fine_clip_rect != NULL);
+}
+
 void GUIAddTextU8(float xpos, float ypos, vec3 color, float font_size, char *text){
 
     if(!GUIManagerIsInit())
@@ -868,7 +999,7 @@ void GUIAddTextU32(float xpos, float ypos, vec3 color, float font_size, uint32_t
     if(!GUIManagerIsInit())
         return;
 
-    GUISetText(xpos, ypos, color, font_size, text);
+    GUIAddTextClippedU32(xpos, ypos, color, font_size, text, NULL);
 }
 
 vec2 GUIGetTextSizeU8(const char *text){
@@ -920,10 +1051,10 @@ int GUICalcTextLengthU8(float max_size, const char *text){
     //ToolsStringToUInt32(buff, text);
 
     ToolsTextStrFromUtf8(buff, size, text, 0, NULL);
-    return GUICalcTextLength(max_size, buff);
+    return GUICalcTextLengthU32(max_size, buff);
 }
 
-int GUICalcTextLength(float max_size, uint32_t *text){
+int GUICalcTextLengthU32(float max_size, uint32_t *text){
     int len = ToolsStr32BitLength((uint32_t *)text);
 
     stbtt_aligned_quad q;
@@ -962,10 +1093,10 @@ int GUICalcTextLengthFromEndU8(float max_size, const char *text){
     //ToolsStringToUInt32(buff, text);
 
     ToolsTextStrFromUtf8(buff, size, text, 0, NULL);
-    return GUICalcTextLengthFromEnd(max_size, buff);
+    return GUICalcTextLengthFromEndU32(max_size, buff);
 }
 
-int GUICalcTextLengthFromEnd(float max_size, uint32_t *text){
+int GUICalcTextLengthFromEndU32(float max_size, uint32_t *text){
     int len = ToolsStr32BitLength((uint32_t *)text);
 
     stbtt_aligned_quad q;

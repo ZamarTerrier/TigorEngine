@@ -261,7 +261,7 @@ void EntryWidgetDraw(EWidgetEntry *entry){
         vec2 size = GUIGetTextSize(entry->text);
         float max_len = entry->widget.scale.x - 2;
         if(size.x > max_len){
-            int o_len = GUICalcTextLengthFromEnd(max_len, temp);
+            int o_len = GUICalcTextLengthFromEndU32(max_len, temp);
             
             uint32_t buff[o_len + 1];
 
