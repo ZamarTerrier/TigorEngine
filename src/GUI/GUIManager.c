@@ -871,7 +871,7 @@ void GUIAddTextU32(float xpos, float ypos, vec3 color, float font_size, uint32_t
     GUISetText(xpos, ypos, color, font_size, text);
 }
 
-vec2 GUIGetTextSizeU8(uint8_t *text){
+vec2 GUIGetTextSizeU8(const char *text){
 
     uint32_t size = strlen(text) + 1;
     uint32_t buff[size + 1];
@@ -881,7 +881,7 @@ vec2 GUIGetTextSizeU8(uint8_t *text){
 
     ToolsTextStrFromUtf8(buff, size, text, 0, NULL);
 
-    GUIGetTextSizeU32(buff);
+    return GUIGetTextSizeU32(buff);
 }
 
 vec2 GUIGetTextSizeU32(uint32_t *text){
@@ -911,7 +911,7 @@ vec2 GUIGetTextSizeU32(uint32_t *text){
     return size;
 }
 
-int GUICalcTextLengthU8(float max_size, char *text){
+int GUICalcTextLengthU8(float max_size, const char *text){
 
     uint32_t size = strlen(text) + 1;
     uint32_t buff[size + 1];
@@ -920,7 +920,7 @@ int GUICalcTextLengthU8(float max_size, char *text){
     //ToolsStringToUInt32(buff, text);
 
     ToolsTextStrFromUtf8(buff, size, text, 0, NULL);
-    GUICalcTextLength(max_size, buff);
+    return GUICalcTextLength(max_size, buff);
 }
 
 int GUICalcTextLength(float max_size, uint32_t *text){
@@ -953,7 +953,7 @@ int GUICalcTextLength(float max_size, uint32_t *text){
     return length;
 }
 
-int GUICalcTextLengthFromEndU8(float max_size, char *text){
+int GUICalcTextLengthFromEndU8(float max_size, const char *text){
 
     uint32_t size = strlen(text) + 1;
     uint32_t buff[size + 1];
@@ -962,9 +962,9 @@ int GUICalcTextLengthFromEndU8(float max_size, char *text){
     //ToolsStringToUInt32(buff, text);
 
     ToolsTextStrFromUtf8(buff, size, text, 0, NULL);
-    GUICalcTextLengthFromEnd(max_size, buff);
-
+    return GUICalcTextLengthFromEnd(max_size, buff);
 }
+
 int GUICalcTextLengthFromEnd(float max_size, uint32_t *text){
     int len = ToolsStr32BitLength((uint32_t *)text);
 
