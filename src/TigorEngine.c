@@ -77,7 +77,7 @@ void TEngineInitSystem(int width, int height, const char* name){
 
     engine.e_var_current_entry = NULL;
 
-    engine.MAX_FRAMES_IN_FLIGHT = 3;
+    engine.MAX_FRAMES_IN_FLIGHT = 2;
 
     engine.DataR.e_var_images = AllocateMemoryP(MAX_IMAGES, sizeof(engine_buffered_image), &engine);
     engine.DataR.e_var_num_images = 0;

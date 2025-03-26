@@ -1182,8 +1182,6 @@ void GUIManagerAddPolyline(const vec2* points, int points_count, vec4 color, Dra
 
     if (points_count < 2)
         return;
-
-    thickness /=100;
     
     const bool closed = (flags & GUIDrawFlags_Closed) != 0;
     const int count = closed ? points_count : points_count - 1; // The number of line segments we need to draw
@@ -1225,8 +1223,8 @@ void GUIManagerAddPolyline(const vec2* points, int points_count, vec4 color, Dra
         // Temporary buffer
         // The first <points_count> items are normals at each line point, then after that there are either 2 or 4 temp points for each line point
         int c_temp = points_count * ((use_texture || !thick_line) ? 3 : 5);
-        vec2 *temp_normals = calloc(c_temp, sizeof(vec2));
-        vec2 *temp_points = temp_normals + points_count;
+        vec2 temp_normals[c_temp];
+        vec2 temp_points[c_temp];
 
         // Calculate normals (tangents) for each line segment
         for (int i1 = 0; i1 < count; i1++)
@@ -1416,8 +1414,6 @@ void GUIManagerAddPolyline(const vec2* points, int points_count, vec4 color, Dra
         shape->vert_count = v_iter;
 
         gui.currIndx += (uint32_t)vtx_count;
-
-        free(temp_normals);
     }
     else
     {

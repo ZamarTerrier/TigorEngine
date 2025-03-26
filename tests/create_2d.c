@@ -43,9 +43,9 @@ int main(){
     dParam.diffuse = "res\\hero.png";
     //dParam.normal = "res\\normal.jpg";
 
-    SpriteObjectInit(&sprite, &dParam);
+    /*SpriteObjectInit(&sprite, &dParam);
     Transform2DSetPosition(&sprite, 100, 100);
-    Transform2DSetScale(&sprite, 25, 27);
+    Transform2DSetScale(&sprite, 25, 27);*/
 
     uint32_t x_offset = 0;
     uint32_t y_offset = 520;
@@ -68,7 +68,7 @@ int main(){
 
         Update(0.1);
 
-        timer -= degreaser / 100;
+        /*timer -= degreaser / 100;
 
         if(timer < 0)
         {
@@ -80,12 +80,13 @@ int main(){
         if(x_offset > 1080)
             x_offset = 0;
         
-        SpriteObjectSetOffsetRect(&sprite, x_offset, y_offset, 120, 130);
+        SpriteObjectSetOffsetRect(&sprite, x_offset, y_offset, 120, 130);*/
 
         /*vec4 cliper = vec4_f(0, 0, 200, 75);
         GUIAddTextClippedU8(30, 30, vec4_f(1, 0, 0, 1.0), 7, "У попа была собака", &cliper);
         GUIAddTextClippedU8(30, 70, vec4_f(1, 0, 0, 1.0), 7, "Entscheidungsschwierigkeiten", &cliper);*/
-        GUIAddRect(vec2_f(100, 100), vec2_f(200, 200), vec4_f(1, 1, 1, 1), 10, GUIDrawFlags_RoundCornersAll, 2);
+        GUIAddCircle(vec2_f(100, 100), 50, vec4_f(1, 1, 1, 1), 0, 2);
+        //GUIAddRectFilled(vec2_f(100, 100), vec2_f(200, 200), vec4_f(1, 1, 1, 1), 10, GUIDrawFlags_RoundCornersAll);
 
         //TEngineDraw(&sprite);
         //TEngineDraw(&shape);

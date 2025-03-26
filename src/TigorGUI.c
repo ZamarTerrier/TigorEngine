@@ -70,12 +70,6 @@ void GUIAddTriangleFilled(const vec2 p1, const vec2 p2, const vec2 p3, vec4 colo
 
 void GUIAddCircle(vec2 center, float radius, vec4 color, int num_segments, float thickness){
 
-    if(center.x != 0) 
-        center.x /= engine.width; 
-        
-    if(center.y != 0) 
-        center.y /= engine.height; 
-
     if (num_segments <= 0)
     {
         // Use arc with automatic segment count
@@ -97,12 +91,6 @@ void GUIAddCircle(vec2 center, float radius, vec4 color, int num_segments, float
 
 void GUIAddCircleFilled(vec2 center, float radius, vec4 color, int num_segments){
 
-    if(center.x != 0) 
-        center.x /= engine.width; 
-        
-    if(center.y != 0) 
-        center.y /= engine.height; 
-
     if (num_segments <= 0)
     {
         // Use arc with automatic segment count
@@ -111,9 +99,6 @@ void GUIAddCircleFilled(vec2 center, float radius, vec4 color, int num_segments)
     }
     else
     {
-        center.x *= engine.width;
-        center.y *= engine.height;
-
         // Explicit segment count (still clamp to avoid drawing insanely tessellated shapes)
         num_segments = clamp(num_segments, 3, GUI_DRAWLIST_CIRCLE_AUTO_SEGMENT_MAX);
 
@@ -127,12 +112,6 @@ void GUIAddCircleFilled(vec2 center, float radius, vec4 color, int num_segments)
 
 void GUIAddNgon(vec2 center, float radius, vec4 color, int num_segments, float thickness){
 
-    if(center.x != 0) 
-        center.x /= engine.width; 
-        
-    if(center.y != 0) 
-        center.y /= engine.height; 
-
     // Because we are filling a closed shape we remove 1 from the count of segments/points
     const float a_max = (M_PI * 2.0f) * ((float)num_segments - 1.0f) / (float)num_segments;
     PathArcTo(center, radius - 0.5f, 0.0f, a_max, num_segments - 1);
@@ -141,12 +120,6 @@ void GUIAddNgon(vec2 center, float radius, vec4 color, int num_segments, float t
 
 void GUIAddNgonFilled(vec2 center, float radius, vec4 color, int num_segments){
 
-    if(center.x != 0) 
-        center.x /= engine.width; 
-        
-    if(center.y != 0) 
-        center.y /= engine.height; 
-
     // Because we are filling a closed shape we remove 1 from the count of segments/points
     const float a_max = (M_PI * 2.0f) * ((float)num_segments - 1.0f) / (float)num_segments;
     PathArcTo(center, radius, 0.0f, a_max, num_segments - 1);
@@ -154,12 +127,6 @@ void GUIAddNgonFilled(vec2 center, float radius, vec4 color, int num_segments){
 }
 
 void GUIAddEllipse(vec2 center, const vec2 radius, vec4 color, float rot, int num_segments, float thickness){
-
-    if(center.x != 0) 
-        center.x /= engine.width; 
-        
-    if(center.y != 0) 
-        center.y /= engine.height; 
 
     if (num_segments <= 0)
         num_segments = _CalcCircleAutoSegmentCount(e_max(radius.x, radius.y)); // A bit pessimistic, maybe there's a better computation to do here.
@@ -182,14 +149,6 @@ void GUIAddEllipseFilled(vec2 center, const vec2 radius, vec4 color, float rot, 
 }
 
 void GUIAddPolyline(vec2* points, int points_count, vec4 color, DrawListFlags flags, float thickness){
-
-    for(int i = 0;i < points_count;i++){
-        if(points->x != 0) 
-            points->x /= engine.width; 
-            
-        if(points->y != 0) 
-            points->y /= engine.height; 
-    }
 
     GUIManagerAddPolyline(points, points_count, color, flags, thickness);
 }
