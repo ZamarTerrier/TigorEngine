@@ -45,7 +45,7 @@ typedef enum FontAtlasFlags
 /// @param p2 - конец линии
 /// @param col - цвет линии
 /// @param thickness - толщина линии
-void GUIAddLine(const vec2 p1, const vec2 p2, vec3 col, float thickness);
+void GUIAddLine(const vec2 p1, const vec2 p2, vec4 color, float thickness);
 /// @brief Нарисовать квадрат
 /// @param p_min - левый верхний угол квадрата
 /// @param p_max - правый нижний угол квадрата
@@ -53,14 +53,14 @@ void GUIAddLine(const vec2 p1, const vec2 p2, vec3 col, float thickness);
 /// @param rounding - степень закругленности квадрата
 /// @param flags - флаги фигуры
 /// @param thickness - толщина линий квадрата
-void GUIAddRect(const vec2 p_min, const vec2 p_max, vec3 col, float rounding, uint32_t flags, float thickness);
+void GUIAddRect(const vec2 p_min, const vec2 p_max, vec4 color, float rounding, uint32_t flags, float thickness);
 /// @brief Нарисовать и заполнить квадрат цветом
 /// @param p_min - левый верхний угол квадрата
 /// @param p_max - правый нижний угол квадрата
 /// @param col - цвет квадрата
 /// @param rounding - степень закругленности квадрата
 /// @param flags - флаги фигуры
-void GUIAddRectFilled(const vec2 p_min, const vec2 p_max, vec3 col, float rounding, uint32_t flags);
+void GUIAddRectFilled(const vec2 p_min, const vec2 p_max, vec4 color, float rounding, uint32_t flags);
 /// @brief Нарисовать четырёх угольную фигуру
 /// @param p1 - точка номер 1
 /// @param p2 - точка номер 2
@@ -68,42 +68,42 @@ void GUIAddRectFilled(const vec2 p_min, const vec2 p_max, vec3 col, float roundi
 /// @param p4 - точка номер 4
 /// @param col - цвет фигуры
 /// @param thickness - толщина линий фигуры
-void GUIAddQuad(const vec2 p1, const vec2 p2, const vec2 p3, const vec2 p4, vec3 col, float thickness);
+void GUIAddQuad(const vec2 p1, const vec2 p2, const vec2 p3, const vec2 p4, vec4 color, float thickness);
 /// @brief Нарисовать четырёх угольную фигуру и залить цветом
 /// @param p1 - точка номер 1
 /// @param p2 - точка номер 2
 /// @param p3 - точка номер 3
 /// @param p4 - точка номер 4
 /// @param col - цвет фигуры
-void GUIAddQuadFilled(const vec2 p1, const vec2 p2, const vec2 p3, const vec2 p4, vec3 col);
+void GUIAddQuadFilled(const vec2 p1, const vec2 p2, const vec2 p3, const vec2 p4, vec4 color);
 /// @brief Нарисовать произвольный треугольник
 /// @param p1 - точка номер 1
 /// @param p2 - точка номер 2
 /// @param p3 - точка номер 3
 /// @param col - цвет фигуры
 /// @param thickness - толщина линий фигуры
-void GUIAddTriangle(const vec2 p1, const vec2 p2, const vec2 p3, vec3 col, float thickness);
+void GUIAddTriangle(const vec2 p1, const vec2 p2, const vec2 p3, vec4 color, float thickness);
 /// @brief Нарисовать произвольный треугольник и заполнить его цветом
 /// @param p1 - точка номер 1
 /// @param p2 - точка номер 2
 /// @param p3 - точка номер 3
 /// @param col - цвет фигуры
-void GUIAddTriangleFilled(const vec2 p1, const vec2 p2, const vec2 p3, vec3 col);
+void GUIAddTriangleFilled(const vec2 p1, const vec2 p2, const vec2 p3, vec4 color);
 /// @brief Нарисовать круг
 /// @param center - центр круга
 /// @param radius - радиус круга
 /// @param col - цвет круга
 /// @param num_segments - количество сегменов круга
 /// @param thickness - толщина линий круга
-void GUIAddCircle(vec2 center, float radius, vec3 col, int num_segments, float thickness);
+void GUIAddCircle(vec2 center, float radius, vec4 color, int num_segments, float thickness);
 /// @brief Нарисовать круг и заполнить его цветом
 /// @param center - центр круга
 /// @param radius - радиус круга
 /// @param col - цвет круга
 /// @param num_segments - количество сегменов круга
-void GUIAddCircleFilled(vec2 center, float radius, vec3 col, int num_segments);
-void GUIAddNgon(vec2 center, float radius, vec3 col, int num_segments, float thickness);
-void GUIAddNgonFilled(vec2 center, float radius, vec3 col, int num_segments);
+void GUIAddCircleFilled(vec2 center, float radius, vec4 color, int num_segments);
+void GUIAddNgon(vec2 center, float radius, vec4 color, int num_segments, float thickness);
+void GUIAddNgonFilled(vec2 center, float radius, vec4 color, int num_segments);
 /// @brief Нарисовать эллипс
 /// @param center - центр эллипса
 /// @param radius -радиус эллипса
@@ -111,16 +111,16 @@ void GUIAddNgonFilled(vec2 center, float radius, vec3 col, int num_segments);
 /// @param rot - вращение эллипса
 /// @param num_segments - количество сегментов эллипса
 /// @param thickness - толщина линий эллипса
-void GUIAddEllipse(vec2 center, const vec2 radius, vec3 col, float rot, int num_segments, float thickness);
+void GUIAddEllipse(vec2 center, const vec2 radius, vec4 color, float rot, int num_segments, float thickness);
 /// @brief Нарисовать эллипс и заполнить его цветом
 /// @param center - центр эллипса
 /// @param radius -радиус эллипса
 /// @param col - цвет эллипса
 /// @param rot - вращение эллипса
 /// @param num_segments - количество сегментов эллипса
-void GUIAddEllipseFilled(vec2 center, const vec2 radius, vec3 col, float rot, int num_segments);
+void GUIAddEllipseFilled(vec2 center, const vec2 radius, vec4 color, float rot, int num_segments);
 
-void GUIAddPolyline(vec2* points, int points_count, vec3 color, DrawListFlags flags, float thicknes);
+void GUIAddPolyline(vec2* points, int points_count, vec4 color, DrawListFlags flags, float thicknes);
 
 #ifndef GUIAddText
 
@@ -130,14 +130,14 @@ void GUIAddPolyline(vec2* points, int points_count, vec3 color, DrawListFlags fl
 /// @param color - Цвет текста
 /// @param font_size - Размер текста
 /// @param text - Текст
-extern void GUIAddTextU8(float xpos, float ypos, vec3 color, float font_size, char *text);
+extern void GUIAddTextU8(float xpos, float ypos, vec4 color, float font_size, char *text);
 /// @brief Отрисавка текста в формате uint32_t
 /// @param xpos - Координата по х
 /// @param ypos - Координата по у
 /// @param color - Цвет текста
 /// @param font_size - Размер текста
 /// @param text - Текст
-extern void GUIAddTextU32(float xpos, float ypos, vec3 color, float font_size, uint32_t *text);
+extern void GUIAddTextU32(float xpos, float ypos, vec4 color, float font_size, uint32_t *text);
 
 /// @brief Отрисовка текста
 /// @param xpos - Координата по х
@@ -174,7 +174,7 @@ extern int GUICalcTextLengthU32(float max_size, uint32_t *text);
 extern int GUICalcTextLengthFromEndU8(float max_size, const char *text);
 extern int GUICalcTextLengthFromEndU32(float max_size, uint32_t *text);
 
-extern void GUIAddTextClippedU8(float xpos, float ypos, vec3 color, float font_size, const char *text, const vec4 *cpu_fine_clip_rect);
-extern void GUIAddTextClippedU32(float xpos, float ypos, vec3 color, float font_size, uint32_t *text, const vec4 *cpu_fine_clip_rect);
+extern void GUIAddTextClippedU8(float xpos, float ypos, vec4 color, float font_size, const char *text, const vec4 *cpu_fine_clip_rect);
+extern void GUIAddTextClippedU32(float xpos, float ypos, vec4 color, float font_size, uint32_t *text, const vec4 *cpu_fine_clip_rect);
 
 #endif //#ifndef TigorGUI_H

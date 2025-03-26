@@ -72,10 +72,10 @@ void ListWidgetInit(EWidgetList *list, vec2 scale, EWidget *parent){
 
     GameObjectSetDrawFunc((GameObject *)list, ListWidgetDraw);
 
-    WidgetSetColor((EWidget *)list, vec3_f(0.4, 0.4, 0.4));
+    WidgetSetColor((EWidget *)list, vec4_f(0.4, 0.4, 0.4, 1));
 }
 
-void ListWidgetSetColor(EWidgetList *list, vec3 color){
+void ListWidgetSetColor(EWidgetList *list, vec4 color){
 
     WidgetSetColor((EWidget *)list, color);
 

@@ -12,24 +12,24 @@ typedef struct{
     vec2 position;
     vec2 direction;
     float length;
-    vec3 color;
+    vec4 color;
 } LineParams;
 
 typedef struct{
     float size;
-    vec3 color;
+    vec4 color;
 } QuadParams;
 
 typedef struct{
     float radius;
     int freq;
-    vec3 color;
+    vec4 color;
 } CircleParams;
 
 typedef struct{
     vec2 *positions;
     uint32_t num_positions;
-    vec3 color;
+    vec4 color;
 } ShapeParams;
 
 typedef enum{

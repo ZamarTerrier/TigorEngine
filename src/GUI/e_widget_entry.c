@@ -269,10 +269,10 @@ void EntryWidgetDraw(EWidgetEntry *entry){
             memcpy(buff, temp + len - o_len, o_len * sizeof(uint32_t));
             buff[o_len] = 0;
 
-            GUIAddTextClippedU32(pos.x, pos.y + entry->widget.scale.y / 2, vec3_f(0, 0, 0), entry->fontSize, buff, &clip_plane);
+            GUIAddTextClippedU32(pos.x, pos.y + entry->widget.scale.y / 2, vec4_f(0, 0, 0, 1), entry->fontSize, buff, &clip_plane);
         }
         else
-            GUIAddTextClippedU8(pos.x, pos.y + entry->widget.scale.y / 2, vec3_f(0 ,0 , 0), entry->fontSize, entry->text, &clip_plane);
+            GUIAddTextClippedU8(pos.x, pos.y + entry->widget.scale.y / 2, vec4_f(0 ,0 , 0, 1), entry->fontSize, entry->text, &clip_plane);
     }            
 }
 
@@ -294,7 +294,7 @@ void EntryWidgetInit(EWidgetEntry *entry, vec2 scale, EWidget *parent){
 
     memset(entry->text, 0, MAX_ENTERY_LENGTH);
 
-    WidgetSetColor((EWidget *)&entry->widget, vec3_f(1, 1, 1));
+    WidgetSetColor((EWidget *)&entry->widget, vec4_f(1, 1, 1, 1));
     WidgetSetScale((EWidget *)entry, scale.x, scale.y);
 
     WidgetConnect(entry, TIGOR_WIDGET_TRIGGER_MOUSE_PRESS, EntryWidgetPress, NULL);

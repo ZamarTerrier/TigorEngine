@@ -16,7 +16,7 @@ extern "C"
 typedef struct{
     EWidget widget;   
     char text[256]; 
-    vec3 selfColor;
+    vec4 selfColor;
 } EWidgetButton;
 
 void ButtonWidgetInit(EWidgetButton *button, vec2 scale, const char *text, EWidget *parent);

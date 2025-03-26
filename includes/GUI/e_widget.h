@@ -80,7 +80,7 @@ typedef struct{
 typedef struct EWidget{
     GameObject go;
     vec2 offset;
-    vec3 color;
+    vec4 color;
     vec2 base;
     vec2 position;
     vec2 scale;
@@ -123,7 +123,7 @@ ChildStack * WidgetFindChild(EWidget* widget, int num);
 void WidgetUpdateScissor(EWidget *widget);
 void WidgetUpdateScissorFromParent(EWidget *parent, GameObject2D *child);
 void WidgetSetParent(EWidget* ew, EWidget* parent);
-void WidgetSetColor(EWidget* ew, vec3 color);
+void WidgetSetColor(EWidget* ew, vec4 color);
 void WidgetSetScale(EWidget* ew, float xscale, float yscale);
 void WidgetSetPosition(EWidget* ew, float xpos, float ypos);
 void WidgetSetBase(EWidget* ew, float xpos, float ypos);

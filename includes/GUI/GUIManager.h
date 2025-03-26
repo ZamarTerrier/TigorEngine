@@ -65,39 +65,39 @@ typedef struct{
 /// @param a - левый верхний угол
 /// @param c - правый нижний
 /// @param color - цвет
-void GUIManagerDrawRect(vec2 a, vec2 c, vec3 color);
+void GUIManagerDrawRect(vec2 a, vec2 c, vec4 color);
 /// @brief Отрисавка текста в формате char
 /// @param xpos - Координата по х
 /// @param ypos - Координата по у
 /// @param color - Цвет текста
 /// @param font_size - Размер текста
 /// @param text - Текст
-void GUIAddTextU8(float xpos, float ypos, vec3 color, float font_size, char *text);
+void GUIAddTextU8(float xpos, float ypos, vec4 color, float font_size, char *text);
 /// @brief Отрисовка текста в формате uint32_t
 /// @param xpos - Координата по х
 /// @param ypos - Координата по у
 /// @param color - Цвет текста
 /// @param font_size - Размер текста
 /// @param text - Текст
-void GUIAddTextU32(float xpos, float ypos, vec3 color, float font_size, uint32_t *text);
+void GUIAddTextU32(float xpos, float ypos, vec4 color, float font_size, uint32_t *text);
 /// @brief Формирование объекта фигуры с заполнением
 /// @param points - точки фигуры
 /// @param points_count - количество точек
 /// @param col - цвет заполнения
-void GUIManagerAddConvexPolyFilled(const vec2 *points, const int points_count, vec3 col);
+void GUIManagerAddConvexPolyFilled(const vec2 *points, const int points_count, vec4 color);
 /// @brief Формерование объекта фигуры без заполнения
 /// @param points - точки фигуры
 /// @param num_points - количество точек
 /// @param color - цвет заполнения
 /// @param flags - флаги фигуры 
 /// @param thickness - толщина линий
-void GUIManagerAddPolyline(const vec2* points, int num_points, vec3 color, uint32_t flags, float thickness);
+void GUIManagerAddPolyline(const vec2* points, int num_points, vec4 color, uint32_t flags, float thickness);
 /// @brief Добавить точку в стек
 /// @param pos - коррдинаты точки
 void PathLineTo(vec2 pos);
 /// @brief Функция для вызова формирования фигуры из стека
 /// @param col - цвет фигуры
-void PathFillConvex(vec3 col, int save);
+void PathFillConvex(vec4 color, int save);
 /// @brief Функция формирования квадрата
 /// @param a - левый верхний угол
 /// @param b - правый нижний
@@ -108,7 +108,7 @@ void PathRect(vec2 a, vec2 b, float rounding, uint32_t flags);
 /// @param col - цвет фигуры 
 /// @param flags - флаги фигуры
 /// @param thickness - толщина линий
-void PathStroke(vec3 color, uint32_t flags, float thickness, int save);
+void PathStroke(vec4 color, uint32_t flags, float thickness, int save);
 void PathArcTo(const vec2 center, float radius, float a_min, float a_max, int num_segments);
 void PathBezierCubicCurveTo( vec2 p2,  vec2 p3, vec2 p4, int num_segments);
 void PathBezierQuadraticCurveTo( vec2 p2, vec2 p3, int num_segments);

@@ -73,7 +73,7 @@ void RollerWidgetInit(EWidgetRoller *roller, vec2 scale, EWidget *parent)
 
     roller->widget.type = TIGOR_WIDGET_TYPE_ROLLER;
 
-    roller->widget.color = roller->selfColor = vec3_f(0.6, 0, 0);
+    roller->widget.color = roller->selfColor = vec4_f(0.6, 0, 0, 1.0f);
     
     WidgetConnect((EWidget *)roller, TIGOR_WIDGET_TRIGGER_MOUSE_PRESS, RollerMousePress, NULL);
     WidgetConnect((EWidget *)roller, TIGOR_WIDGET_TRIGGER_MOUSE_MOVE, RollerMouseMove, NULL);

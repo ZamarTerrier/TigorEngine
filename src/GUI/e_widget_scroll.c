@@ -64,13 +64,13 @@ void ScrollWidgetInit(EWidgetScroll *scroll, uint32_t width, uint32_t height, EW
 
     scroll->widget.type = TIGOR_WIDGET_TYPE_SCROLL;
 
-    scroll->widget.color = (vec3){1.0f, 1.0f, 1.0f};
+    scroll->widget.color = (vec4){1.0f, 1.0f, 1.0f, 1.0};
     Transform2DSetScale((struct GameObject2D_T *)scroll, width, height);
 
     scroll->widget.transparent = 0.0f;
 
     WidgetInit(&scroll->scroll, scroll);
-    scroll->scroll.color = (vec3){1.0f, 0.0f, 0.0f};
+    scroll->scroll.color = (vec4){1.0f, 0.0f, 0.0f, 1.0};
 
     Transform2DSetScale((struct GameObject2D_T *)&scroll->scroll, 20, 20);
     Transform2DSetPosition((struct GameObject2D_T *)&scroll->scroll, width * 2 - 40, 0);

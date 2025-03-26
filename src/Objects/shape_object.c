@@ -40,7 +40,7 @@ void ShapeObjectCreateQuad(ShapeObject *so)
 
     for(int i=0;i < 4;i++)
     {
-        verts[i].color = vec3_f(1, 1, 1);
+        verts[i].color = vec4_f(1, 1, 1, 1);
     }
 
     uint32_t *tIndx = AllocateMemory(6, sizeof(uint32_t));

@@ -17,7 +17,7 @@ typedef enum{
 
 typedef struct {
     vec2 position;
-    vec3 color;
+    vec4 color;
     vec2 texCoord;
 } Vertex2D;
 

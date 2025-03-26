@@ -446,6 +446,7 @@ vec3 v3_to(vec3 from, vec3 to, float t)
 vec4 vec4_f(float x, float y, float z, float w){ return (vec4){ x, y, z, w };}
 vec4  v4_add(vec4 a, vec4 b) { return (vec4){a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w}; }
 vec4  v4_sub(vec4 a, vec4 b) { return (vec4){a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w}; }
+vec4  v4_subs(vec4 a, float b) { return (vec4){a.x - b, a.y - b, a.z - b, a.w - b};};
 vec4  v4_mul  (vec4 a, vec4 b) { return (vec4){ a.x * a.x,   a.y * a.y,   a.z * a.z,   a.w * a.w  }; }
 vec4  v4_muls  (vec4 a, float s) { return (vec4){ a.x * s,   a.y * s,   a.z * s,   a.w * s   }; }
 vec4  v4_mad(vec4 a, vec4 b, float c) { return (vec4){a.x + b.x * c, a.y + b.y * c, a.z + b.z * c, a.w + b.w * c}; }

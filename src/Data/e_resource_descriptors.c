@@ -12,7 +12,7 @@ EIVertexInputAttributeDescription planeAttributeDescription[] = {
     {
         .binding = 0,
         .location = 1,
-        .format = VK_FORMAT_R32G32B32_SFLOAT,
+        .format = VK_FORMAT_R32G32B32A32_SFLOAT,
         .offset = offsetof(Vertex2D, color) },
     {
         .binding = 0,

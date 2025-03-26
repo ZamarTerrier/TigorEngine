@@ -465,7 +465,7 @@ Point2D GetVertices2D(float rot, vec2 pos, vec2 size, vec3 color){
 	v.points[3] = v2_add(pos, m2_v2_mult(orr, vec2_f(size.x, -size.y)));
 
     for(int i=0; i < 4;i++)
-        GUIAddCircleFilled(v.points[i], 4, color, 0);
+        GUIAddCircleFilled(v.points[i], 4, vec4_f(color.x, color.y, color.z, 1.0f), 0);
 
     v.center = pos;
 	return v;

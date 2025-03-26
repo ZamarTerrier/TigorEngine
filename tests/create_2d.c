@@ -52,12 +52,12 @@ int main(){
 
     float timer = 1.0f, degreaser = 10;
 
-    RangeWidgetInit(&range, vec2_f(100, 30), 10, 100, NULL);
+    /*RangeWidgetInit(&range, vec2_f(100, 30), 10, 100, NULL);
     WidgetSetPosition(&range, 400, 300);
     RangeWidgetSetValueDestin(&range, &degreaser);
 
     EntryWidgetInit(&entry, vec2_f(130, 30), NULL);
-    WidgetSetPosition(&entry, 100, 100);
+    WidgetSetPosition(&entry, 100, 100);*/
 
     while (!TEngineWindowIsClosed())
     {
@@ -82,11 +82,12 @@ int main(){
         
         SpriteObjectSetOffsetRect(&sprite, x_offset, y_offset, 120, 130);
 
-        vec4 cliper = vec4_f(0, 0, 200, 75);
-        GUIAddTextClippedU8(30, 30, vec3_f(1, 0, 0), 7, "У попа была собака", &cliper);
-        GUIAddTextClippedU8(30, 70, vec3_f(1, 0, 0), 7, "Entscheidungsschwierigkeiten", &cliper);
+        /*vec4 cliper = vec4_f(0, 0, 200, 75);
+        GUIAddTextClippedU8(30, 30, vec4_f(1, 0, 0, 1.0), 7, "У попа была собака", &cliper);
+        GUIAddTextClippedU8(30, 70, vec4_f(1, 0, 0, 1.0), 7, "Entscheidungsschwierigkeiten", &cliper);*/
+        GUIAddRect(vec2_f(100, 100), vec2_f(200, 200), vec4_f(1, 1, 1, 1), 10, GUIDrawFlags_RoundCornersAll, 2);
 
-        TEngineDraw(&sprite);
+        //TEngineDraw(&sprite);
         //TEngineDraw(&shape);
 
         TEngineRender();

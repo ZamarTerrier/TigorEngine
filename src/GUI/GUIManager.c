@@ -29,6 +29,8 @@ double GUIRsqrt(double x)          { return 1.0 / sqrt(x); }
 #endif
 
 #define GUI_NORMALIZE2F_OVER_ZERO(VX,VY)     { float d2 = VX*VX + VY*VY; if (d2 > 0.0f) { float inv_len = GUIRsqrt(d2); VX *= inv_len; VY *= inv_len; } } (void)0
+#define GUI_FIXNORMAL2F_MAX_INVLEN2          100.0f // 500.0f (see #4053, #3366)
+#define GUI_FIXNORMAL2F(VX,VY)               { float d2 = VX*VX + VY*VY; if (d2 > 0.000001f) { float inv_len2 = 1.0f / d2; if (inv_len2 > GUI_FIXNORMAL2F_MAX_INVLEN2) inv_len2 = GUI_FIXNORMAL2F_MAX_INVLEN2; VX *= inv_len2; VY *= inv_len2; } } (void)0
 
 // ImDrawList: Lookup table size for adaptive arc drawing, cover full circle.
 #ifndef GUI_DRAWLIST_ARCFAST_TABLE_SIZE
@@ -125,7 +127,7 @@ void _PathArcToFastEx(const vec2 center, float radius, int a_min_sample, int a_m
             if (sample_index >= GUI_DRAWLIST_ARCFAST_SAMPLE_MAX)
                 sample_index -= GUI_DRAWLIST_ARCFAST_SAMPLE_MAX;
 
-            const vec2 s = v2_div(ArcFastVtx[sample_index], vec2_f(engine.width, engine.height));
+            const vec2 s = ArcFastVtx[sample_index];
             gui._Path[gui._Path_Size].x = center.x + s.x * radius;
             gui._Path[gui._Path_Size].y = center.y + s.y * radius;
             gui._Path_Size ++;
@@ -139,7 +141,7 @@ void _PathArcToFastEx(const vec2 center, float radius, int a_min_sample, int a_m
             if (sample_index < 0)
                 sample_index += GUI_DRAWLIST_ARCFAST_SAMPLE_MAX;
 
-            const vec2 s = v2_div(ArcFastVtx[sample_index], vec2_f(engine.width, engine.height));
+            const vec2 s = ArcFastVtx[sample_index];
             gui._Path[gui._Path_Size].x = center.x + s.x * radius;
             gui._Path[gui._Path_Size].y = center.y + s.y * radius;            
             gui._Path_Size ++;
@@ -152,7 +154,7 @@ void _PathArcToFastEx(const vec2 center, float radius, int a_min_sample, int a_m
         if (normalized_max_sample < 0)
             normalized_max_sample += GUI_DRAWLIST_ARCFAST_SAMPLE_MAX;
 
-        const vec2 s = v2_div(ArcFastVtx[normalized_max_sample], vec2_f(engine.width, engine.height));
+        const vec2 s = ArcFastVtx[normalized_max_sample];
         gui._Path[gui._Path_Size].x = center.x + s.x * radius;
         gui._Path[gui._Path_Size].y = center.y + s.y * radius;        
         gui._Path_Size ++;
@@ -175,7 +177,6 @@ void _PathArcToN(const vec2 center, float radius, float a_min, float a_max, int 
         const float a = a_min + ((float)i / (float)num_segments) * (a_max - a_min);
         
         vec2 pos = vec2_f(center.x + cos(a) * radius, center.y + sin(a) * radius);
-        pos = v2_div(pos, vec2_f(engine.width, engine.height));
         gui._Path[gui._Path_Size] = pos;
         gui._Path_Size++;
     }
@@ -217,7 +218,6 @@ void PathArcTo(const vec2 center, float radius, float a_min, float a_max, int nu
 
         if (a_emit_start){
             vec2 pos = vec2_f(center.x + cos(a_min) * radius, center.y + sin(a_min) * radius);
-            pos = v2_div(pos, vec2_f(engine.width, engine.height));
             gui._Path[gui._Path_Size] = pos;
             gui._Path_Size++;
         }
@@ -225,7 +225,6 @@ void PathArcTo(const vec2 center, float radius, float a_min, float a_max, int nu
             _PathArcToFastEx(center, radius, a_min_sample, a_max_sample, 0);
         if (a_emit_end){
             vec2 pos = vec2_f(center.x + cos(a_min) * radius, center.y + sin(a_min) * radius);
-            pos = v2_div(pos, vec2_f(engine.width, engine.height));
             gui._Path[gui._Path_Size] = pos;
             gui._Path_Size++;
         }
@@ -241,13 +240,6 @@ void PathArcTo(const vec2 center, float radius, float a_min, float a_max, int nu
 
 void PathArcToFast(vec2 center, float radius, int a_min_of_12, int a_max_of_12)
 {
-    
-    if(center.x != 0) 
-        center.x /= engine.width; 
-        
-    if(center.y != 0) 
-        center.y /= engine.height; 
-
     if (radius < 0.5f)
     {
         gui._Path[gui._Path_Size] = center;
@@ -269,7 +261,6 @@ void PathEllipticalArcTo(const vec2 center, const vec2 radius, float rot, float 
         const float a = a_min + ((float)i / (float)num_segments) * (a_max - a_min);
         vec2 point = {cos(a) * radius.x, sin(a) * radius.y};
         vec2 rel =  {(point.x * cos_rot) - (point.y * sin_rot), (point.x * sin_rot) + (point.y * cos_rot)};
-        rel = v2_div(rel, vec2_f(engine.width, engine.height));
         point.x = rel.x + center.x;
         point.y = rel.y + center.y;
         
@@ -342,22 +333,7 @@ vec2 GUIBezierQuadraticCalc(const vec2 p1, const vec2 p2, const vec2 p3, float t
     return vec2_f(w1 * p1.x + w2 * p2.x + w3 * p3.x, w1 * p1.y + w2 * p2.y + w3 * p3.y);
 }
 
-vec2 DegreeseVector(vec2 point){
-
-    if(point.x != 0) 
-        point.x /= engine.width; 
-        
-    if(point.y != 0) 
-        point.y /= engine.height; 
-
-    return point;
-}
-
 void  PathBezierCubicCurveTo( vec2 p2,  vec2 p3,  vec2 p4, int num_segments){
-    
-    p2 = DegreeseVector(p2);
-    p3 = DegreeseVector(p3);
-    p4 = DegreeseVector(p4);
 
     vec2 p1 = gui._Path[gui._Path_Size - 1];
     if (num_segments == 0)
@@ -376,9 +352,6 @@ void  PathBezierCubicCurveTo( vec2 p2,  vec2 p3,  vec2 p4, int num_segments){
 
 void  PathBezierQuadraticCurveTo( vec2 p2,  vec2 p3, int num_segments){
     
-    p2 = DegreeseVector(p2);
-    p3 = DegreeseVector(p3);
-
     vec2 p1 = gui._Path[gui._Path_Size - 1];
     if (num_segments == 0)
     {
@@ -394,18 +367,18 @@ void  PathBezierQuadraticCurveTo( vec2 p2,  vec2 p3, int num_segments){
     }
 }
 // Cubic Bezier takes 4 controls points
-void GUIAddBezierCubic(const vec2 p1, const vec2 p2, const vec2 p3, const vec2 p4, vec3 col, float thickness, int num_segments)
+void GUIAddBezierCubic(const vec2 p1, const vec2 p2, const vec2 p3, const vec2 p4, vec4 color, float thickness, int num_segments)
 {
     PathLineTo(p1);
     PathBezierCubicCurveTo(p2, p3, p4, num_segments);
-    PathStroke(col, 0, thickness, false);
+    PathStroke(color, 0, thickness, false);
 }
 // Quadratic Bezier takes 3 controls points
-void GUIAddBezierQuadratic(const vec2 p1, const vec2 p2, const vec2 p3, vec3 col, float thickness, int num_segments)
+void GUIAddBezierQuadratic(const vec2 p1, const vec2 p2, const vec2 p3, vec4 color, float thickness, int num_segments)
 {
     PathLineTo(p1);
     PathBezierQuadraticCurveTo(p2, p3, num_segments);
-    PathStroke(col, 0, thickness, false);
+    PathStroke(color, 0, thickness, false);
 }
 
 GUIObj *GUIManagerAddObject(){
@@ -654,6 +627,9 @@ void GUIManagerInit(int default_font){
     
     GameObject2DInit((GameObject2D *)&gui, TIGOR_GAME_OBJECT_TYPE_2D); 
 
+    gui.go.transform.scale.x = engine.width;
+    gui.go.transform.scale.y = engine.height;
+    
     memcpy(gui.go.name, "GUI", 3);
 
     gui.first_widget = AllocateMemory(1, sizeof(ChildStack));
@@ -661,6 +637,8 @@ void GUIManagerInit(int default_font){
     gui.font.fontWidth = 512;
     gui.font.fontHeight = 512;
     gui.font.fontSize = 14;
+
+    gui.Flags |= GUIDrawListFlags_AntiAliasedLines | GUIDrawListFlags_AntiAliasedFill;
        
     GUIManagerInitFont(default_font);
 
@@ -685,8 +663,10 @@ void GUIManagerInit(int default_font){
 
     GraphicsObjectSetShaderWithUniform(&gui.go.graphObj, &vert_shader, num_pack);
     GraphicsObjectSetShaderWithUniform(&gui.go.graphObj, &frag_shader, num_pack);
+    
+    GameObject2DSetDescriptorUpdate((GameObject2D *)&gui.go, num_pack, 0, (UpdateDescriptor)GameObject2DTransformBufferUpdate);
 
-    BluePrintSetTextureImage(&gui.go.graphObj.blueprints, num_pack, gui.font.texture, 0);
+    BluePrintSetTextureImage(&gui.go.graphObj.blueprints, num_pack, gui.font.texture, 1);
     
     uint32_t flags = BluePrintGetSettingsValue(&gui.go.graphObj.blueprints, num_pack, 3);
     BluePrintSetSettingsValue(&gui.go.graphObj.blueprints, num_pack, 3, flags | TIGOR_PIPELINE_FLAG_FACE_CLOCKWISE);
@@ -705,29 +685,15 @@ void GUIManagerInit(int default_font){
     GameObject2DInitDraw((GameObject2D *)&gui);
 }
 
-void GUIManagerDrawPrimRect(vec2 a, vec2 c, vec3 color){
+void GUIManagerDrawPrimRect(vec2 a, vec2 c, vec4 color){
 
     if(gui.draw_list == NULL)
         gui.draw_list = calloc(1, sizeof(ChildStack));
-
-    a = v2_sub(a, vec2_f(engine.width, engine.height));
-    c = v2_sub(c, vec2_f(engine.width, engine.height));
 
     GUIObj *rect = GUIManagerAddObject();
 
     rect->indeces = calloc(6, sizeof(uint32_t));
     rect->points = calloc(4, sizeof(Vertex2D));
-
-    if(a.x != 0)
-        a.x /= engine.width;
-    if(a.y != 0)
-        a.y /= engine.height;
-
-        
-    if(c.x != 0)
-        c.x /= engine.width;
-    if(c.y != 0)
-        c.y /= engine.height;
 
     vec2 b = {c.x, a.y};
     vec2 d = {a.x, c.y};
@@ -751,7 +717,7 @@ void GUIManagerDrawPrimRect(vec2 a, vec2 c, vec3 color){
     gui.currIndx += 4;
 }
 
-void GUIManagerDrawRect(vec2 a, vec2 c, vec3 color){
+void GUIManagerDrawRect(vec2 a, vec2 c, vec4 color){
 
     double xpos, ypos;
 
@@ -761,7 +727,7 @@ void GUIManagerDrawRect(vec2 a, vec2 c, vec3 color){
     ypos *= 2;
 
     if(a.x < xpos && c.x > xpos && a.y < ypos && c.y > ypos && TEngineGetMousePress(TIGOR_MOUSE_BUTTON_1) && !gui.sellected){
-        color = v3_subs(color, 0.1);
+        color = v4_subs(color, 0.1);
         gui.sellected =true;
     }
 
@@ -769,26 +735,20 @@ void GUIManagerDrawRect(vec2 a, vec2 c, vec3 color){
 
 }
 
-void GUIAddRectFilled(const vec2 p_min, const vec2 p_max, vec3 col, float rounding, uint32_t flags)
+void GUIAddRectFilled(const vec2 p_min, const vec2 p_max, vec4 color, float rounding, uint32_t flags)
 {
     if (rounding < 0.5f)
     {
-        GUIManagerDrawPrimRect(p_min, p_max, col);
+        GUIManagerDrawPrimRect(p_min, p_max, color);
     }
     else
     {
         PathRect(p_min, p_max, rounding, flags);
-        PathFillConvex(col, false);
+        PathFillConvex(color, false);
     }
 }
 
-void GUISetText(float xpos, float ypos, vec3 color, float font_size, uint32_t *text){
-
-    if(xpos != 0)
-        xpos /= engine.width;
-        
-    if(ypos != 0)
-        ypos /= engine.height;
+void GUISetText(float xpos, float ypos, vec4 color, float font_size, uint32_t *text){
 
     int len = ToolsStr32BitLength((uint32_t *)text);
 
@@ -807,8 +767,8 @@ void GUISetText(float xpos, float ypos, vec3 color, float font_size, uint32_t *t
     rect->points = calloc(len * 4, sizeof(Vertex2D));
     rect->indeces = calloc(len * 6, sizeof(uint32_t));
     
-    float mulX = font_size / engine.width / GUIFontResizer;
-    float mulY = font_size / engine.height / GUIFontResizer;
+    float mulX = font_size / GUIFontResizer;
+    float mulY = font_size / GUIFontResizer;
     
     float temp = font_size / engine.height;
 
@@ -820,10 +780,10 @@ void GUISetText(float xpos, float ypos, vec3 color, float font_size, uint32_t *t
         stbtt_GetBakedQuad(gui.font.cdata, 512,512, *tempI, &x,&y,&q,1);//1=opengl & d3d10+,0=d3d9
 
         
-        float x1 = xpos + q.x0 * mulX - 1.0f;
-        float x2 = xpos + q.x1 * mulX - 1.0f;
-        float y1 = ypos + q.y0 * mulY - 1.0f + temp;
-        float y2 = ypos + q.y1 * mulY - 1.0f + temp;
+        float x1 = xpos + q.x0 * mulX;
+        float x2 = xpos + q.x1 * mulX;
+        float y1 = ypos + q.y0 * mulY + temp;
+        float y2 = ypos + q.y1 * mulY + temp;
         float u1 = q.s0;
         float v1 = q.t0;
         float u2 = q.s1;
@@ -847,13 +807,7 @@ void GUISetText(float xpos, float ypos, vec3 color, float font_size, uint32_t *t
     rect->vert_count = v_iter;
 }
 
-void GUIRenderText(float xpos, float ypos, vec3 color, const vec4 *clip_rect, float font_size, uint32_t *text, bool cpu_fine_clip){
-
-    if(xpos != 0)
-        xpos /= engine.width;
-        
-    if(ypos != 0)
-        ypos /= engine.height;
+void GUIRenderText(float xpos, float ypos, vec4 color, const vec4 *clip_rect, float font_size, uint32_t *text, bool cpu_fine_clip){
 
     int len = ToolsStr32BitLength((uint32_t *)text);
 
@@ -872,8 +826,8 @@ void GUIRenderText(float xpos, float ypos, vec3 color, const vec4 *clip_rect, fl
     rect->points = calloc(len * 4, sizeof(Vertex2D));
     rect->indeces = calloc(len * 6, sizeof(uint32_t));
     
-    float mulX = font_size / engine.width / GUIFontResizer;
-    float mulY = font_size / engine.height / GUIFontResizer;
+    float mulX = font_size / GUIFontResizer;
+    float mulY = font_size / GUIFontResizer;
     
     const float scale = GUIFontResizer / font_size;
     float temp = font_size / engine.height;
@@ -924,11 +878,6 @@ void GUIRenderText(float xpos, float ypos, vec3 color, const vec4 *clip_rect, fl
             }*/
         }
 
-        x1 -= 1.0f;
-        x2 -= 1.0f;
-        y1 -= 1.0f;
-        y2 -= 1.0f;
-
         rect->points[v_iter + 0].position.x = x1; rect->points[v_iter + 0].position.y = y1; rect->points[v_iter + 0].color = color; rect->points[v_iter + 0].texCoord.x = u1; rect->points[v_iter + 0].texCoord.y = v1;
         rect->points[v_iter + 1].position.x = x2; rect->points[v_iter + 1].position.y = y1; rect->points[v_iter + 1].color = color; rect->points[v_iter + 1].texCoord.x = u2; rect->points[v_iter + 1].texCoord.y = v1;
         rect->points[v_iter + 2].position.x = x2; rect->points[v_iter + 2].position.y = y2; rect->points[v_iter + 2].color = color; rect->points[v_iter + 2].texCoord.x = u2; rect->points[v_iter + 2].texCoord.y = v2;
@@ -947,7 +896,7 @@ void GUIRenderText(float xpos, float ypos, vec3 color, const vec4 *clip_rect, fl
     rect->vert_count = v_iter;
 }
 
-void GUIAddTextClippedU8(float xpos, float ypos, vec3 color, float font_size, const char *text, const vec4 *cpu_fine_clip_rect){
+void GUIAddTextClippedU8(float xpos, float ypos, vec4 color, float font_size, const char *text, const vec4 *cpu_fine_clip_rect){
 
     if(!GUIManagerIsInit())
         return;
@@ -963,7 +912,7 @@ void GUIAddTextClippedU8(float xpos, float ypos, vec3 color, float font_size, co
     GUIAddTextClippedU32(xpos, ypos, color, font_size, buff, cpu_fine_clip_rect);
 }
 
-void GUIAddTextClippedU32(float xpos, float ypos, vec3 color, float font_size, uint32_t *text, const vec4 *cpu_fine_clip_rect){
+void GUIAddTextClippedU32(float xpos, float ypos, vec4 color, float font_size, uint32_t *text, const vec4 *cpu_fine_clip_rect){
 
     vec4 clip_rect = vec4_f(0, 0, engine.width, engine.height);
     if (cpu_fine_clip_rect)
@@ -974,11 +923,10 @@ void GUIAddTextClippedU32(float xpos, float ypos, vec3 color, float font_size, u
         clip_rect.w = e_min(clip_rect.w, cpu_fine_clip_rect->w);
     }
 
-    clip_rect = v4_div(clip_rect, vec4_f(engine.width, engine.height, engine.width, engine.height));
     GUIRenderText(xpos, ypos, color, &clip_rect, font_size, text, cpu_fine_clip_rect != NULL);
 }
 
-void GUIAddTextU8(float xpos, float ypos, vec3 color, float font_size, char *text){
+void GUIAddTextU8(float xpos, float ypos, vec4 color, float font_size, char *text){
 
     if(!GUIManagerIsInit())
         return;
@@ -994,7 +942,7 @@ void GUIAddTextU8(float xpos, float ypos, vec3 color, float font_size, char *tex
     GUIAddTextU32(xpos, ypos, color, font_size, buff);
 }
 
-void GUIAddTextU32(float xpos, float ypos, vec3 color, float font_size, uint32_t *text){
+void GUIAddTextU32(float xpos, float ypos, vec4 color, float font_size, uint32_t *text){
     
     if(!GUIManagerIsInit())
         return;
@@ -1125,7 +1073,7 @@ int GUICalcTextLengthFromEndU32(float max_size, uint32_t *text){
     return length;
 }
 
-void AddConvexPolyFilled(const vec2 *points, const int points_count, vec3 col)
+void AddConvexPolyFilled(const vec2 *points, const int points_count, vec4 color)
 {
 
     if (points_count < 3)
@@ -1136,39 +1084,40 @@ void AddConvexPolyFilled(const vec2 *points, const int points_count, vec3 col)
     if(gui.draw_list == NULL)
         gui.draw_list = calloc(1, sizeof(ChildStack));
         
-    GUIObj *rect = GUIManagerAddObject();
 
     uint32_t v_iter = 0;
     uint32_t i_iter = 0;
 
-    /*if (Flags & ImDrawListFlags_AntiAliasedFill)
+    if (gui.Flags & GUIDrawListFlags_AntiAliasedFill)
     {
+
         // Anti-aliased Fill
-        const float AA_SIZE = _FringeScale;
-        const ImU32 col_trans = col & ~IM_COL32_A_MASK;
+        const float AA_SIZE = gui._FringeScale;
+        const vec4 col_trans = vec4_f(color.x, color.y, color.z, 0.0f);
         const int idx_count = (points_count - 2)*3 + points_count * 6;
         const int vtx_count = (points_count * 2);
-        PrimReserve(idx_count, vtx_count);
+        GUIObj *shape = GUIManagerAddObject();
+        shape->indeces = calloc(idx_count, sizeof(uint32_t));
+        shape->points = calloc(vtx_count, sizeof(Vertex2D));
 
         // Add indexes for fill
-        unsigned int vtx_inner_idx = _VtxCurrentIdx;
-        unsigned int vtx_outer_idx = _VtxCurrentIdx + 1;
+        unsigned int vtx_inner_idx = gui.currIndx;
+        unsigned int vtx_outer_idx = gui.currIndx + 1;
         for (int i = 2; i < points_count; i++)
         {
-            _IdxWritePtr[0] = (ImDrawIdx)(vtx_inner_idx); _IdxWritePtr[1] = (ImDrawIdx)(vtx_inner_idx + ((i - 1) << 1)); _IdxWritePtr[2] = (ImDrawIdx)(vtx_inner_idx + (i << 1));
-            _IdxWritePtr += 3;
+            shape->indeces[i_iter + 0] = (uint32_t)(vtx_inner_idx); shape->indeces[i_iter + 1] = (uint32_t)(vtx_inner_idx + ((i - 1) << 1)); shape->indeces[i_iter + 2] = (uint32_t)(vtx_inner_idx + (i << 1));
+            i_iter += 3;
         }
 
         // Compute normals
-        _Data->TempBuffer.reserve_discard(points_count);
-        ImVec2* temp_normals = _Data->TempBuffer.Data;
+        vec2 temp_normals[points_count];
         for (int i0 = points_count - 1, i1 = 0; i1 < points_count; i0 = i1++)
         {
-            const ImVec2& p0 = points[i0];
-            const ImVec2& p1 = points[i1];
+            const vec2 p0 = points[i0];
+            const vec2 p1 = points[i1];
             float dx = p1.x - p0.x;
             float dy = p1.y - p0.y;
-            IM_NORMALIZE2F_OVER_ZERO(dx, dy);
+            GUI_NORMALIZE2F_OVER_ZERO(dx, dy);
             temp_normals[i0].x = dy;
             temp_normals[i0].y = -dx;
         }
@@ -1176,39 +1125,44 @@ void AddConvexPolyFilled(const vec2 *points, const int points_count, vec3 col)
         for (int i0 = points_count - 1, i1 = 0; i1 < points_count; i0 = i1++)
         {
             // Average normals
-            const ImVec2& n0 = temp_normals[i0];
-            const ImVec2& n1 = temp_normals[i1];
+            const vec2 n0 = temp_normals[i0];
+            const vec2 n1 = temp_normals[i1];
             float dm_x = (n0.x + n1.x) * 0.5f;
             float dm_y = (n0.y + n1.y) * 0.5f;
-            IM_FIXNORMAL2F(dm_x, dm_y);
+            GUI_FIXNORMAL2F(dm_x, dm_y);
             dm_x *= AA_SIZE * 0.5f;
             dm_y *= AA_SIZE * 0.5f;
 
             // Add vertices
-            _VtxWritePtr[0].pos.x = (points[i1].x - dm_x); _VtxWritePtr[0].pos.y = (points[i1].y - dm_y); _VtxWritePtr[0].uv = uv; _VtxWritePtr[0].col = col;        // Inner
-            _VtxWritePtr[1].pos.x = (points[i1].x + dm_x); _VtxWritePtr[1].pos.y = (points[i1].y + dm_y); _VtxWritePtr[1].uv = uv; _VtxWritePtr[1].col = col_trans;  // Outer
-            _VtxWritePtr += 2;
+            shape->points[v_iter + 0].position.x = (points[i1].x - dm_x); shape->points[v_iter + 0].position.y = (points[i1].y - dm_y); shape->points[v_iter + 0].texCoord = uv; shape->points[v_iter + 0].color = color;        // Inner
+            shape->points[v_iter + 1].position.x = (points[i1].x + dm_x); shape->points[v_iter + 1].position.y = (points[i1].y + dm_y); shape->points[v_iter + 1].texCoord = uv; shape->points[v_iter + 1].color = col_trans;  // Outer
+            v_iter += 2;
 
             // Add indexes for fringes
-            _IdxWritePtr[0] = (ImDrawIdx)(vtx_inner_idx + (i1 << 1)); _IdxWritePtr[1] = (ImDrawIdx)(vtx_inner_idx + (i0 << 1)); _IdxWritePtr[2] = (ImDrawIdx)(vtx_outer_idx + (i0 << 1));
-            _IdxWritePtr[3] = (ImDrawIdx)(vtx_outer_idx + (i0 << 1)); _IdxWritePtr[4] = (ImDrawIdx)(vtx_outer_idx + (i1 << 1)); _IdxWritePtr[5] = (ImDrawIdx)(vtx_inner_idx + (i1 << 1));
-            _IdxWritePtr += 6;
+            shape->indeces[i_iter + 0] = (uint32_t)(vtx_inner_idx + (i1 << 1)); shape->indeces[i_iter + 1] = (uint32_t)(vtx_inner_idx + (i0 << 1)); shape->indeces[i_iter + 2] = (uint32_t)(vtx_outer_idx + (i0 << 1));
+            shape->indeces[i_iter + 3] = (uint32_t)(vtx_outer_idx + (i0 << 1)); shape->indeces[i_iter + 4] = (uint32_t)(vtx_outer_idx + (i1 << 1)); shape->indeces[i_iter + 5] = (uint32_t)(vtx_inner_idx + (i1 << 1));
+            i_iter += 6;
         }
-        _VtxCurrentIdx += (ImDrawIdx)vtx_count;
+
+        shape->indx_count = idx_count;
+        shape->vert_count = vtx_count;
+
+        gui.currIndx += (uint32_t)vtx_count;
     }
-    else*/
+    else
     {
         // Non Anti-aliased Fill
         const int idx_count = (points_count - 2)*3;
         const int vtx_count = points_count;
         
+        GUIObj *rect = GUIManagerAddObject();
         
         rect->indeces = calloc(idx_count, sizeof(uint32_t));
         rect->points = calloc(vtx_count, sizeof(Vertex2D));
 
         for (int i = 0; i < vtx_count; i++)
         {
-            rect->points[v_iter].position = v2_subs(points[i], 1.0f); rect->points[v_iter].texCoord = uv; rect->points[v_iter].color = col;
+            rect->points[v_iter].position = points[i]; rect->points[v_iter].texCoord = uv; rect->points[v_iter].color = color;
             v_iter ++;
         }
         for (int i = 2; i < points_count; i++)
@@ -1224,7 +1178,7 @@ void AddConvexPolyFilled(const vec2 *points, const int points_count, vec3 col)
     }
 }
 
-void GUIManagerAddPolyline(const vec2* points, int points_count, vec3 color, DrawListFlags flags, float thickness){
+void GUIManagerAddPolyline(const vec2* points, int points_count, vec4 color, DrawListFlags flags, float thickness){
 
     if (points_count < 2)
         return;
@@ -1235,45 +1189,44 @@ void GUIManagerAddPolyline(const vec2* points, int points_count, vec3 color, Dra
     const int count = closed ? points_count : points_count - 1; // The number of line segments we need to draw
     const vec2 opaque_uv = TexUvWhitePixel;
     const bool thick_line = (thickness > gui._FringeScale);
-
     
     if(gui.draw_list == NULL)
         gui.draw_list = calloc(1, sizeof(ChildStack));
-        
-    GUIObj *rect = GUIManagerAddObject();
-
-    rect->indeces = calloc(count * 6, sizeof(uint32_t));
-    rect->points = calloc(count * 4, sizeof(Vertex2D));
-
+    
     uint32_t v_iter = 0;
-    uint32_t i_iter = 0;
-    /*if (gui.Flags & GUIDrawListFlags_AntiAliasedLines)
+    uint32_t i_iter = 0;    
+    if (gui.Flags & GUIDrawListFlags_AntiAliasedLines)
     {
         // Anti-aliased stroke
         const float AA_SIZE = gui._FringeScale;
+        const vec4 col_trans = vec4_f(color.x, color.y, color.z, 0.0f);
 
         // Thicknesses <1.0 should behave like thickness 1.0
-        thickness = ImMax(thickness, 1.0f);
+        thickness = e_max(thickness, 1.0f);
         const int integer_thickness = (int)thickness;
         const float fractional_thickness = thickness - integer_thickness;
 
         // Do we want to draw this line using a texture?
         // - For now, only draw integer-width lines using textures to avoid issues with the way scaling occurs, could be improved.
         // - If AA_SIZE is not 1.0f we cannot use the texture path.
-        const bool use_texture = (gui.Flags & GUIDrawListFlags_AntiAliasedLinesUseTex) && (integer_thickness < IM_DRAWLIST_TEX_LINES_WIDTH_MAX) && (fractional_thickness <= 0.00001f) && (AA_SIZE == 1.0f);
+        const bool use_texture = (gui.Flags & GUIDrawListFlags_AntiAliasedLinesUseTex) && (integer_thickness < GUI_DRAWLIST_TEX_LINES_WIDTH_MAX) && (fractional_thickness <= 0.00001f) && (AA_SIZE == 1.0f);
 
         // We should never hit this, because NewFrame() doesn't set ImDrawListFlags_AntiAliasedLinesUseTex unless ImFontAtlasFlags_NoBakedLines is off
         //IM_ASSERT_PARANOID(!use_texture || !(gui._Data->Font->ContainerAtlas->Flags & GUIFontAtlasFlags_NoBakedLines));
 
         const int idx_count = use_texture ? (count * 6) : (thick_line ? count * 18 : count * 12);
         const int vtx_count = use_texture ? (points_count * 2) : (thick_line ? points_count * 4 : points_count * 3);
-        PrimReserve(idx_count, vtx_count);
+        
+        GUIObj *shape = GUIManagerAddObject();
+
+        shape->indeces = calloc(idx_count, sizeof(uint32_t));
+        shape->points = calloc(vtx_count, sizeof(Vertex2D));
 
         // Temporary buffer
         // The first <points_count> items are normals at each line point, then after that there are either 2 or 4 temp points for each line point
-        _Data->TempBuffer.reserve_discard(points_count * ((use_texture || !thick_line) ? 3 : 5));
-        vec2* temp_normals = _Data->TempBuffer.Data;
-        vec2* temp_points = temp_normals + points_count;
+        int c_temp = points_count * ((use_texture || !thick_line) ? 3 : 5);
+        vec2 *temp_normals = calloc(c_temp, sizeof(vec2));
+        vec2 *temp_points = temp_normals + points_count;
 
         // Calculate normals (tangents) for each line segment
         for (int i1 = 0; i1 < count; i1++)
@@ -1281,7 +1234,7 @@ void GUIManagerAddPolyline(const vec2* points, int points_count, vec3 color, Dra
             const int i2 = (i1 + 1) == points_count ? 0 : i1 + 1;
             float dx = points[i2].x - points[i1].x;
             float dy = points[i2].y - points[i1].y;
-            IM_NORMALIZE2F_OVER_ZERO(dx, dy);
+            GUI_NORMALIZE2F_OVER_ZERO(dx, dy);
             temp_normals[i1].x = dy;
             temp_normals[i1].y = -dx;
         }
@@ -1304,10 +1257,10 @@ void GUIManagerAddPolyline(const vec2* points, int points_count, vec3 color, Dra
             // If line is not closed, the first and last points need to be generated differently as there are no normals to blend
             if (!closed)
             {
-                temp_points[0] = points[0] + temp_normals[0] * half_draw_size;
-                temp_points[1] = points[0] - temp_normals[0] * half_draw_size;
-                temp_points[(points_count-1)*2+0] = points[points_count-1] + temp_normals[points_count-1] * half_draw_size;
-                temp_points[(points_count-1)*2+1] = points[points_count-1] - temp_normals[points_count-1] * half_draw_size;
+                temp_points[0] = v2_add(points[0], v2_muls(temp_normals[0], half_draw_size));
+                temp_points[1] = v2_sub(points[0], v2_muls(temp_normals[0], half_draw_size));
+                temp_points[(points_count-1)*2+0] = v2_add(points[points_count-1], v2_muls(temp_normals[points_count-1], half_draw_size));
+                temp_points[(points_count-1)*2+1] = v2_sub(points[points_count-1], v2_muls(temp_normals[points_count-1], half_draw_size));
             }
 
             // Generate the indices to form a number of triangles for each line segment, and the vertices for the line edges
@@ -1317,14 +1270,15 @@ void GUIManagerAddPolyline(const vec2* points, int points_count, vec3 color, Dra
             for (int i1 = 0; i1 < count; i1++) // i1 is the first point of the line segment
             {
                 const int i2 = (i1 + 1) == points_count ? 0 : i1 + 1; // i2 is the second point of the line segment
-                const unsigned int idx2 = ((i1 + 1) == points_count) ? _VtxCurrentIdx : (idx1 + (use_texture ? 2 : 3)); // Vertex index for end of segment
+                const unsigned int idx2 = ((i1 + 1) == points_count) ? gui.currIndx : (idx1 + (use_texture ? 2 : 3)); // Vertex index for end of segment
 
                 // Average normals
                 float dm_x = (temp_normals[i1].x + temp_normals[i2].x) * 0.5f;
                 float dm_y = (temp_normals[i1].y + temp_normals[i2].y) * 0.5f;
-                IM_FIXNORMAL2F(dm_x, dm_y);
+                GUI_FIXNORMAL2F(dm_x, dm_y);
                 dm_x *= half_draw_size; // dm_x, dm_y are offset to the outer edge of the AA area
                 dm_y *= half_draw_size;
+
 
                 // Add temporary vertexes for the outer edges
                 vec2* out_vtx = &temp_points[i2 * 2];
@@ -1336,56 +1290,56 @@ void GUIManagerAddPolyline(const vec2* points, int points_count, vec3 color, Dra
                 if (use_texture)
                 {
                     // Add indices for two triangles
-                    _IdxWritePtr[0] = (ImDrawIdx)(idx2 + 0); _IdxWritePtr[1] = (ImDrawIdx)(idx1 + 0); _IdxWritePtr[2] = (ImDrawIdx)(idx1 + 1); // Right tri
-                    _IdxWritePtr[3] = (ImDrawIdx)(idx2 + 1); _IdxWritePtr[4] = (ImDrawIdx)(idx1 + 1); _IdxWritePtr[5] = (ImDrawIdx)(idx2 + 0); // Left tri
-                    _IdxWritePtr += 6;
+                    shape->indeces[i_iter + 0] = (uint32_t)(idx2 + 0); shape->indeces[i_iter + 1] = (uint32_t)(idx1 + 0); shape->indeces[i_iter + 2] = (uint32_t)(idx1 + 1); // Right tri
+                    shape->indeces[i_iter + 3] = (uint32_t)(idx2 + 1); shape->indeces[i_iter + 4] = (uint32_t)(idx1 + 1); shape->indeces[i_iter + 5] = (uint32_t)(idx2 + 0); // Left tri
+                    i_iter += 6;
                 }
                 else
                 {
                     // Add indexes for four triangles
-                    _IdxWritePtr[0] = (ImDrawIdx)(idx2 + 0); _IdxWritePtr[1] = (ImDrawIdx)(idx1 + 0); _IdxWritePtr[2] = (ImDrawIdx)(idx1 + 2); // Right tri 1
-                    _IdxWritePtr[3] = (ImDrawIdx)(idx1 + 2); _IdxWritePtr[4] = (ImDrawIdx)(idx2 + 2); _IdxWritePtr[5] = (ImDrawIdx)(idx2 + 0); // Right tri 2
-                    _IdxWritePtr[6] = (ImDrawIdx)(idx2 + 1); _IdxWritePtr[7] = (ImDrawIdx)(idx1 + 1); _IdxWritePtr[8] = (ImDrawIdx)(idx1 + 0); // Left tri 1
-                    _IdxWritePtr[9] = (ImDrawIdx)(idx1 + 0); _IdxWritePtr[10] = (ImDrawIdx)(idx2 + 0); _IdxWritePtr[11] = (ImDrawIdx)(idx2 + 1); // Left tri 2
-                    _IdxWritePtr += 12;
+                    shape->indeces[i_iter + 0] = (uint32_t)(idx2 + 0); shape->indeces[i_iter + 1] = (uint32_t)(idx1 + 0);  shape->indeces[i_iter + 2] = (uint32_t)(idx1 + 2); // Right tri 1
+                    shape->indeces[i_iter + 3] = (uint32_t)(idx1 + 2); shape->indeces[i_iter + 4] = (uint32_t)(idx2 + 2);  shape->indeces[i_iter + 5] = (uint32_t)(idx2 + 0); // Right tri 2
+                    shape->indeces[i_iter + 6] = (uint32_t)(idx2 + 1); shape->indeces[i_iter + 7] = (uint32_t)(idx1 + 1);  shape->indeces[i_iter + 8] = (uint32_t)(idx1 + 0); // Left tri 1
+                    shape->indeces[i_iter + 9] = (uint32_t)(idx1 + 0); shape->indeces[i_iter + 10] = (uint32_t)(idx2 + 0); shape->indeces[i_iter + 11] = (uint32_t)(idx2 + 1); // Left tri 2
+                    i_iter += 12;
                 }
 
                 idx1 = idx2;
             }
 
             // Add vertexes for each point on the line
-            if (use_texture)
-            {
-                // If we're using textures we only need to emit the left/right edge vertices
-                ImVec4 tex_uvs = _Data->TexUvLines[integer_thickness];
-                if (fractional_thickness != 0.0f) // Currently always zero when use_texture==false!
-                {
-                    const ImVec4 tex_uvs_1 = _Data->TexUvLines[integer_thickness + 1];
-                    tex_uvs.x = tex_uvs.x + (tex_uvs_1.x - tex_uvs.x) * fractional_thickness; // inlined ImLerp()
-                    tex_uvs.y = tex_uvs.y + (tex_uvs_1.y - tex_uvs.y) * fractional_thickness;
-                    tex_uvs.z = tex_uvs.z + (tex_uvs_1.z - tex_uvs.z) * fractional_thickness;
-                    tex_uvs.w = tex_uvs.w + (tex_uvs_1.w - tex_uvs.w) * fractional_thickness;
-                }
-                ImVec2 tex_uv0(tex_uvs.x, tex_uvs.y);
-                ImVec2 tex_uv1(tex_uvs.z, tex_uvs.w);
-                for (int i = 0; i < points_count; i++)
-                {
-                    _VtxWritePtr[0].pos = temp_points[i * 2 + 0]; _VtxWritePtr[0].uv = tex_uv0; _VtxWritePtr[0].col = col; // Left-side outer edge
-                    _VtxWritePtr[1].pos = temp_points[i * 2 + 1]; _VtxWritePtr[1].uv = tex_uv1; _VtxWritePtr[1].col = col; // Right-side outer edge
-                    _VtxWritePtr += 2;
-                }
-            }
-            else
+            // if (use_texture)
+            // {
+            //     // If we're using textures we only need to emit the left/right edge vertices
+            //     vec4 tex_uvs = _Data->TexUvLines[integer_thickness];
+            //     if (fractional_thickness != 0.0f) // Currently always zero when use_texture==false!
+            //     {
+            //         const vec4 tex_uvs_1 = _Data->TexUvLines[integer_thickness + 1];
+            //         tex_uvs.x = tex_uvs.x + (tex_uvs_1.x - tex_uvs.x) * fractional_thickness; // inlined ImLerp()
+            //         tex_uvs.y = tex_uvs.y + (tex_uvs_1.y - tex_uvs.y) * fractional_thickness;
+            //         tex_uvs.z = tex_uvs.z + (tex_uvs_1.z - tex_uvs.z) * fractional_thickness;
+            //         tex_uvs.w = tex_uvs.w + (tex_uvs_1.w - tex_uvs.w) * fractional_thickness;
+            //     }
+            //     vec2 tex_uv0 = vec2_f(tex_uvs.x, tex_uvs.y);
+            //     vec2 tex_uv1 = vec2_f(tex_uvs.z, tex_uvs.w);
+            //     for (int i = 0; i < points_count; i++)
+            //     {
+            //         shape->points[0].position = temp_points[i * 2 + 0]; shape->points[0].texCoord = tex_uv0; shape->points[0].color = color; // Left-side outer edge
+            //         shape->points[1].position = temp_points[i * 2 + 1]; shape->points[1].texCoord = tex_uv1; shape->points[1].color = color; // Right-side outer edge
+            //         shape->vert_count += 2;
+            //     }
+            // }
+            // else
             {
                 // If we're not using a texture, we need the center vertex as well
                 for (int i = 0; i < points_count; i++)
-                {
-                    _VtxWritePtr[0].pos = points[i];              _VtxWritePtr[0].uv = opaque_uv; _VtxWritePtr[0].col = col;       // Center of line
-                    _VtxWritePtr[1].pos = temp_points[i * 2 + 0]; _VtxWritePtr[1].uv = opaque_uv; _VtxWritePtr[1].col = col_trans; // Left-side outer edge
-                    _VtxWritePtr[2].pos = temp_points[i * 2 + 1]; _VtxWritePtr[2].uv = opaque_uv; _VtxWritePtr[2].col = col_trans; // Right-side outer edge
-                    _VtxWritePtr += 3;
+                {                        
+                    shape->points[v_iter + 0].position = points[i];               shape->points[v_iter + 0].texCoord = opaque_uv; shape->points[v_iter + 0].color = color;       // Center of line
+                    shape->points[v_iter + 1].position = temp_points[i * 2 + 0];  shape->points[v_iter + 1].texCoord = opaque_uv; shape->points[v_iter + 1].color = col_trans; // Left-side outer edge
+                    shape->points[v_iter + 2].position = temp_points[i * 2 + 1];  shape->points[v_iter + 2].texCoord = opaque_uv; shape->points[v_iter + 2].color = col_trans; // Right-side outer edge
+                    v_iter += 3;
                 }
-            }
+            }            
         }
         else
         {
@@ -1396,36 +1350,36 @@ void GUIManagerAddPolyline(const vec2* points, int points_count, vec3 color, Dra
             if (!closed)
             {
                 const int points_last = points_count - 1;
-                temp_points[0] = points[0] + temp_normals[0] * (half_inner_thickness + AA_SIZE);
-                temp_points[1] = points[0] + temp_normals[0] * (half_inner_thickness);
-                temp_points[2] = points[0] - temp_normals[0] * (half_inner_thickness);
-                temp_points[3] = points[0] - temp_normals[0] * (half_inner_thickness + AA_SIZE);
-                temp_points[points_last * 4 + 0] = points[points_last] + temp_normals[points_last] * (half_inner_thickness + AA_SIZE);
-                temp_points[points_last * 4 + 1] = points[points_last] + temp_normals[points_last] * (half_inner_thickness);
-                temp_points[points_last * 4 + 2] = points[points_last] - temp_normals[points_last] * (half_inner_thickness);
-                temp_points[points_last * 4 + 3] = points[points_last] - temp_normals[points_last] * (half_inner_thickness + AA_SIZE);
+                temp_points[0] = v2_add(points[0], v2_muls(temp_normals[0], (half_inner_thickness + AA_SIZE)));
+                temp_points[1] = v2_add(points[0], v2_muls(temp_normals[0], (half_inner_thickness)));
+                temp_points[2] = v2_sub(points[0], v2_muls(temp_normals[0], (half_inner_thickness)));
+                temp_points[3] = v2_sub(points[0], v2_muls(temp_normals[0], (half_inner_thickness + AA_SIZE)));
+                temp_points[points_last * 4 + 0] = v2_add(points[points_last], v2_muls(temp_normals[points_last], (half_inner_thickness + AA_SIZE)));
+                temp_points[points_last * 4 + 1] = v2_add(points[points_last], v2_muls(temp_normals[points_last], (half_inner_thickness)));
+                temp_points[points_last * 4 + 2] = v2_sub(points[points_last], v2_muls(temp_normals[points_last], (half_inner_thickness)));
+                temp_points[points_last * 4 + 3] = v2_sub(points[points_last], v2_muls(temp_normals[points_last], (half_inner_thickness + AA_SIZE)));
             }
 
             // Generate the indices to form a number of triangles for each line segment, and the vertices for the line edges
             // This takes points n and n+1 and writes into n+1, with the first point in a closed line being generated from the final one (as n+1 wraps)
             // FIXME-OPT: Merge the different loops, possibly remove the temporary buffer.
-            unsigned int idx1 = _VtxCurrentIdx; // Vertex index for start of line segment
+            unsigned int idx1 = gui.currIndx; // Vertex index for start of line segment
             for (int i1 = 0; i1 < count; i1++) // i1 is the first point of the line segment
             {
                 const int i2 = (i1 + 1) == points_count ? 0 : (i1 + 1); // i2 is the second point of the line segment
-                const unsigned int idx2 = (i1 + 1) == points_count ? _VtxCurrentIdx : (idx1 + 4); // Vertex index for end of segment
+                const unsigned int idx2 = (i1 + 1) == points_count ? gui.currIndx : (idx1 + 4); // Vertex index for end of segment
 
                 // Average normals
                 float dm_x = (temp_normals[i1].x + temp_normals[i2].x) * 0.5f;
                 float dm_y = (temp_normals[i1].y + temp_normals[i2].y) * 0.5f;
-                IM_FIXNORMAL2F(dm_x, dm_y);
+                GUI_FIXNORMAL2F(dm_x, dm_y);
                 float dm_out_x = dm_x * (half_inner_thickness + AA_SIZE);
                 float dm_out_y = dm_y * (half_inner_thickness + AA_SIZE);
                 float dm_in_x = dm_x * half_inner_thickness;
                 float dm_in_y = dm_y * half_inner_thickness;
 
                 // Add temporary vertices
-                ImVec2* out_vtx = &temp_points[i2 * 4];
+                vec2* out_vtx = &temp_points[i2 * 4];
                 out_vtx[0].x = points[i2].x + dm_out_x;
                 out_vtx[0].y = points[i2].y + dm_out_y;
                 out_vtx[1].x = points[i2].x + dm_in_x;
@@ -1436,13 +1390,13 @@ void GUIManagerAddPolyline(const vec2* points, int points_count, vec3 color, Dra
                 out_vtx[3].y = points[i2].y - dm_out_y;
 
                 // Add indexes
-                _IdxWritePtr[0]  = (ImDrawIdx)(idx2 + 1); _IdxWritePtr[1]  = (ImDrawIdx)(idx1 + 1); _IdxWritePtr[2]  = (ImDrawIdx)(idx1 + 2);
-                _IdxWritePtr[3]  = (ImDrawIdx)(idx1 + 2); _IdxWritePtr[4]  = (ImDrawIdx)(idx2 + 2); _IdxWritePtr[5]  = (ImDrawIdx)(idx2 + 1);
-                _IdxWritePtr[6]  = (ImDrawIdx)(idx2 + 1); _IdxWritePtr[7]  = (ImDrawIdx)(idx1 + 1); _IdxWritePtr[8]  = (ImDrawIdx)(idx1 + 0);
-                _IdxWritePtr[9]  = (ImDrawIdx)(idx1 + 0); _IdxWritePtr[10] = (ImDrawIdx)(idx2 + 0); _IdxWritePtr[11] = (ImDrawIdx)(idx2 + 1);
-                _IdxWritePtr[12] = (ImDrawIdx)(idx2 + 2); _IdxWritePtr[13] = (ImDrawIdx)(idx1 + 2); _IdxWritePtr[14] = (ImDrawIdx)(idx1 + 3);
-                _IdxWritePtr[15] = (ImDrawIdx)(idx1 + 3); _IdxWritePtr[16] = (ImDrawIdx)(idx2 + 3); _IdxWritePtr[17] = (ImDrawIdx)(idx2 + 2);
-                _IdxWritePtr += 18;
+                shape->indeces[i_iter + 0]  = (uint32_t)(idx2 + 1); shape->indeces[i_iter + 1]  = (uint32_t)(idx1 + 1); shape->indeces[i_iter + 2]  = (uint32_t)(idx1 + 2);
+                shape->indeces[i_iter + 3]  = (uint32_t)(idx1 + 2); shape->indeces[i_iter + 4]  = (uint32_t)(idx2 + 2); shape->indeces[i_iter + 5]  = (uint32_t)(idx2 + 1);
+                shape->indeces[i_iter + 6]  = (uint32_t)(idx2 + 1); shape->indeces[i_iter + 7]  = (uint32_t)(idx1 + 1); shape->indeces[i_iter + 8]  = (uint32_t)(idx1 + 0);
+                shape->indeces[i_iter + 9]  = (uint32_t)(idx1 + 0); shape->indeces[i_iter + 10] = (uint32_t)(idx2 + 0); shape->indeces[i_iter + 11] = (uint32_t)(idx2 + 1);
+                shape->indeces[i_iter + 12] = (uint32_t)(idx2 + 2); shape->indeces[i_iter + 13] = (uint32_t)(idx1 + 2); shape->indeces[i_iter + 14] = (uint32_t)(idx1 + 3);
+                shape->indeces[i_iter + 15] = (uint32_t)(idx1 + 3); shape->indeces[i_iter + 16] = (uint32_t)(idx2 + 3); shape->indeces[i_iter + 17] = (uint32_t)(idx2 + 2);
+                i_iter += 18;
 
                 idx1 = idx2;
             }
@@ -1450,22 +1404,33 @@ void GUIManagerAddPolyline(const vec2* points, int points_count, vec3 color, Dra
             // Add vertices
             for (int i = 0; i < points_count; i++)
             {
-                _VtxWritePtr[0].pos = temp_points[i * 4 + 0]; _VtxWritePtr[0].uv = opaque_uv; _VtxWritePtr[0].col = col_trans;
-                _VtxWritePtr[1].pos = temp_points[i * 4 + 1]; _VtxWritePtr[1].uv = opaque_uv; _VtxWritePtr[1].col = col;
-                _VtxWritePtr[2].pos = temp_points[i * 4 + 2]; _VtxWritePtr[2].uv = opaque_uv; _VtxWritePtr[2].col = col;
-                _VtxWritePtr[3].pos = temp_points[i * 4 + 3]; _VtxWritePtr[3].uv = opaque_uv; _VtxWritePtr[3].col = col_trans;
-                _VtxWritePtr += 4;
+                shape->points[v_iter + 0].position = temp_points[i * 4 + 0]; shape->points[v_iter + 0].texCoord = opaque_uv; shape->points[v_iter + 0].color = col_trans;
+                shape->points[v_iter + 1].position = temp_points[i * 4 + 1]; shape->points[v_iter + 1].texCoord = opaque_uv; shape->points[v_iter + 1].color = color;
+                shape->points[v_iter + 2].position = temp_points[i * 4 + 2]; shape->points[v_iter + 2].texCoord = opaque_uv; shape->points[v_iter + 2].color = color;
+                shape->points[v_iter + 3].position = temp_points[i * 4 + 3]; shape->points[v_iter + 3].texCoord = opaque_uv; shape->points[v_iter + 3].color = col_trans;
+                v_iter += 4;
             }
         }
-        _VtxCurrentIdx += (ImDrawIdx)vtx_count;
+        
+        shape->indx_count = i_iter;
+        shape->vert_count = v_iter;
+
+        gui.currIndx += (uint32_t)vtx_count;
+
+        free(temp_normals);
     }
-    else*/
+    else
     {
+        GUIObj *rect = GUIManagerAddObject();
+
+        rect->indeces = calloc(count * 6, sizeof(uint32_t));
+        rect->points = calloc(count * 4, sizeof(Vertex2D));
+
         for (int i1 = 0; i1 < count; i1++)
         {
             const int i2 = (i1 + 1) == points_count ? 0 : i1 + 1;
-            const vec2 p1 = v2_subs(points[i1], 1.0f);
-            const vec2 p2 = v2_subs(points[i2], 1.0f);
+            const vec2 p1 = points[i1];
+            const vec2 p2 = points[i2];
 
             float dx = p2.x - p1.x;
             float dy = p2.y - p1.y;
@@ -1545,12 +1510,6 @@ void PathRect(vec2 a, vec2 b, float rounding, uint32_t flags){
 }
 
 void PathLineTo(vec2 pos)  { 
-
-    if(pos.x != 0) 
-        pos.x /= engine.width; 
-        
-    if(pos.y != 0) 
-        pos.y /= engine.height; 
         
     gui._Path[gui._Path_Size] = pos; 
     
@@ -1558,7 +1517,7 @@ void PathLineTo(vec2 pos)  {
 
 }
 
-void PathFillConvex(vec3 col, int save){ 
+void PathFillConvex(vec4 color, int save){ 
     
     if(!GUIManagerIsInit()){
         memset(gui._Path, 0, sizeof(vec2) * 32);
@@ -1566,7 +1525,7 @@ void PathFillConvex(vec3 col, int save){
         return;
     }
 
-    AddConvexPolyFilled(gui._Path, gui._Path_Size, col); 
+    AddConvexPolyFilled(gui._Path, gui._Path_Size, color); 
     
     if(!save){
         memset(gui._Path, 0, sizeof(vec2) * 32);
@@ -1574,7 +1533,7 @@ void PathFillConvex(vec3 col, int save){
     }
 }
 
-void PathStroke(vec3 color, uint32_t flags, float thickness, int save) { 
+void PathStroke(vec4 color, uint32_t flags, float thickness, int save) { 
     
     if(!GUIManagerIsInit()){
         memset(gui._Path, 0, sizeof(vec2) * 32);

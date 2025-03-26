@@ -13,7 +13,7 @@ typedef struct{
     bool vertical;
     float move_val;
     float stable_val;
-    vec3 selfColor;
+    vec4 selfColor;
 } EWidgetRoller;
 
 void RollerWidgetInit(EWidgetRoller *roller, vec2 scale, EWidget *parent);

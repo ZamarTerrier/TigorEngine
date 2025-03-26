@@ -217,7 +217,7 @@ void WindowWidgetDraw(EWidgetWindow *window){
 
         WidgetDraw(&window->window);
 
-        GUIAddText(pos.x + 5, pos.y + 15, vec3_f(0, 0, 0), 9, window->name);
+        GUIAddText(pos.x + 5, pos.y + 15, vec4_f(0, 0, 0, 1), 9, window->name);
 
         WidgetSetPosition(&window->surface, pos.x + 5, pos.y + 30);
 
@@ -274,7 +274,7 @@ void WindowWidgetInitWindow(EWidget* widget, vec2 scale, vec2 position){
 
     widget->type = TIGOR_WIDGET_TYPE_WINDOW;
 
-    WidgetSetColor(widget, vec3_f(1, 1, 1));
+    WidgetSetColor(widget, vec4_f(1, 1, 1, 1));
     WidgetSetScale(widget, scale.x, scale.y);
     WidgetSetPosition(widget, position.x, position.y);
 }
@@ -291,7 +291,7 @@ void InitSurface(EWidget* widget, vec2 scale, EWidget *parent){
 
     WidgetInit(widget, parent);
 
-    WidgetSetColor(widget, vec3_f(0.5f, 0.5f, 0.5f));
+    WidgetSetColor(widget, vec4_f(0.5f, 0.5f, 0.5f, 1));
 
     vec2 botSize = scale;
     botSize.y -= 40;

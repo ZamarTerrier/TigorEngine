@@ -168,7 +168,7 @@ ChildStack *WidgetFindChild(EWidget* widget, int num)
     return child;
 }
 
-void WidgetSetColor(EWidget* ew, vec3 color){
+void WidgetSetColor(EWidget* ew, vec4 color){
     
     ew->color = color;
 }
@@ -215,7 +215,7 @@ void WidgetInit(EWidget* ew, EWidget* parent){
     GameObjectSetDrawFunc((GameObject *)ew, (void *)WidgetDraw);
     GameObjectSetDestroyFunc((GameObject *)ew, (void *)WidgetDestroy);
 
-    WidgetSetColor(ew, vec3_f(0.2, 0.2, 0.2));
+    WidgetSetColor(ew, vec4_f(0.2, 0.2, 0.2, 1.0));
 
     ew->offset.x = 0;
     ew->offset.y = 0;

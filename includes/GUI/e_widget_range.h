@@ -15,7 +15,7 @@ typedef struct{
     float max;
     float *dest;
     vec2 rangePos;
-    vec3 selfColor;
+    vec4 selfColor;
 } EWidgetRange;
 
 void RangeWidgetInit(EWidgetRange *range, vec2 scale, float min, float max, EWidget *parent);

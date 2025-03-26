@@ -21,7 +21,7 @@ int RangeWidgetPress(EWidget* widget, void* entry, void* args){
 
     range_temp = range->rangePos;
 
-    WidgetSetColor(&range->range, v3_subs(range->selfColor, 0.2f));
+    WidgetSetColor(&range->range, vec4_f(range->selfColor.x- 0.2f, range->selfColor.y - 0.2f, range->selfColor.z - 0.2f, range->selfColor.w));
 
     return 0;
 }
@@ -78,7 +78,7 @@ void RangeWidgetDraw(EWidgetRange *range){
         
         vec2 pos = v2_add(range->widget.position, range->widget.base);
 
-        GUIAddLine(vec2_f(pos.x, pos.y + range->widget.scale.y / 2),vec2_f(pos.x + range->widget.scale.x, pos.y + range->widget.scale.y / 2), vec3_f(1, 1, 1), 1.0f);
+        GUIAddLine(vec2_f(pos.x, pos.y + range->widget.scale.y / 2),vec2_f(pos.x + range->widget.scale.x, pos.y + range->widget.scale.y / 2), vec4_f(1, 1, 1, 1), 1.0f);
 
         WidgetSetPosition(&range->range, pos.x + range->rangePos.x, pos.y + range->rangePos.y);
 
@@ -102,13 +102,11 @@ void RangeWidgetInit(EWidgetRange *range, vec2 scale, float min, float max, EWid
     WidgetSetScale((EWidget *)&range->range, 30, scale.y);
     range->range.rounding = 10.0f;
 
-    WidgetSetColor((EWidget *)range, vec3_f(0.7, 0.7, 0.7));
-
     range->min = min;
     range->max = max;
     range->dest = NULL;
 
-    range->selfColor = vec3_f(0.6, 0.3, 0.1);
+    range->selfColor = vec4_f(0.6, 0.3, 0.1, 1.0f);
     range->rangePos = vec2_f(0, 0);
 
     WidgetSetColor((EWidget *)&range->range, range->selfColor);

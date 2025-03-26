@@ -21,7 +21,7 @@ typedef struct{
 
 void ListWidgetInit(EWidgetList *list, vec2 scale, EWidget *parent);
 
-void ListWidgetSetColor(EWidgetList *list, vec3 color);
+void ListWidgetSetColor(EWidgetList *list, vec4 color);
 EWidgetButton *ListWidgetAddItem(EWidgetList *list, const char *text);
 void ListWidgetRemoveItem(EWidgetList *list, int num);
 void ListWidgetClear(EWidgetList *list);

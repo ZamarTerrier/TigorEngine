@@ -12,7 +12,7 @@ extern TEngine engine;
 int ButtonWidgetPress(EWidget *widget, void* entry, void *arg){
     EWidgetButton *button = (EWidgetButton *)widget;
     
-    WidgetSetColor(&button->widget, v3_subs(button->selfColor, 0.2f));
+    WidgetSetColor(&button->widget, vec4_f(button->selfColor.x- 0.2f, button->selfColor.y - 0.2f, button->selfColor.z - 0.2f, button->selfColor.w));
 
     return 0;
 }
@@ -35,7 +35,7 @@ void ButtonWidgetDraw(EWidgetButton *button){
         vec2 pos = v2_add(button->widget.position, button->widget.base);
 
         GUIAddRectFilled(pos, v2_add(pos, button->widget.scale), button->widget.color, button->widget.rounding, GUIDrawFlags_RoundCornersAll);
-        GUIAddText(pos.x, pos.y + button->widget.scale.y / 2, vec3_f(0,0,0), 7, button->text);
+        GUIAddText(pos.x, pos.y + button->widget.scale.y / 2, vec4_f(0,0,0, 1.0f), 7, button->text);
     }            
 }
 
@@ -54,7 +54,7 @@ void ButtonWidgetInit(EWidgetButton *button, vec2 scale, const char *text, EWidg
     button->widget.type = TIGOR_WIDGET_TYPE_BUTTON;
     button->widget.rounding = 10.0f;    
 
-    button->selfColor = (vec3){ 1, 1, 1};
+    button->selfColor = (vec4){ 1, 1, 1, 1};
 
     if(text != NULL)
         ButtonWidgetSetText(button, text);

@@ -40,7 +40,7 @@ void SpriteObjectCreateQuad(SpriteObject *so)
     
     for(int i=0;i < 4;i++)
     {
-        verts[i].color = (vec3){ 1, 1, 1};
+        verts[i].color = (vec4){ 1, 1, 1, 1};
     }
 
     uint32_t *tIndx = AllocateMemory(6, sizeof(uint32_t));
@@ -137,7 +137,6 @@ void SpriteObjectSetOffsetRect(SpriteObject *so, float x, float y, float width, 
     verts[3].texCoord.y = temp_y + height;
 
     BuffersUpdateVertex((struct VertexParam_T *) &so->go.graphObj.shapes[0].vParam);
-
 }
 
 int SpriteObjectSpritesIsCollided(SpriteObject *sprite1, SpriteObject *sprite2){

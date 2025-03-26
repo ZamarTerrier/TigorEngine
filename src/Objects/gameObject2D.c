@@ -22,8 +22,6 @@ void GameObject2DTransformBufferUpdate(GameObject2D *go, void *data)
 {    
     Camera2D* cam = (Camera2D*) engine.cam2D;
 
-    vec3 cameraUp = {0.0f, 1.0f, 0.0f};
-
     TransformBuffer tbo;
     tbo.model = m4_transform2D(go->transform.position, go->transform.scale, go->transform.rotation);
     tbo.view = m4_transform2D(v2_muls(cam->position, -1), cam->scale, cam->angle);
