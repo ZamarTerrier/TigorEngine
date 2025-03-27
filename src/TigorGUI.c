@@ -24,6 +24,14 @@ extern void _PathArcToFastEx(const vec2 center, float radius, int a_min_sample, 
 extern void PathArcTo(const vec2 center, float radius, float a_min, float a_max, int num_segments);
 extern int _CalcCircleAutoSegmentCount(float radius);
 
+void GUISetFlags(DrawListFlags flags){
+    gui.Flags = flags;
+}
+
+DrawListFlags GUIGetFlags(){
+    return gui.Flags;
+}
+
 void GUIAddLine(const vec2 p1, const vec2 p2, vec4 color, float thickness)
 {
     PathLineTo(v2_add(p1, vec2_f(0.5f, 0.5f)));

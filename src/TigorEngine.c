@@ -77,8 +77,6 @@ void TEngineInitSystem(int width, int height, const char* name){
 
     engine.e_var_current_entry = NULL;
 
-    engine.MAX_FRAMES_IN_FLIGHT = 2;
-
     engine.DataR.e_var_images = AllocateMemoryP(MAX_IMAGES, sizeof(engine_buffered_image), &engine);
     engine.DataR.e_var_num_images = 0;
 
@@ -286,7 +284,7 @@ void TEngineRender(){
             render->flags |= TIGOR_RENDER_FLAG_SHOOTED;
     }
 
-    engine.currentFrame = (engine.currentFrame + 1) % engine.MAX_FRAMES_IN_FLIGHT;
+    engine.currentFrame = (engine.currentFrame + 1) % engine.imagesCount;
     
     engine.gameObjects.size = 0;
 
@@ -476,7 +474,7 @@ void TEngineCleanUp(){
     if(engine.present){
         CleanupSwapChain();
 
-        for (size_t i = 0; i < engine.MAX_FRAMES_IN_FLIGHT; i++) {
+        for (size_t i = 0; i < engine.imagesCount; i++) {
             vkDestroySemaphore(device->e_device, engine.Sync.renderFinishedSemaphores[i], NULL);
             vkDestroySemaphore(device->e_device, engine.Sync.imageAvailableSemaphores[i], NULL);
             vkDestroyFence(device->e_device, engine.Sync.inFlightFences[i], NULL);

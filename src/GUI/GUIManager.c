@@ -62,6 +62,7 @@ uint8_t CircleSegmentCounts[64];
 float CircleSegmentMaxError = 0.3f;
 float ArcFastRadiusCutoff;
 vec2 TexUvWhitePixel;
+vec4 TexUvLines[GUI_DRAWLIST_TEX_LINES_WIDTH_MAX + 1];  // UVs for baked anti-aliased lines
 
 int _CalcCircleAutoSegmentCount(float radius)
 {
@@ -333,7 +334,7 @@ vec2 GUIBezierQuadraticCalc(const vec2 p1, const vec2 p2, const vec2 p3, float t
     return vec2_f(w1 * p1.x + w2 * p2.x + w3 * p3.x, w1 * p1.y + w2 * p2.y + w3 * p3.y);
 }
 
-void  PathBezierCubicCurveTo( vec2 p2,  vec2 p3,  vec2 p4, int num_segments){
+void PathBezierCubicCurveTo( vec2 p2,  vec2 p3,  vec2 p4, int num_segments){
 
     vec2 p1 = gui._Path[gui._Path_Size - 1];
     if (num_segments == 0)
@@ -350,7 +351,7 @@ void  PathBezierCubicCurveTo( vec2 p2,  vec2 p3,  vec2 p4, int num_segments){
     }
 }
 
-void  PathBezierQuadraticCurveTo( vec2 p2,  vec2 p3, int num_segments){
+void PathBezierQuadraticCurveTo( vec2 p2,  vec2 p3, int num_segments){
     
     vec2 p1 = gui._Path[gui._Path_Size - 1];
     if (num_segments == 0)
@@ -578,6 +579,23 @@ void GUIManagerInitFont(int default_font){
     point[0] = point[1] = point[gui.font.fontWidth] = point[gui.font.fontWidth + 1] = 0xFF;
 
     TexUvWhitePixel = vec2_f(0.5f * TexUvScale.x, 0.5f * TexUvScale.y);
+    
+    
+    for (unsigned int n = 0; n < GUI_DRAWLIST_TEX_LINES_WIDTH_MAX + 1; n++) // +1 because of the zero-width row
+    {
+        vec2 r = vec2_f(GUI_DRAWLIST_TEX_LINES_WIDTH_MAX + 2, GUI_DRAWLIST_TEX_LINES_WIDTH_MAX + 1);
+        // Each line consists of at least two empty pixels at the ends, with a line of solid pixels in the middle
+        unsigned int y = n;
+        unsigned int line_width = n;
+        unsigned int pad_left = (r.x - line_width) / 2;
+        unsigned int pad_right = r.x - (pad_left + line_width);
+
+        // Calculate UVs for this line
+        vec2 uv0 = v2_mul(vec2_f((float)(pad_left - 1), (float)(y)), TexUvScale);
+        vec2 uv1 = v2_mul(vec2_f((float)(pad_left + line_width + 1), (float)(y + 1)), TexUvScale);
+        float half_v = (uv0.y + uv1.y) * 0.5f; // Calculate a constant V in the middle of the row to avoid sampling artifacts
+        TexUvLines[n] = vec4_f(uv0.x, half_v, uv1.x, half_v);
+    }
 
     BufferObject stagingBuffer;
 
@@ -637,8 +655,6 @@ void GUIManagerInit(int default_font){
     gui.font.fontWidth = 512;
     gui.font.fontHeight = 512;
     gui.font.fontSize = 14;
-
-    gui.Flags |= GUIDrawListFlags_AntiAliasedLines | GUIDrawListFlags_AntiAliasedFill;
        
     GUIManagerInitFont(default_font);
 
@@ -1197,7 +1213,7 @@ void GUIManagerAddPolyline(const vec2* points, int points_count, vec4 color, Dra
     {
         // Anti-aliased stroke
         const float AA_SIZE = gui._FringeScale;
-        const vec4 col_trans = vec4_f(color.x, color.y, color.z, 0.0f);
+        const vec4 col_trans = vec4_f(color.x, color.y, color.z, 1.0f);
 
         // Thicknesses <1.0 should behave like thickness 1.0
         thickness = e_max(thickness, 1.0f);
@@ -1305,29 +1321,29 @@ void GUIManagerAddPolyline(const vec2* points, int points_count, vec4 color, Dra
                 idx1 = idx2;
             }
 
-            // Add vertexes for each point on the line
-            // if (use_texture)
-            // {
-            //     // If we're using textures we only need to emit the left/right edge vertices
-            //     vec4 tex_uvs = _Data->TexUvLines[integer_thickness];
-            //     if (fractional_thickness != 0.0f) // Currently always zero when use_texture==false!
-            //     {
-            //         const vec4 tex_uvs_1 = _Data->TexUvLines[integer_thickness + 1];
-            //         tex_uvs.x = tex_uvs.x + (tex_uvs_1.x - tex_uvs.x) * fractional_thickness; // inlined ImLerp()
-            //         tex_uvs.y = tex_uvs.y + (tex_uvs_1.y - tex_uvs.y) * fractional_thickness;
-            //         tex_uvs.z = tex_uvs.z + (tex_uvs_1.z - tex_uvs.z) * fractional_thickness;
-            //         tex_uvs.w = tex_uvs.w + (tex_uvs_1.w - tex_uvs.w) * fractional_thickness;
-            //     }
-            //     vec2 tex_uv0 = vec2_f(tex_uvs.x, tex_uvs.y);
-            //     vec2 tex_uv1 = vec2_f(tex_uvs.z, tex_uvs.w);
-            //     for (int i = 0; i < points_count; i++)
-            //     {
-            //         shape->points[0].position = temp_points[i * 2 + 0]; shape->points[0].texCoord = tex_uv0; shape->points[0].color = color; // Left-side outer edge
-            //         shape->points[1].position = temp_points[i * 2 + 1]; shape->points[1].texCoord = tex_uv1; shape->points[1].color = color; // Right-side outer edge
-            //         shape->vert_count += 2;
-            //     }
-            // }
-            // else
+            //Add vertexes for each point on the line
+            if (use_texture)
+            {
+                // If we're using textures we only need to emit the left/right edge vertices
+                vec4 tex_uvs = TexUvLines[integer_thickness];
+                // if (fractional_thickness != 0.0f) // Currently always zero when use_texture==false!
+                // {
+                //     const vec4 tex_uvs_1 = TexUvLines[integer_thickness + 1];
+                //     tex_uvs.x = tex_uvs.x + (tex_uvs_1.x - tex_uvs.x) * fractional_thickness; // inlined ImLerp()
+                //     tex_uvs.y = tex_uvs.y + (tex_uvs_1.y - tex_uvs.y) * fractional_thickness;
+                //     tex_uvs.z = tex_uvs.z + (tex_uvs_1.z - tex_uvs.z) * fractional_thickness;
+                //     tex_uvs.w = tex_uvs.w + (tex_uvs_1.w - tex_uvs.w) * fractional_thickness;
+                // }
+                vec2 tex_uv0 = vec2_f(tex_uvs.x, tex_uvs.y);
+                vec2 tex_uv1 = vec2_f(tex_uvs.z, tex_uvs.w);
+                for (int i = 0; i < points_count; i++)
+                {
+                    shape->points[v_iter + 0].position = temp_points[i * 2 + 0]; shape->points[v_iter + 0].texCoord = tex_uv0; shape->points[v_iter + 0].color = color; // Left-side outer edge
+                    shape->points[v_iter + 1].position = temp_points[i * 2 + 1]; shape->points[v_iter + 1].texCoord = tex_uv1; shape->points[v_iter + 1].color = color; // Right-side outer edge
+                    v_iter += 2;
+                }
+            }
+            else
             {
                 // If we're not using a texture, we need the center vertex as well
                 for (int i = 0; i < points_count; i++)

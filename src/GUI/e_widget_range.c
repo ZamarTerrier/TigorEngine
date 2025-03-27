@@ -78,7 +78,7 @@ void RangeWidgetDraw(EWidgetRange *range){
         
         vec2 pos = v2_add(range->widget.position, range->widget.base);
 
-        GUIAddLine(vec2_f(pos.x, pos.y + range->widget.scale.y / 2),vec2_f(pos.x + range->widget.scale.x, pos.y + range->widget.scale.y / 2), vec4_f(1, 1, 1, 1), 1.0f);
+        GUIAddLine(vec2_f(pos.x, pos.y + range->widget.scale.y / 2),vec2_f(pos.x + range->widget.scale.x, pos.y + range->widget.scale.y / 2), vec4_f(1, 1, 1, 1), 20.0f);
 
         WidgetSetPosition(&range->range, pos.x + range->rangePos.x, pos.y + range->rangePos.y);
 

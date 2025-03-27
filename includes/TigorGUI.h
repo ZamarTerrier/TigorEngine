@@ -40,6 +40,8 @@ typedef enum FontAtlasFlags
     GUIFontAtlasFlags_NoBakedLines       = 1 << 2,   // Don't build thick line textures into the atlas (save a little texture memory, allow support for point/nearest filtering). The AntiAliasedLinesUseTex features uses them, otherwise they will be rendered using polygons (more expensive for CPU/GPU).
 } FontAtlasFlags;
 
+void GUISetFlags(DrawListFlags flags);
+DrawListFlags GUIGetFlags();
 /// @brief Нарисовать линию
 /// @param p1 - начало линии
 /// @param p2 - конец линии

@@ -137,8 +137,6 @@ typedef struct{
 
     bool present;
 
-    uint32_t MAX_FRAMES_IN_FLIGHT;
-
     struct SynC{  
         VkSemaphore* imageAvailableSemaphores;
         VkSemaphore* renderFinishedSemaphores;

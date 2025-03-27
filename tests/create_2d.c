@@ -6,6 +6,7 @@
 
 #include <GUI/e_widget_range.h>
 #include <GUI/e_widget_entry.h>
+#include <GUI/e_widget_button.h>
 
 #include <Objects/sprite_object.h>
 
@@ -18,6 +19,7 @@ SpriteObject sprite;
 
 EWidgetRange range;
 EWidgetEntry entry;
+EWidgetButton button;
 
 vec3 dir, l_pos;
 
@@ -33,6 +35,8 @@ int main(){
     TEngineInitSystem(800, 600, "Test");
 
     //TEngineSetFont("res\\arial.ttf");
+
+    GUISetFlags(GUIDrawListFlags_AntiAliasedLines | GUIDrawListFlags_AntiAliasedFill);
 
     Camera2DInit(&cam2D);
     Camera3DInit(&cam3D);
@@ -52,12 +56,16 @@ int main(){
 
     float timer = 1.0f, degreaser = 10;
 
-    /*RangeWidgetInit(&range, vec2_f(100, 30), 10, 100, NULL);
+    RangeWidgetInit(&range, vec2_f(100, 30), 10, 100, NULL);
     WidgetSetPosition(&range, 400, 300);
     RangeWidgetSetValueDestin(&range, &degreaser);
 
     EntryWidgetInit(&entry, vec2_f(130, 30), NULL);
-    WidgetSetPosition(&entry, 100, 100);*/
+    WidgetSetPosition(&entry, 100, 100);
+
+    ButtonWidgetInit(&button, vec2_f(100, 50), "Button", NULL);
+    WidgetSetColor(&button, vec4_f(0.6f, 0.2f, 0.2f, 1.0f));
+    WidgetSetPosition(&button, 100, 400);
 
     while (!TEngineWindowIsClosed())
     {
