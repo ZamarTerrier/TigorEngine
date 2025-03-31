@@ -21,7 +21,6 @@ typedef struct {
     vec2 texCoord;
 } Vertex2D;
 
-
 typedef struct {
     vec3 position;
     vec3 rotation;

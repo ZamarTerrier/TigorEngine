@@ -580,7 +580,6 @@ void GUIManagerInitFont(int default_font){
 
     TexUvWhitePixel = vec2_f(0.5f * TexUvScale.x, 0.5f * TexUvScale.y);
     
-    
     for (unsigned int n = 0; n < GUI_DRAWLIST_TEX_LINES_WIDTH_MAX + 1; n++) // +1 because of the zero-width row
     {
         vec2 r = vec2_f(GUI_DRAWLIST_TEX_LINES_WIDTH_MAX + 2, GUI_DRAWLIST_TEX_LINES_WIDTH_MAX + 1);
